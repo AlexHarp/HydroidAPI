@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:cycAnnot="http://sw.cyc.com/CycAnnotations_v1#"
+	xmlns:cyc="http://sw.cyc.com/concept/"
+	xmlns:dbpedia="http://dbpedia.org/resource/"
+	xmlns:ctag="http://commontag.org/ns#"
+	xmlns:opencyc="http://sw.opencyc.org/concept/"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:csw="http://semantic-web.at/ontologies/csw.owl#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:freebase="http://rdf.freebase.com/ns/"
+	xmlns:dcterms="http://purl.org/dc/terms/"
+	xmlns:tags="http://www.holygoat.co.uk/owl/redwood/0.1/tags/"
+	xmlns:sesame="http://www.openrdf.org/schema/sesame#"
+	xmlns:fn="http://www.w3.org/2005/xpath-functions#">
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/18">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+	<dcterms:title xml:lang="en">Marine Biological Entities</dcterms:title>
+	<rdfs:label xml:lang="en">Marine Biological Entities</rdfs:label>
+	<dcterms:creator xml:lang="en">GA_Kool.Johnathan</dcterms:creator>
+	<dcterms:publisher xml:lang="en">Geoscience Australia</dcterms:publisher>
+	<dcterms:subject xml:lang="en">Taxonomy</dcterms:subject>
+	<dcterms:description xml:lang="en">A sandbox for use to test out GA public vocabularies</dcterms:description>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:23:35Z</dcterms:created>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/32"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/33"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/34"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/35"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/36"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/37"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/38"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/39"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/19">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+	<dcterms:title xml:lang="en">Marine Data Types</dcterms:title>
+	<rdfs:label xml:lang="en">Marine Data Types</rdfs:label>
+	<dcterms:creator xml:lang="en">GA_Kool.Johnathan</dcterms:creator>
+	<dcterms:publisher xml:lang="en">Geoscience Australia</dcterms:publisher>
+	<dcterms:subject xml:lang="en">Data Types</dcterms:subject>
+	<dcterms:description xml:lang="en">A sandbox for use to test out GA public vocabularies</dcterms:description>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:24:11Z</dcterms:created>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/28"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/29"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/30"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/31"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/20">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+	<dcterms:title xml:lang="en">Marine Organizations</dcterms:title>
+	<rdfs:label xml:lang="en">Marine Organizations</rdfs:label>
+	<dcterms:creator xml:lang="en">GA_Kool.Johnathan</dcterms:creator>
+	<dcterms:publisher xml:lang="en">Geoscience Australia</dcterms:publisher>
+	<dcterms:description xml:lang="en">A sandbox for use to test out GA public vocabularies</dcterms:description>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:25:52Z</dcterms:created>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/50"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/51"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/52"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/53"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/54"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/55"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/56"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/21">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+	<dcterms:title xml:lang="en">Marine Measures</dcterms:title>
+	<rdfs:label xml:lang="en">Marine Measures</rdfs:label>
+	<dcterms:creator xml:lang="en">GA_Kool.Johnathan</dcterms:creator>
+	<dcterms:publisher xml:lang="en">Geoscience Australia</dcterms:publisher>
+	<dcterms:description xml:lang="en">A sandbox for use to test out GA public vocabularies</dcterms:description>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:26:06Z</dcterms:created>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/40"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/41"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/42"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/43"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/44"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/45"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/46"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/47"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/22">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+	<dcterms:title xml:lang="en">Marine Geomorphic Features</dcterms:title>
+	<rdfs:label xml:lang="en">Marine Geomorphic Features</rdfs:label>
+	<dcterms:creator xml:lang="en">GA_Kool.Johnathan</dcterms:creator>
+	<dcterms:publisher xml:lang="en">Geoscience Australia</dcterms:publisher>
+	<dcterms:description xml:lang="en">A sandbox for use to test out GA public vocabularies</dcterms:description>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:30:34Z</dcterms:created>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/23"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/24"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/25"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/26"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/27"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/48">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+	<dcterms:title xml:lang="en">Marine Platforms</dcterms:title>
+	<rdfs:label xml:lang="en">Marine Platforms</rdfs:label>
+	<dcterms:creator xml:lang="en">GA_Kool.Johnathan</dcterms:creator>
+	<dcterms:publisher xml:lang="en">Geoscience Australia</dcterms:publisher>
+	<dcterms:description xml:lang="en">A sandbox for use to test out GA public vocabularies</dcterms:description>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:37:13Z</dcterms:created>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/49"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/57">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+	<dcterms:title xml:lang="en">Marine Programs</dcterms:title>
+	<rdfs:label xml:lang="en">Marine Programs</rdfs:label>
+	<dcterms:creator xml:lang="en">GA_Kool.Johnathan</dcterms:creator>
+	<dcterms:publisher xml:lang="en">Geoscience Australia</dcterms:publisher>
+	<dcterms:description xml:lang="en">A sandbox for use to test out GA public vocabularies</dcterms:description>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:39:49Z</dcterms:created>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/64"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/65"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/66"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/67"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/58">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+	<dcterms:title xml:lang="en">Marine Gear</dcterms:title>
+	<rdfs:label xml:lang="en">Marine Gear</rdfs:label>
+	<dcterms:creator xml:lang="en">GA_Kool.Johnathan</dcterms:creator>
+	<dcterms:publisher xml:lang="en">Geoscience Australia</dcterms:publisher>
+	<dcterms:description xml:lang="en">A sandbox for use to test out GA public vocabularies</dcterms:description>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:39:58Z</dcterms:created>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/60"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/61"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/62"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/63"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/59">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+	<dcterms:title xml:lang="en">Marine Place Names</dcterms:title>
+	<rdfs:label xml:lang="en">Marine Place Names</rdfs:label>
+	<dcterms:creator xml:lang="en">GA_Kool.Johnathan</dcterms:creator>
+	<dcterms:publisher xml:lang="en">Geoscience Australia</dcterms:publisher>
+	<dcterms:description xml:lang="en">A sandbox for use to test out GA public vocabularies</dcterms:description>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:40:14Z</dcterms:created>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/68"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/69"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/70"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/71"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/72"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/73"/>
+	<skos:hasTopConcept rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/74"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/23">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">bank</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/22"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:30:57Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/24">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">pinnacle</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/22"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:31:09Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/25">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">plain</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/22"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:31:24Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/26">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">scarp</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/22"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:31:33Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/27">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">terrace</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/22"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:31:47Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/28">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">raster</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/19"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:32:01Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/29">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">still image</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/19"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:32:13Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/30">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">video</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/19"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:32:23Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/31">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">point</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/19"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:32:49Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/32">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">ascidian</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/18"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:33:10Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/33">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">bryozoa</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/18"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:33:28Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/34">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">dolphin</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/18"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:33:39Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/35">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">echinoderm</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/18"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:34:10Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/36">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">octocoral</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/18"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:34:20Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/37">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">polychaete</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/18"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:34:45Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/38">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">sponge</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/18"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:34:57Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/39">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">whale</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/18"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:35:11Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/40">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">backscatter</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/21"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:35:33Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/41">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">bathymetry</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/21"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:35:44Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/42">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">chlorin</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/21"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:35:55Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/43">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">conductivity</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/21"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:36:11Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/44">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">depth</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/21"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:36:20Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/45">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">fluorescence</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/21"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:36:35Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/46">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">irradiance</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/21"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:36:44Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/47">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">salinity</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/21"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:36:56Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/49">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">RV Solander</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/48"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:37:23Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:broader rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/67"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:44:30Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/50">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Australian Institute of Marine Science</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/20"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:37:48Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/51">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Australian Department of the Environment</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/20"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:38:13Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:related rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/73"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:49:07Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+	<skos:broader rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/68"/>
+	<skos:narrower rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/66"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/52">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Geoscience Australia</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/20"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:38:29Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/53">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Museum and Art Gallery of the Northern Territory</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/20"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:38:52Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/54">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">National Oceanic &amp; Atmospheric Administration</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/20"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:39:08Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/55">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">National Tidal Centre</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/20"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:39:18Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/56">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">University of Western Australia</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/20"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:39:29Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/60">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">baited remote underwater video</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/58"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:40:34Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/61">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">box core</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/58"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:40:46Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/62">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">multibeam sonar</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/58"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:40:54Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/63">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Smith-McIntyre grab</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/58"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:41:12Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/64">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Global Ocean Drifter Program</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/57"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:41:28Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/65">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Marine Biodiversity Hub</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/57"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:41:37Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:broader rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/66"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:43:05Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/66">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">National Environmental Research Program</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/57"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:41:52Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:narrower rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/65"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:49:07Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+	<skos:broader rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/51"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/67">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">National Marine Facility</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/57"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:43:43Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:narrower rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/49"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:44:30Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/68">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Australia</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/59"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:45:04Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:narrower rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/71"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:48:45Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+	<skos:related rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/74"/>
+	<skos:narrower rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/51"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/69">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">East Timor</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/59"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:45:10Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:related rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/74"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:47:03Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/70">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Indonesia</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/59"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:45:20Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:related rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/74"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:46:54Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/71">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Joseph Bonaparte Gulf</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/59"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:45:30Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:broader rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/68"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:46:21Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/72">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Northern Territory</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/59"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:45:40Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/73">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Oceanic Shoals Commonwealth Marine Reserve</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/59"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:45:51Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:related rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/51"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:48:08Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/74">
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="en">Timor Sea</skos:prefLabel>
+	<skos:topConceptOf rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/59"/>
+	<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:45:57Z</dcterms:created>
+	<dcterms:creator>GA_Kool.Johnathan</dcterms:creator>
+	<skos:related rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/68"/>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-01T00:47:03Z</dcterms:modified>
+	<dcterms:contributor>GA_Kool.Johnathan</dcterms:contributor>
+	<skos:related rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/70"/>
+	<skos:related rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/69"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/13">
+	<rdfs:label xml:lang="en">GA Public Vocabs Sandbox</rdfs:label>
+	<owl:deprecated rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:deprecated>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/15">
+	<owl:deprecated rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:deprecated>
+	<rdfs:label xml:lang="en">Top concept</rdfs:label>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/16">
+	<rdfs:label xml:lang="en">Ascidian</rdfs:label>
+	<owl:deprecated rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:deprecated>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/17">
+	<rdfs:label xml:lang="en">Ascidian</rdfs:label>
+	<owl:deprecated rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:deprecated>
+</rdf:Description>
+
+<rdf:Description rdf:about="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/14">
+	<rdfs:label xml:lang="en">Marine Concept Scheme</rdfs:label>
+	<owl:deprecated rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:deprecated>
+</rdf:Description>
+
+</rdf:RDF>
