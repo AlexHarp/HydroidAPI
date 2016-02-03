@@ -2,3 +2,15 @@ language: java
 script: 
     - chmod a+x ./build.sh
     - ./build.sh
+deploy:
+  - provider: s3
+    region: ap-southeast-2
+    access_key_id: AKIAI3YL4OJLSOO6AVNQ
+    secret_access_key:
+      secure: n/jWNy/IRaNWCa0Oe30gZ36IanxP88q1SjkrQ5fiT2u2STAD68dYX+GwBnU7tX/YpBV0s88q8P1BwEgENd9OtCIBfkxgt/B4CsQTdPYum8HI/P/dlQXqz6ocPtw/Hz7R3pgGQcQmhcplXeh4qVVTKB87Pdm6yqqZ6QK8h38LKcuN70AZNDQ0fUamSOdb4P16LXcYkTNynzBqoiRjOYHTID6AX2wYzdjPAezfe64Nr8OE5fMxY7pqOjtbY9F4udK2sdJE3+n8oICkW6duPHVhiBCPetKJVRyUIbf2A9w5hwstwoxc9TB0ltWuainP8WGCsZ086THOPXS1YcO+qJYdQGphLSixngfPGmiGQxSV6WHsFtUidF/zsHl+MFsFKg88+rt7PHNM0rrdDUiAY0H7G/xQhP0cxct/fBo2t4srcDYTNAW7FQiNTtV16nYQH9wbCkIL29qeXy5R8Rdg1jjJlIi1n6QVxRqtDUA5joVRrIDxdodZTee7nBp0uPQlKI2c1pdgKouRvy+PxErJn5JOZ0teZ+sy/Cltbe0TJ85oYOB/xQGEC69Fsp1mSul4eMLHUHcUAM/sj7ZC6vm7EtO/MuolZzvxMDMY6yUfWsoHgDUfGShvTeyktO5+fJsktDowzWd5jHf3m0nqgFLtUDazv9bNMuJIFPsTMhi7hJn0bZU=
+    bucket: hydroid
+    local_dir: indexing/dist
+    upload_dir: vocabulary
+    skip_cleanup: true
+    on:
+      branch: master
