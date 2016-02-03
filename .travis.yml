@@ -1,2 +1,4 @@
 language: java
-script: chmod a+x ./build.sh
+script: 
+    - chmod a+x ./build.sh
+    - ./build.sh
