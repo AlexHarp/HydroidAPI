@@ -4,6 +4,7 @@ import au.gov.ga.hydroid.service.SolrClient;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
+import org.springframework.stereotype.Service;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -11,6 +12,7 @@ import java.util.Properties;
 /**
  * Created by u24529 on 3/02/2016.
  */
+@Service
 public class SolrClientImpl implements SolrClient {
 
    private SolrInputDocument buildDocument(Properties properties) {

@@ -5,6 +5,6 @@ package au.gov.ga.hydroid.service;
  */
 public interface EnhancerService {
 
-   public void enhance(String content) throws Exception;
+   public void enhance(String chainName, String content, String solrCollection) throws Exception;
 
 }

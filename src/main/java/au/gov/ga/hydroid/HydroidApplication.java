@@ -7,8 +7,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
-import javax.ws.rs.core.Application;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -17,15 +16,17 @@ import javax.ws.rs.core.Application;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan
-public class HydroidApplication extends SpringBootServletInitializer {
+public class HydroidApplication {
 
+   /*
    @Override
    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-      return application.sources(Application.class);
+      return application.sources(HydroidApplication.class);
    }
+   */
 
    public static void main(String[] args) {
-      SpringApplication.run(Application.class, args);
+      SpringApplication.run(HydroidApplication.class, args);
    }
 
 }

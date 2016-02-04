@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,22 +57,15 @@ public class StanbolClientImpl implements StanbolClient {
             }
             case SUCCESSFUL: {
                logger.debug("enhance - content has been successfully enhanced");
-               //result = response.readEntity(EnhancementStructure.class);
                String result = response.readEntity(String.class);
+
+               // todo remove this when Hydroid Dev is available
+               FileInputStream fis = new FileInputStream("c:\\Users\\u24529\\Downloads\\sample1.rdf");
 
                RDFParser rdfParser = Rio.createParser(RDFFormat.RDFXML);
                rdfParser.setRDFHandler(new StatementCollector(graph));
-               rdfParser.parse(new ByteArrayInputStream(result.getBytes()), "");
-
-               /*
-               if (myGraph != null) {
-                  for (Statement statement : myGraph) {
-                     URI uri = statement.getPredicate();
-                     String localName = uri.getLocalName();
-                     int a = 1;
-                  }
-               }
-               */
+               //rdfParser.parse(new ByteArrayInputStream(result.getBytes()), "");
+               rdfParser.parse(fis, "");
 
                break;
             }
