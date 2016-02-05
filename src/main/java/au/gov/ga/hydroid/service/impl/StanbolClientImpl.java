@@ -59,13 +59,15 @@ public class StanbolClientImpl implements StanbolClient {
                logger.debug("enhance - content has been successfully enhanced");
                String result = response.readEntity(String.class);
 
-               // todo remove this when Hydroid Dev is available
-               FileInputStream fis = new FileInputStream("c:\\Users\\u24529\\Downloads\\sample1.rdf");
+               result = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" + result;
 
                RDFParser rdfParser = Rio.createParser(RDFFormat.RDFXML);
                rdfParser.setRDFHandler(new StatementCollector(graph));
-               //rdfParser.parse(new ByteArrayInputStream(result.getBytes()), "");
-               rdfParser.parse(fis, "");
+               rdfParser.parse(new ByteArrayInputStream(result.getBytes()), "");
+
+               // todo remove this when Hydroid Dev is available
+               //FileInputStream fis = new FileInputStream("c:\\Users\\u24529\\Downloads\\sample1.rdf");
+               //rdfParser.parse(fis, "");
 
                break;
             }

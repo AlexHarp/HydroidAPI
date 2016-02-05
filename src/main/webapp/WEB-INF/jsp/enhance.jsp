@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -16,20 +20,25 @@
 </head>
 <body>
 <div class="container-fluid">
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <h4>Text/Document Enhancement</h4>
-            <p>Paste or type the text you would like to enhance in the box below</p>
-        </div>
-        <div class="panel-body">
-            <form action="/enhancer" method="post">
+    <form action="/enhancer" method="post">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h4>Text/Document Enhancement (JSP)</h4>
+                <p>Paste or type the text you would like to enhance in the box below</p>
+            </div>
+            <div class="panel-body">
+                <c:if test="${not empty alertCss}">
+                    <div class="alert <c:out value="${alertCss}"/>">
+                        <c:out value="${alertMessage}"/>
+                    </div>
+                </c:if>
                 <textarea name="content" rows="30" class="form-control"></textarea>
-            </form>
+            </div>
+            <div class="panel-footer">
+                <input class="btn btn-primary" type="submit" value="Submit" />
+            </div>
         </div>
-        <div class="panel-footer">
-            <input class="btn btn-primary" type="submit" value="Submit" />
-        </div>
-    </div>
+    </form>
 </div>
 </body>
 </html>

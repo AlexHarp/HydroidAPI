@@ -34,6 +34,16 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <version>1.3.0.RELEASE</version>
@@ -43,13 +53,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>9.4-1201-jdbc41</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>6.3.1</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -106,7 +109,7 @@
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <finalName>aera-api</finalName>
+                            <finalName>hydroid</finalName>
                         </configuration>
                     </execution>
                 </executions>
