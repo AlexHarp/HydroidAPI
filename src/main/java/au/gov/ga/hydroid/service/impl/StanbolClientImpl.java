@@ -2,7 +2,9 @@ package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.service.StanbolClient;
 import au.gov.ga.hydroid.utils.RestClient;
+import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParser;
@@ -20,7 +22,9 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -82,6 +86,25 @@ public class StanbolClientImpl implements StanbolClient {
       }
 
       return graph;
+   }
+
+   @Override
+   public Properties findAllPredicates(String chainName, String content, MediaType outputFormat) throws Exception {
+
+      Properties allPredicates = new Properties();
+
+      List<Statement> rdfDocument = enhance(chainName, content, StanbolMediaTypes.RDFXML);
+      if (rdfDocument != null) {
+         String predicate;
+         for (Statement statement : rdfDocument) {
+            predicate = statement.getPredicate().getLocalName().toLowerCase();
+            if (allPredicates.getProperty(predicate) == null) {
+               allPredicates.put(predicate, statement.getObject().stringValue());
+            }
+         }
+      }
+
+      return allPredicates;
    }
 
 }
