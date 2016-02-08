@@ -12,7 +12,8 @@ import java.util.Properties;
  */
 public interface StanbolClient {
 
-   public List<Statement> enhance(String chainName, String content, MediaType outputFormat) throws Exception;
+   public String enhance(String chainName, String content, MediaType outputFormat) throws Exception;
+   public List<Statement> parseRDF(String enhancedText) throws Exception;
    public Properties findAllPredicates(String chainName, String content, MediaType outputFormat) throws Exception;
 
 }

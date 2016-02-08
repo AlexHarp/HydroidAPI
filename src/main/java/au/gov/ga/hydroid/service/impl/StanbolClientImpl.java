@@ -4,7 +4,6 @@ import au.gov.ga.hydroid.service.StanbolClient;
 import au.gov.ga.hydroid.utils.RestClient;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParser;
@@ -19,10 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
 import java.util.Properties;
 
@@ -36,9 +33,9 @@ public class StanbolClientImpl implements StanbolClient {
    private Logger logger = LoggerFactory.getLogger(StanbolClientImpl.class);
 
    @Override
-   public List<Statement> enhance(String chainName, String content, MediaType outputFormat) throws Exception {
+   public String enhance(String chainName, String content, MediaType outputFormat) throws Exception {
 
-      List<Statement> graph = new ArrayList<Statement>();
+      String result = null;
 
       final UriBuilder enhancerBuilder = UriBuilder.fromUri(STANBOL_ENHANCER_URL);
       enhancerBuilder.path(chainName);
@@ -61,13 +58,7 @@ public class StanbolClientImpl implements StanbolClient {
             }
             case SUCCESSFUL: {
                logger.debug("enhance - content has been successfully enhanced");
-               String result = response.readEntity(String.class);
-
-               result = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" + result;
-
-               RDFParser rdfParser = Rio.createParser(RDFFormat.RDFXML);
-               rdfParser.setRDFHandler(new StatementCollector(graph));
-               rdfParser.parse(new ByteArrayInputStream(result.getBytes()), "");
+               result = response.readEntity(String.class);
 
                // todo remove this when Hydroid Dev is available
                //FileInputStream fis = new FileInputStream("c:\\Users\\u24529\\Downloads\\sample1.rdf");
@@ -85,6 +76,19 @@ public class StanbolClientImpl implements StanbolClient {
          response.close();
       }
 
+      return result;
+   }
+
+   @Override
+   public List<Statement> parseRDF(String enhancedText) throws Exception {
+      List<Statement> graph = new ArrayList<Statement>();
+
+      enhancedText = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" + enhancedText;
+
+      RDFParser rdfParser = Rio.createParser(RDFFormat.RDFXML);
+      rdfParser.setRDFHandler(new StatementCollector(graph));
+      rdfParser.parse(new ByteArrayInputStream(enhancedText.getBytes()), "");
+
       return graph;
    }
 
@@ -93,7 +97,9 @@ public class StanbolClientImpl implements StanbolClient {
 
       Properties allPredicates = new Properties();
 
-      List<Statement> rdfDocument = enhance(chainName, content, StanbolMediaTypes.RDFXML);
+      String enhancedText = enhance(chainName, content, StanbolMediaTypes.RDFXML);
+      List<Statement> rdfDocument = parseRDF(enhancedText);
+
       if (rdfDocument != null) {
          String predicate;
          for (Statement statement : rdfDocument) {

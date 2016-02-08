@@ -1,23 +1,19 @@
 package au.gov.ga.hydroid.controller;
 
-import au.gov.ga.hydroid.model.Document;
+import au.gov.ga.hydroid.dto.DocumentDTO;
+import au.gov.ga.hydroid.dto.ServiceResponse;
 import au.gov.ga.hydroid.service.EnhancerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by u24529 on 3/02/2016.
  */
-@Controller
+@RestController
 @RequestMapping("/enhancer")
 public class EnhancerController {
 
@@ -26,34 +22,25 @@ public class EnhancerController {
    @Autowired
    private EnhancerService enhancerService;
 
-   @RequestMapping(value = "", method = {RequestMethod.GET})
-   public String index(Map<String, String> model) throws Exception {
-      model.clear();
-      return "enhance";
-   }
-
    @RequestMapping(value = "", method = {RequestMethod.POST})
-   public ModelAndView enhance(@ModelAttribute Document document) throws Exception {
+   public @ResponseBody ResponseEntity enhance(@RequestBody DocumentDTO document) throws Exception {
 
-      Map<String, String> model = new HashMap<String, String>();
-
-      if (document == null || document.getContent() == null || document.getContent().length == 0) {
-         model.put("alertCss", "alert alert-danger");
-         model.put("alertMessage", "Please enter the text/content for enhancement.");
-         return new ModelAndView("enhance", model);
+      if (document == null || document.content == null || document.content.length() == 0) {
+         return new ResponseEntity<ServiceResponse>(new ServiceResponse("Please enter the text/content for enhancement."),
+               HttpStatus.BAD_REQUEST);
       }
 
       try {
-         enhancerService.enhance("default", document.getTitle(), new String(document.getContent()), "hydroid");
-         model.put("alertCss", "alert alert-success");
-         model.put("alertMessage", "Your document has been enhanced successfully.");
+         enhancerService.enhance("default", document.title, document.content, "hydroid");
       } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
-         model.put("alertCss", "alert alert-danger");
-         model.put("alertMessage", "There has been an error enhancing your document, please try again later.");
+         return new ResponseEntity<ServiceResponse>(new ServiceResponse("There has been an error enhancing your document, please try again later."),
+               HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
-      return new ModelAndView("enhance", model);
+      return new ResponseEntity<ServiceResponse>(new ServiceResponse("Your document has been enhanced successfully."),
+            HttpStatus.OK);
+
    }
 
 }

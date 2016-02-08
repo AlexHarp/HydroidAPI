@@ -1,17 +1,16 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.model.Document;
-import au.gov.ga.hydroid.service.DocumentService;
-import au.gov.ga.hydroid.service.EnhancerService;
-import au.gov.ga.hydroid.service.SolrClient;
-import au.gov.ga.hydroid.service.StanbolClient;
+import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.http.entity.ContentType;
 import org.openrdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -27,6 +26,9 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    @Autowired
    private SolrClient solrClient;
+
+   @Autowired
+   private S3Client s3Client;
 
    @Autowired
    private DocumentService documentService;
@@ -80,13 +82,20 @@ public class EnhancerServiceImpl implements EnhancerService {
    public void enhance(String chainName, String title, String content, String solrCollection) throws Exception {
 
       // Send content to Stanbol for enhancement
-      List<Statement> rdfDocument = stanbolClient.enhance(chainName, content, StanbolMediaTypes.RDFXML);
+      String enhancedText = stanbolClient.enhance(chainName, content, StanbolMediaTypes.RDFXML);
+
+      // Parse enhancedText into an rdf document
+      List<Statement> rdfDocument = stanbolClient.parseRDF(enhancedText);
       if (rdfDocument != null) {
          // Generate dictionary with properties we are interested in
          Properties properties = generateSolrDocument(rdfDocument, content);
 
          // Add enhanced document to Solr
-         solrClient.addDocument("hydroid", properties);
+         solrClient.addDocument(solrCollection, properties);
+
+         // Store full enhanced doc (rdf) at S3
+         s3Client.storeFile("hydroid", "rdfs/" + properties.getProperty("about"), enhancedText,
+               ContentType.APPLICATION_XML.getMimeType());
 
          // Store full document in DB
          Document document = new Document();
@@ -99,7 +108,6 @@ public class EnhancerServiceImpl implements EnhancerService {
       } else {
          // todo error handling here as well
       }
-
    }
 
 }
