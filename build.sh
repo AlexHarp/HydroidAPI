@@ -9,7 +9,6 @@ java -jar -Xmx1g -XX:MaxPermSize=256M tools/org.apache.stanbol.entityhub.indexin
 cp scripts/reset_stanbol.sh indexing/dist/reset_stanbol.sh
 cp scripts/start_server.sh indexing/dist/start_server.sh
 cp scripts/stop_server.sh indexing/dist/stop_server.sh
-aws s3 cp s3://hydroid/vocabulary/hydroid.sh indexing/dist/hydroid.sh
 cp appspec.yml indexing/dist/
 cd indexing/dist
 zip -r hydroid.zip *
