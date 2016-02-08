@@ -2,7 +2,7 @@ cd /var/tmp
 sudo service tomcat7 stop
 sudo rm -rf /usr/share/tomcat7/stanbol
 sudo service tomcat7 start
-sleep 10s
+sleep 20s
 # Copy GA.solrindex.zip to stanbol datafiles location
 sudo cp /var/tmp/GA.solrindex.zip /usr/share/tomcat7/stanbol/datafiles/GA.solrindex.zip
 # post bundle to OSGi
