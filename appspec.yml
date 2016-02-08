@@ -2,13 +2,13 @@ version: 0.0
 os: linux
 hooks:
   BeforeInstall:
-    - location: reset_stanbol.sh
+    - location: scripts/reset_stanbol.sh
       timeout: 300
       runas: root
-    - location: start_server.sh
+    - location: scripts/start_server.sh
       timeout: 300
       runas: root
   ApplicationStop:
-    - location: stop_server.sh
+    - location: scripts/stop_server.sh
       timeout: 300
       runas: root
