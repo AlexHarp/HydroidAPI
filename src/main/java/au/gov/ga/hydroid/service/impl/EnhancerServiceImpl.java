@@ -77,7 +77,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    @Override
-   public void enhance(String chainName, String content, String solrCollection) throws Exception {
+   public void enhance(String chainName, String title, String content, String solrCollection) throws Exception {
 
       // Send content to Stanbol for enhancement
       List<Statement> rdfDocument = stanbolClient.enhance(chainName, content, StanbolMediaTypes.RDFXML);
@@ -91,6 +91,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          // Store full document in DB
          Document document = new Document();
          document.setUrn(properties.getProperty("about"));
+         document.setTitle(title);
          document.setContent(content.getBytes());
          documentService.create(document);
 

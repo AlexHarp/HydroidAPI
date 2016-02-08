@@ -7,6 +7,7 @@ public class Document {
 
    private long id;
    private String urn;
+   private String title;
    private byte[] content;
 
    public long getId() {
@@ -23,6 +24,14 @@ public class Document {
 
    public void setUrn(String urn) {
       this.urn = urn;
+   }
+
+   public String getTitle() {
+      return title;
+   }
+
+   public void setTitle(String title) {
+      this.title = title;
    }
 
    public byte[] getContent() {

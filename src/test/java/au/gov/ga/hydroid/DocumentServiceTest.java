@@ -33,6 +33,7 @@ public class DocumentServiceTest {
       byte[] content = text.getBytes();
       String urn = "urn:" + System.currentTimeMillis();
       document.setUrn(urn);
+      document.setTitle("Title for (" + urn + ")");
       document.setContent(content);
       documentService.create(document);
    }

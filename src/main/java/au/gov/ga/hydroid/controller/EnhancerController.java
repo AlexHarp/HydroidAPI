@@ -44,7 +44,7 @@ public class EnhancerController {
       }
 
       try {
-         enhancerService.enhance("default", new String(document.getContent()), "hydroid");
+         enhancerService.enhance("default", document.getTitle(), new String(document.getContent()), "hydroid");
          model.put("alertCss", "alert alert-success");
          model.put("alertMessage", "Your document has been enhanced successfully.");
       } catch (Exception e) {
