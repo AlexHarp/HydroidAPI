@@ -2,6 +2,8 @@ sudo service tomcat7 stop
 sudo rm -rf /usr/share/tomcat7/stanbol
 sudo service tomcat7 start
 sleep 15s
+pwd
+ls
 # Copy GA.solrindex.zip to stanbol datafiles location
 sudo cp GA.solrindex.zip /usr/share/tomcat7/stanbol/datafiles/GA.solrindex.zip
 sudo cp org.apache.stanbol.data.site.GA-1.0.0.jar /usr/share/tomcat7/stanbol/datafiles/org.apache.stanbol.data.site.GA-1.0.0.jar
