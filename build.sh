@@ -6,3 +6,5 @@ cp indexing.properties indexing/config/indexing.properties
 # The below command crashes on first try, no source available to fix, also doesn't exit.. timeout and then rerun.
 timeout 20s java -jar -Xmx1g -XX:MaxPermSize=256M tools/org.apache.stanbol.entityhub.indexing.genericrdf-0.12.1-SNAPSHOT.jar index
 java -jar -Xmx1g -XX:MaxPermSize=256M tools/org.apache.stanbol.entityhub.indexing.genericrdf-0.12.1-SNAPSHOT.jar index
+cd indexing/dist
+zip -r hydroid.zip *
