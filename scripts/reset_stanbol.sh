@@ -1,3 +1,4 @@
+cd /var/tmp
 sudo service tomcat7 stop
 sudo rm -rf /usr/share/tomcat7/stanbol
 sudo service tomcat7 start
