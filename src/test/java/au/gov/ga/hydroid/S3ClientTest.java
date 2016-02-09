@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid;
 
 import au.gov.ga.hydroid.service.S3Client;
+import org.apache.http.entity.ContentType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +22,16 @@ public class S3ClientTest {
    @Test
    public void testGetCredentials() throws Exception {
       Assert.assertEquals("ga_aws_devs", s3Client.getAccountOwner());
+   }
+
+   @Test
+   public void testStoreFile() throws Exception {
+      s3Client.storeFile("hydroid", "rdfs/first-file.rdf", "Sample content for rdf file", ContentType.APPLICATION_XML.getMimeType());
+   }
+
+   @Test
+   public void testDeleteFile() throws Exception {
+      s3Client.deleteFile("hydroid", "rdfs/first-file.rdf");
    }
 
 }
