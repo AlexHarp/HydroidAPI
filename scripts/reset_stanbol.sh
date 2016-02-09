@@ -7,7 +7,7 @@ until $(curl --output /dev/null --silent --head --fail http://localhost:8080/sta
 	printf '.'
 	sleep 2s
 done
-sleep 2s
+sleep 5s
 # Copy GA.solrindex.zip to stanbol datafiles location
 sudo cp /var/tmp/GA.solrindex.zip /usr/share/tomcat7/stanbol/datafiles/GA.solrindex.zip
 # post bundle to OSGi
