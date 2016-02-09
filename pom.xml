@@ -87,6 +87,12 @@
             <version>1.10.50</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>1.8.8</version>
+        </dependency>
+
     </dependencies>
 
     <properties>
