@@ -1,6 +1,7 @@
 language: java
 script: 
     - chmod a+x ./build.sh
+    - chmod a+x ./build-index.sh
     - ./build.sh
     - ./build-index.sh
 deploy:
