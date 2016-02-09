@@ -6,6 +6,7 @@ package au.gov.ga.hydroid.dto;
 public class ServiceResponse {
 
    private String message;
+   private String exception;
 
    public ServiceResponse() {
    }
@@ -14,12 +15,25 @@ public class ServiceResponse {
       this.message = message;
    }
 
+   public ServiceResponse(String message, String exception) {
+      this.message = message;
+      this.exception = exception;
+   }
+
    public String getMessage() {
       return message;
    }
 
    public void setMessage(String message) {
       this.message = message;
+   }
+
+   public String getException() {
+      return exception;
+   }
+
+   public void setException(String exception) {
+      this.exception = exception;
    }
 
 }

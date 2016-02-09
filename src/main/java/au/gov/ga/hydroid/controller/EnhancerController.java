@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Created by u24529 on 3/02/2016.
  */
@@ -23,7 +25,7 @@ public class EnhancerController {
    private EnhancerService enhancerService;
 
    @RequestMapping(value = "", method = {RequestMethod.POST})
-   public @ResponseBody ResponseEntity enhance(@RequestBody DocumentDTO document) throws Exception {
+   public @ResponseBody ResponseEntity<ServiceResponse> enhance(@RequestBody DocumentDTO document) throws Exception {
 
       if (document == null || document.content == null || document.content.length() == 0) {
          return new ResponseEntity<ServiceResponse>(new ServiceResponse("Please enter the text/content for enhancement."),
@@ -34,8 +36,8 @@ public class EnhancerController {
          enhancerService.enhance("default", document.title, document.content, "hydroid");
       } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
-         return new ResponseEntity<ServiceResponse>(new ServiceResponse("There has been an error enhancing your document, please try again later."),
-               HttpStatus.INTERNAL_SERVER_ERROR);
+         return new ResponseEntity<ServiceResponse>(new ServiceResponse("There has been an error enhancing your document, please try again later.",
+               e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
       return new ResponseEntity<ServiceResponse>(new ServiceResponse("Your document has been enhanced successfully."),
