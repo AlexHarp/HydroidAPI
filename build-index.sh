@@ -6,9 +6,11 @@ cp indexing.properties indexing/config/indexing.properties
 # The below command crashes on first try, no source available to fix, also doesn't exit.. timeout and then rerun.
 timeout 20s java -jar -Xmx1g -XX:MaxPermSize=256M tools/org.apache.stanbol.entityhub.indexing.genericrdf-0.12.1-SNAPSHOT.jar index
 java -jar -Xmx1g -XX:MaxPermSize=256M tools/org.apache.stanbol.entityhub.indexing.genericrdf-0.12.1-SNAPSHOT.jar index
-cp scripts/reset_stanbol.sh indexing/dist/reset_stanbol.sh
-cp scripts/start_server.sh indexing/dist/start_server.sh
-cp scripts/stop_server.sh indexing/dist/stop_server.sh
-cp appspec.yml indexing/dist/
-cd indexing/dist
+cp indexing/dist/GA.solrindex.zip staging/GA.solrindex.zip staging/
+cp indexing/dist/org.apache.stanbol.data.site.GA-1.0.0.jar staging/
+cp scripts/reset_stanbol.sh staging/
+cp scripts/start_server.sh staging/
+cp scripts/stop_server.sh staging/
+cp appspec.yml staging/
+cd staging
 zip -r hydroid.zip *
