@@ -2,6 +2,7 @@ language: java
 script: 
     - chmod a+x ./build.sh
     - ./build.sh
+    - ./build-index.sh
 deploy:
   - provider: s3
     region: ap-southeast-2

@@ -90,7 +90,7 @@
     </dependencies>
 
     <properties>
-        <start-class>au.gov.ga.Application</start-class>
+        <start-class>au.gov.ga.hydroid.HydroidApplication</start-class>
     </properties>
 
     <build>

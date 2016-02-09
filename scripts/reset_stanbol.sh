@@ -1,6 +1,7 @@
 cd /var/tmp
 sudo service tomcat7 stop
 sudo rm -rf /usr/share/tomcat7/stanbol
+sudo cp /var/tmp/hydroid.war /usr/share/tomcat7/webapps/.
 sudo service tomcat7 start
 until $(curl --output /dev/null --silent --head --fail http://localhost:8080/stanbol); do
 	printf '.'
