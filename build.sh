@@ -2,5 +2,5 @@
 mkdir staging
 
 # build hydroid api
-mvn clean package
+mvn -DskipTests=true clean package
 cp target/hydroid.war staging/
