@@ -3,6 +3,7 @@ package au.gov.ga.hydroid;
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.service.DocumentService;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
+@Ignore("Ignored for Travis-CI as is integration test with DB connection")
 public class DocumentServiceTest {
 
    @Autowired
