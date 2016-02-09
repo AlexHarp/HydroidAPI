@@ -8,7 +8,7 @@ import org.springframework.context.annotation.PropertySource;
  * Created by u24529 on 9/02/2016.
  */
 @Configuration
-@PropertySource(value = "application.properties")
+@PropertySource(value = "classpath:application.properties")
 public class HydroidConfiguration {
 
    @Value("${stanbol.chain}")
