@@ -1,5 +1,6 @@
 package au.gov.ga.hydroid.service.impl;
 
+import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
@@ -20,6 +21,9 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    private static final String[] VALID_PREDICATES = {"title", "subject", "created", "extracted-from", "entity-reference", "entity-label"};
    private static final String GA_PUBLIC_VOCABS = "GAPublicVocabsSandbox";
+
+   @Autowired
+   private HydroidConfiguration configuration;
 
    @Autowired
    private StanbolClient stanbolClient;
@@ -94,7 +98,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          solrClient.addDocument(solrCollection, properties);
 
          // Store full enhanced doc (rdf) at S3
-         s3Client.storeFile("hydroid", "rdfs/" + properties.getProperty("about"), enhancedText,
+         s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + properties.getProperty("about"), enhancedText,
                ContentType.APPLICATION_XML.getMimeType());
 
          // Store full document in DB

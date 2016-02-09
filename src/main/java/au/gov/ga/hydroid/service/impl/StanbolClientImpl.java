@@ -1,5 +1,6 @@
 package au.gov.ga.hydroid.service.impl;
 
+import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.StanbolClient;
 import au.gov.ga.hydroid.utils.RestClient;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
@@ -11,6 +12,7 @@ import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.client.Entity;
@@ -29,15 +31,17 @@ import java.util.Properties;
 @Service
 public class StanbolClientImpl implements StanbolClient {
 
-   public static final String STANBOL_ENHANCER_URL = "http://hydroid-dev-web-lb-1763223935.ap-southeast-2.elb.amazonaws.com/stanbol/enhancer/chain/";
    private Logger logger = LoggerFactory.getLogger(StanbolClientImpl.class);
+
+   @Autowired
+   private HydroidConfiguration configuration;
 
    @Override
    public String enhance(String chainName, String content, MediaType outputFormat) throws Exception {
 
       String result = null;
 
-      final UriBuilder enhancerBuilder = UriBuilder.fromUri(STANBOL_ENHANCER_URL);
+      final UriBuilder enhancerBuilder = UriBuilder.fromUri(configuration.getStanbolUrl());
       enhancerBuilder.path(chainName);
 
       InputStream isContent = IOUtils.toInputStream(content);

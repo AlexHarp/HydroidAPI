@@ -1,5 +1,6 @@
 package au.gov.ga.hydroid.controller;
 
+import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.dto.ServiceResponse;
 import au.gov.ga.hydroid.service.EnhancerService;
@@ -24,6 +25,9 @@ public class EnhancerController {
    @Autowired
    private EnhancerService enhancerService;
 
+   @Autowired
+   private HydroidConfiguration configuration;
+
    @RequestMapping(value = "", method = {RequestMethod.POST})
    public @ResponseBody ResponseEntity<ServiceResponse> enhance(@RequestBody DocumentDTO document) throws Exception {
 
@@ -33,7 +37,7 @@ public class EnhancerController {
       }
 
       try {
-         enhancerService.enhance("default", document.title, document.content, "hydroid");
+         enhancerService.enhance(configuration.getStanbolChain(), document.title, document.content, configuration.getSolrCollection());
       } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
          return new ResponseEntity<ServiceResponse>(new ServiceResponse("There has been an error enhancing your document, please try again later.",
