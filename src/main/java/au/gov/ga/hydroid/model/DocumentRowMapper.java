@@ -15,6 +15,7 @@ public class DocumentRowMapper implements RowMapper {
       Document document = new Document();
       document.setId(resultSet.getLong("id"));
       document.setUrn(resultSet.getString("urn"));
+      document.setTitle(resultSet.getString("title"));
       document.setContent(resultSet.getBytes("content"));
       return document;
    }
