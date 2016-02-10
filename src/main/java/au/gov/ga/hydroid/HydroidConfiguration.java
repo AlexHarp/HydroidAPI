@@ -15,7 +15,7 @@ public class HydroidConfiguration {
    private String proxyHost;
 
    @Value("${proxy.port}")
-   private String proxyPort;
+   private int proxyPort;
 
    @Value("${stanbol.chain}")
    private String stanbolChain;
@@ -39,7 +39,7 @@ public class HydroidConfiguration {
       return proxyHost;
    }
 
-   public String getProxyPort() {
+   public int getProxyPort() {
       return proxyPort;
    }
 

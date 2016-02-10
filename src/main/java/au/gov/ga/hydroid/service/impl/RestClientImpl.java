@@ -28,8 +28,8 @@ public class RestClientImpl implements RestClient {
       builder = new ResteasyClientBuilder();
       builder.connectionPoolSize(5);
       builder.establishConnectionTimeout(TIMEOUT, TimeUnit.SECONDS);
-      if (configuration.getProxyHost() != null) {
-         builder.defaultProxy(configuration.getProxyHost(), Integer.parseInt(configuration.getProxyPort()));
+      if (configuration.getProxyPort() > 0) {
+         builder.defaultProxy(configuration.getProxyHost(), configuration.getProxyPort());
       }
    }
 

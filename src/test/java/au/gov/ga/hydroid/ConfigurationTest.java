@@ -21,6 +21,7 @@ public class ConfigurationTest {
    @Test
    public void testConfiguration() throws Exception {
       Assert.assertNotNull(configuration);
+      Assert.assertEquals(3128, configuration.getProxyPort());
       Assert.assertEquals("default", configuration.getStanbolChain());
       Assert.assertEquals("http://hydroid-dev-web-lb-1763223935.ap-southeast-2.elb.amazonaws.com/stanbol/enhancer/chain/", configuration.getStanbolUrl());
    }

@@ -22,10 +22,10 @@ public class S3ClientImpl implements S3Client {
    private HydroidConfiguration configuration;
 
    private AmazonS3 getAmazonS3() {
-      if (configuration.getProxyHost() != null) {
+      if (configuration.getProxyPort() > 0) {
          ClientConfiguration clientConfiguration = new ClientConfiguration();
          clientConfiguration.setProxyHost(configuration.getProxyHost());
-         clientConfiguration.setProxyPort(Integer.parseInt(configuration.getProxyPort()));
+         clientConfiguration.setProxyPort(configuration.getProxyPort());
          return new AmazonS3Client(clientConfiguration);
       } else {
          return new AmazonS3Client();
