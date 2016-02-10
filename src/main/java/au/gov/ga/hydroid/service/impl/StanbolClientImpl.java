@@ -1,8 +1,8 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.service.RestClient;
 import au.gov.ga.hydroid.service.StanbolClient;
-import au.gov.ga.hydroid.utils.RestClient;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
 import org.openrdf.model.Statement;
@@ -36,6 +36,9 @@ public class StanbolClientImpl implements StanbolClient {
    @Autowired
    private HydroidConfiguration configuration;
 
+   @Autowired
+   private RestClient restClient;
+
    @Override
    public String enhance(String chainName, String content, MediaType outputFormat) throws Exception {
 
@@ -47,7 +50,7 @@ public class StanbolClientImpl implements StanbolClient {
       InputStream isContent = IOUtils.toInputStream(content);
 
       final Entity<?> entity = Entity.entity(isContent, MediaType.TEXT_PLAIN_TYPE);
-      final Response response = RestClient.post(enhancerBuilder.build(), entity, outputFormat);
+      final Response response = restClient.post(enhancerBuilder.build(), entity, outputFormat);
 
       try {
          final Response.StatusType statusInfo = response.getStatusInfo();

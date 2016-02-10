@@ -1,6 +1,10 @@
-package au.gov.ga.hydroid.utils;
+package au.gov.ga.hydroid.service.impl;
 
+import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.service.RestClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
@@ -13,21 +17,23 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by u24529 on 3/02/2016.
  */
-public class RestClient {
+@Service
+public class RestClientImpl implements RestClient {
 
    private static final int TIMEOUT = 60;
+   private ResteasyClientBuilder builder;
 
-   private static ResteasyClientBuilder builder;
-
-   static {
+   @Autowired
+   public RestClientImpl(HydroidConfiguration configuration) {
       builder = new ResteasyClientBuilder();
       builder.connectionPoolSize(5);
       builder.establishConnectionTimeout(TIMEOUT, TimeUnit.SECONDS);
-      builder.defaultProxy("localhost", 3128);
-      //builder.register(EnhancementStructureReader.class);
+      if (configuration.getProxyHost() != null) {
+         builder.defaultProxy(configuration.getProxyHost(), Integer.parseInt(configuration.getProxyPort()));
+      }
    }
 
-   public static Response get(URI uri, MediaType acceptType) {
+   public Response get(URI uri, MediaType acceptType) {
       WebTarget target = builder.build().target(uri);
       Builder httpRequest = target.request();
       if (acceptType != null) {
@@ -36,7 +42,7 @@ public class RestClient {
       return httpRequest.get();
    }
 
-   public static Response post(URI uri, Entity<?> entity, MediaType acceptType) {
+   public Response post(URI uri, Entity<?> entity, MediaType acceptType) {
       WebTarget target = builder.build().target(uri);
       Builder httpRequest = target.request();
       if (acceptType != null) {

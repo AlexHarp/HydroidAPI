@@ -1,18 +1,16 @@
 package au.gov.ga.hydroid.service.impl;
 
+import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.S3Client;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringReader;
 
 /**
  * Created by u24529 on 8/02/2016.
@@ -21,13 +19,13 @@ import java.io.StringReader;
 public class S3ClientImpl implements S3Client {
 
    @Autowired
-   private Environment environment;
+   private HydroidConfiguration configuration;
 
    private AmazonS3 getAmazonS3() {
-      if (environment.getProperty("proxy.host") != null) {
+      if (configuration.getProxyHost() != null) {
          ClientConfiguration clientConfiguration = new ClientConfiguration();
-         clientConfiguration.setProxyHost("localhost");
-         clientConfiguration.setProxyPort(3128);
+         clientConfiguration.setProxyHost(configuration.getProxyHost());
+         clientConfiguration.setProxyPort(Integer.parseInt(configuration.getProxyPort()));
          return new AmazonS3Client(clientConfiguration);
       } else {
          return new AmazonS3Client();

@@ -11,6 +11,12 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "classpath:application.properties")
 public class HydroidConfiguration {
 
+   @Value("${proxy.host}")
+   private String proxyHost;
+
+   @Value("${proxy.port}")
+   private String proxyPort;
+
    @Value("${stanbol.chain}")
    private String stanbolChain;
 
@@ -28,6 +34,14 @@ public class HydroidConfiguration {
 
    @Value("${s3.rdf.folder}")
    private String s3RDFFolder;
+
+   public String getProxyHost() {
+      return proxyHost;
+   }
+
+   public String getProxyPort() {
+      return proxyPort;
+   }
 
    public String getStanbolChain() {
       return stanbolChain;
