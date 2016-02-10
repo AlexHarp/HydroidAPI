@@ -30,7 +30,10 @@ public class DocumentController {
 
       try {
          Document document = documentService.findByUrn(urn);
-
+         if(document == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return "";
+         }
          response.setHeader("Content-Disposition", "attachment; filename=\"" + document.getUrn() + "\"");
          response.setContentLength(document.getContent().length);
 

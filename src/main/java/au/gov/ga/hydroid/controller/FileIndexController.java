@@ -10,10 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +19,8 @@ import java.io.ByteArrayInputStream;
 /**
  * Created by Layoric on 9/02/2016.
  */
+@RestController
+@RequestMapping("/index-file")
 public class FileIndexController {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -31,7 +30,7 @@ public class FileIndexController {
     @Autowired
     private HydroidConfiguration configuration;
 
-    @RequestMapping(value="/index-file", method= RequestMethod.POST)
+    @RequestMapping(value="", method = {RequestMethod.POST})
     public @ResponseBody
     ResponseEntity<ServiceResponse> handleFileUpload(@RequestParam("name") String name,
                             @RequestParam("file") MultipartFile file){
