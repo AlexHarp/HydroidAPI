@@ -7,6 +7,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -16,8 +17,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
-@Ignore("Ignored for Travis-CI as is integration test with DB connection")
-public class DocumentServiceTest {
+@IntegrationTest
+public class DocumentServiceTestIT {
 
    @Autowired
    private DocumentService documentService;
@@ -45,5 +46,4 @@ public class DocumentServiceTest {
       Document document = documentService.findByUrn("urn:content-item-sha1-978b8d13b31cdb4b36534682b99d9614bfcb510f");
       Assert.assertNotNull(document);
    }
-
 }
