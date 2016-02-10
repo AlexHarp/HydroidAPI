@@ -93,6 +93,9 @@ public class EnhancerServiceImpl implements EnhancerService {
       if (rdfDocument != null) {
          // Generate dictionary with properties we are interested in
          Properties properties = generateSolrDocument(rdfDocument, content);
+         if (title != null && !title.isEmpty()) {
+            properties.setProperty("title", title);
+         }
 
          // Add enhanced document to Solr
          solrClient.addDocument(solrCollection, properties);
