@@ -8,5 +8,6 @@ import java.util.Properties;
 public interface SolrClient {
 
    public void addDocument(String collectionName, Properties properties) throws Exception;
+   public void deleteDocument(String collectionName, String id) throws Exception;
 
 }

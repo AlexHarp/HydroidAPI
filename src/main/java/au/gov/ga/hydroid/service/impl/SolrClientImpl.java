@@ -41,4 +41,10 @@ public class SolrClientImpl implements SolrClient {
       server.commit();
    }
 
+   @Override
+   public void deleteDocument(String collectionName, String id) throws Exception {
+      SolrServer server = new HttpSolrServer(configuration.getSolrUrl() + collectionName);
+      server.deleteById(id);
+   }
+
 }

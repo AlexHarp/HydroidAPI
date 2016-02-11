@@ -1,7 +1,8 @@
 package au.gov.ga.hydroid.model;
 
 /**
- * Created by u24529 on 4/02/2016.
+ * Created by u24529 on 4/02/2016
+ * Defines the Document object
  */
 public class Document {
 

@@ -85,36 +85,57 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Override
    public void enhance(String chainName, String title, String content, String solrCollection) throws Exception {
 
-      // Send content to Stanbol for enhancement
-      String enhancedText = stanbolClient.enhance(chainName, content, StanbolMediaTypes.RDFXML);
+      String urn = null;
+      Properties properties = null;
 
-      // Parse enhancedText into an rdf document
-      List<Statement> rdfDocument = stanbolClient.parseRDF(enhancedText);
-      if (rdfDocument != null) {
-         // Generate dictionary with properties we are interested in
-         Properties properties = generateSolrDocument(rdfDocument, content);
-         if (title != null && !title.isEmpty()) {
-            properties.setProperty("title", title);
+      try {
+
+         // Send content to Stanbol for enhancement
+         String enhancedText = stanbolClient.enhance(chainName, content, StanbolMediaTypes.RDFXML);
+
+         // Parse enhancedText into an rdf document
+         List<Statement> rdfDocument = stanbolClient.parseRDF(enhancedText);
+         if (rdfDocument != null) {
+            // Generate dictionary with properties we are interested in
+            properties = generateSolrDocument(rdfDocument, content);
+            if (title != null && !title.isEmpty()) {
+               properties.setProperty("title", title);
+            }
+
+            // Add enhanced document to Solr
+            urn = properties.getProperty("about");
+            solrClient.addDocument(solrCollection, properties);
+
+            // Store full enhanced doc (rdf) at S3
+            s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, enhancedText,
+                  ContentType.APPLICATION_XML.getMimeType());
+
+            // Store full document in DB
+            Document document = new Document();
+            document.setUrn(urn);
+            document.setTitle(title);
+            document.setContent(content.getBytes());
+            documentService.create(document);
          }
 
-         // Add enhanced document to Solr
-         solrClient.addDocument(solrCollection, properties);
-
-         // Store full enhanced doc (rdf) at S3
-         s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + properties.getProperty("about"), enhancedText,
-               ContentType.APPLICATION_XML.getMimeType());
-
-         // Store full document in DB
-         Document document = new Document();
-         document.setUrn(properties.getProperty("about"));
-         document.setTitle(title);
-         document.setContent(content.getBytes());
-         documentService.create(document);
-
-         //todo if database operation failed, need to remove doc from Solr
-      } else {
-         // todo error handling here as well
+      } catch (Exception e) {
+         // if there was any error in the process we remove the documents stored under the URN in process
+         if (urn != null) {
+            rollbackEnhancement(urn, solrCollection);
+         }
+         throw e;
       }
+   }
+
+   private void rollbackEnhancement(String urn, String solrCollection) throws Exception {
+      // Delete document from database
+      documentService.deleteByUrn(urn);
+
+      // Delete document from S3
+      s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn);
+
+      // Delete document from Solr
+      solrClient.deleteDocument(solrCollection, urn);
    }
 
 }

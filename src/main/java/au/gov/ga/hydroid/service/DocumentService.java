@@ -12,5 +12,6 @@ public interface DocumentService {
    public List<Document> findAll();
    public Document findByUrn(String urn);
    public void create(Document document);
+   public void deleteByUrn(String urn);
 
 }
