@@ -3,6 +3,7 @@ package au.gov.ga.hydroid.service.impl;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.S3Client;
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -26,9 +27,9 @@ public class S3ClientImpl implements S3Client {
          ClientConfiguration clientConfiguration = new ClientConfiguration();
          clientConfiguration.setProxyHost(configuration.getProxyHost());
          clientConfiguration.setProxyPort(configuration.getProxyPort());
-         return new AmazonS3Client(clientConfiguration);
+         return new AmazonS3Client(new ProfileCredentialsProvider(), clientConfiguration);
       } else {
-         return new AmazonS3Client();
+         return new AmazonS3Client(new ProfileCredentialsProvider());
       }
    }
 
