@@ -9,8 +9,6 @@ java -jar -Xmx1g -XX:MaxPermSize=256M tools/org.apache.stanbol.entityhub.indexin
 cp indexing/dist/GA.solrindex.zip staging/GA.solrindex.zip staging/
 cp indexing/dist/org.apache.stanbol.data.site.GA-1.0.0.jar staging/
 cp scripts/reset_stanbol.sh staging/
-cp scripts/start_server.sh staging/
-cp scripts/stop_server.sh staging/
 cp appspec.yml staging/
 cd staging
 zip -r hydroid.zip *
