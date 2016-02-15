@@ -11,7 +11,7 @@ do
 	sleep 2s
     response=$(curl --output /dev/null --silent --fail -w %{http_code} http://localhost:8080/stanbol/enhancer/chain)
 done
-defaultChainResponse=$(curl --output /dev/null --silent --fail -w %{http_code} http://localhost:8080/stanbol/enhancer/chain/default)
+defaultChainResponse=$(curl --output /dev/null --silent --fail -w %{http_code} http://localhost:8080/stanbol/entityhub)
 printf 'Server last response was "${defaultChainResponse}"..'
 printf 'Stanbol ready, configuring...\n'
 sleep 10s
