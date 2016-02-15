@@ -10,6 +10,7 @@ import org.openrdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -39,30 +40,25 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    private Properties generateSolrDocument(List<Statement> rdfDocument, String content) {
       String predicate = null;
-      String currentSubject = null;
       boolean isValidEntityRef = true;
-      StringBuilder concept = new StringBuilder();
-      StringBuilder label = new StringBuilder();
+      List<String> concepts = new ArrayList<>();
+      List<String> labels = new ArrayList<>();
       Properties properties = new Properties();
       for (Statement statement : rdfDocument) {
          predicate = statement.getPredicate().getLocalName().toLowerCase();
-         if (!statement.getSubject().stringValue().equalsIgnoreCase(currentSubject)) {
-            currentSubject = statement.getSubject().stringValue();
-            //isValidEntityRef = false;
-         }
          if (ArrayUtils.indexOf(VALID_PREDICATES, predicate) >= 0) {
             if (predicate.equalsIgnoreCase("extracted-from") && properties.getProperty("about") == null) {
                properties.put("about", statement.getObject().stringValue());
             } else if (predicate.equalsIgnoreCase("entity-reference")) {
                isValidEntityRef = (statement.getObject().stringValue().indexOf(GA_PUBLIC_VOCABS) >= 0);
                // add new concept if not there yet
-               if (isValidEntityRef && concept.indexOf(predicate) < 0) {
-                  concept.append(statement.getObject().stringValue()).append(", ");
+               if (isValidEntityRef && !concepts.contains(statement.getObject().stringValue())) {
+                  concepts.add(statement.getObject().stringValue());
                }
             } else if (predicate.equalsIgnoreCase("entity-label")) {
                // add new label if not there yet
-               if (isValidEntityRef && label.indexOf(predicate) < 0) {
-                  label.append(statement.getObject().stringValue()).append(", ");
+               if (isValidEntityRef && !labels.contains(statement.getObject().stringValue())) {
+                  labels.add(statement.getObject().stringValue());
                }
             } else {
                properties.put(predicate, statement.getObject().stringValue());
@@ -75,8 +71,8 @@ public class EnhancerServiceImpl implements EnhancerService {
          solrContent = solrContent.substring(0, 500) + "...";
       }
       properties.put("content", solrContent);
-      properties.put("label", label.toString());
-      properties.put("concept", concept.toString());
+      properties.put("label", labels);
+      properties.put("concept", concepts);
       properties.put("creator", "Hydroid Enhancer App");
 
       return properties;
@@ -124,6 +120,42 @@ public class EnhancerServiceImpl implements EnhancerService {
             rollbackEnhancement(urn, solrCollection);
          }
          throw e;
+      }
+   }
+
+   @Override
+   public void reindexDocument(String urn, String solrCollection, boolean enhance) throws Exception {
+
+      String enhancedText = null;
+      Properties properties = null;
+      Document document = documentService.findByUrn(urn);
+
+      if (document == null) {
+         throw new RuntimeException("No document was found under " + urn);
+      }
+
+      // Post to Stanbol for enhancement again
+      if (enhance) {
+         enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), new String(document.getContent()),
+               StanbolMediaTypes.RDFXML);
+
+      // Use cached (already enhanced) version of the document from s3
+      } else {
+         enhancedText = new String(s3Client.getFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn));
+      }
+
+      // Parse enhancedText into an rdf document
+      List<Statement> rdfDocument = stanbolClient.parseRDF(enhancedText);
+      if (rdfDocument != null) {
+         // Generate dictionary with properties we are interested in
+         properties = generateSolrDocument(rdfDocument, new String(document.getContent()));
+         if (document.getTitle() != null && !document.getTitle().isEmpty()) {
+            properties.setProperty("title", document.getTitle());
+         }
+
+         // Reindex enhanced document in Solr
+         urn = properties.getProperty("about");
+         solrClient.addDocument(solrCollection, properties);
       }
    }
 
