@@ -4,9 +4,12 @@ sudo rm -rf /usr/share/tomcat7/stanbol
 sudo rm -rf /usr/share/tomcat7/webapps/hydroid
 sudo cp /var/tmp/hydroid.war /usr/share/tomcat7/webapps/.
 sudo service tomcat7 start
-until "$(curl --write-out %{http_code} --silent --output /dev/null http://localhost:8080/stanbol)" == "200"; do
-	printf 'Waiting 2s for stanbol to restart... \n'
-	sleep 2s
+response=$(curl --write-out %{http_code} --silent --output /dev/null http://localhost:8080/stanbol)
+while [ "$response" != "200" ]
+do
+    printf 'Waiting 2s for stanbol to restart... \n'
+    sleep 2s
+    response=$(curl --write-out %{http_code} --silent --output /dev/null http://localhost:8080/stanbol)
 done
 printf 'Stanbol ready, configuring...\n'
 sleep 5s
