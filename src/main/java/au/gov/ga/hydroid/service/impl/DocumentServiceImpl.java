@@ -37,4 +37,9 @@ public class DocumentServiceImpl implements DocumentService {
             document.getUrn(), document.getContent());
    }
 
+   @Override
+   public void deleteByUrn(String urn) {
+      jdbcTemplate.update("delete from documents where urn = ?", urn);
+   }
+
 }

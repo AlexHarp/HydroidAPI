@@ -33,4 +33,9 @@ public class EnhancerServiceTestIT {
             configuration.getSolrCollection());
    }
 
+   @Test
+   public void testReindexDocument() throws Exception {
+      enhancerService.reindexDocument("urn:content-item-sha1-88d676ed33e1b645fbd1e1a812f78b514ada8b16", configuration.getSolrCollection(), false);
+   }
+
 }

@@ -6,6 +6,7 @@ package au.gov.ga.hydroid.service;
 public interface S3Client {
 
    public String getAccountOwner();
+   public byte[] getFile(String bucketName, String key) throws Exception;
    public void storeFile(String bucketName, String key, String content, String contentType);
    public void deleteFile(String bucketName, String key);
 

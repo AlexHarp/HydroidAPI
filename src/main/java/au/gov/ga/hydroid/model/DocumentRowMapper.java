@@ -6,12 +6,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Created by u24529 on 4/02/2016.
+ * Created by u24529 on 4/02/2016
+ * Class maps the Document objects to the Documents table
  */
 public class DocumentRowMapper implements RowMapper {
 
-   @Override
-   public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+   /**
+    * Returns a Document object which has been mapped from a row in the Documents table
+    * @param resultSet result set
+    * @param rowNum row number
+    * @return the mapped Document object
+    * @throws SQLException
+    */
+   public Object mapRow(ResultSet resultSet, int rowNum) throws SQLException {
       Document document = new Document();
       document.setId(resultSet.getLong("id"));
       document.setUrn(resultSet.getString("urn"));

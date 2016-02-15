@@ -38,4 +38,10 @@ public class CustomMockDocumentService implements DocumentService {
     public void create(Document document) {
 
     }
+
+   @Override
+   public void deleteByUrn(String urn) {
+
+   }
+
 }
