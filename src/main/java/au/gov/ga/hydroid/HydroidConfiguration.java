@@ -35,6 +35,9 @@ public class HydroidConfiguration {
    @Value("${s3.rdf.folder}")
    private String s3RDFFolder;
 
+   @Value("${fuseki.url}")
+   private String fusekiUrl;
+
    public String getProxyHost() {
       return proxyHost;
    }
@@ -66,5 +69,7 @@ public class HydroidConfiguration {
    public String getS3RDFFolder() {
       return s3RDFFolder;
    }
+
+   public String getFusekiUrl() { return fusekiUrl; }
 
 }
