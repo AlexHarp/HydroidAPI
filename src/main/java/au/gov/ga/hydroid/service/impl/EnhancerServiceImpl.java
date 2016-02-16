@@ -2,11 +2,16 @@ package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.model.Document;
+import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.http.entity.ContentType;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +27,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    private static final String[] VALID_PREDICATES = {"title", "subject", "created", "extracted-from", "entity-reference", "entity-label"};
    private static final String GA_PUBLIC_VOCABS = "GAPublicVocabsSandbox";
+   private static final String DOCUMENT_CREATOR = "Hydroid Enhancer App";
 
    @Autowired
    private HydroidConfiguration configuration;
@@ -38,7 +44,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private DocumentService documentService;
 
-   private Properties generateSolrDocument(List<Statement> rdfDocument, String content) {
+   private Properties generateSolrDocument(List<Statement> rdfDocument, String content, String docType) {
       String predicate = null;
       boolean isValidEntityRef = true;
       List<String> concepts = new ArrayList<>();
@@ -66,6 +72,16 @@ public class EnhancerServiceImpl implements EnhancerService {
          }
       }
 
+      // If docType is provided we add it to the rdf document
+      if (docType != null && !docType.isEmpty()) {
+         ValueFactory factory = ValueFactoryImpl.getInstance();
+         URI resource = factory.createURI(properties.getProperty("about"));
+         URI type = factory.createURI("https://www.w3.org/TR/rdf-schema/#ch_type");
+         Literal value = factory.createLiteral(docType);
+         Statement statement = factory.createStatement(resource, type, value);
+         rdfDocument.add(statement);
+      }
+
       String solrContent = content;
       if (solrContent.length() > 500) {
          solrContent = solrContent.substring(0, 500) + "...";
@@ -73,13 +89,14 @@ public class EnhancerServiceImpl implements EnhancerService {
       properties.put("content", solrContent);
       properties.put("label", labels);
       properties.put("concept", concepts);
-      properties.put("creator", "Hydroid Enhancer App");
+      properties.put("docType", docType);
+      properties.put("creator", DOCUMENT_CREATOR);
 
       return properties;
    }
 
    @Override
-   public void enhance(String chainName, String title, String content, String solrCollection) throws Exception {
+   public void enhance(String title, String content, String docType) throws Exception {
 
       String urn = null;
       Properties properties = null;
@@ -87,20 +104,20 @@ public class EnhancerServiceImpl implements EnhancerService {
       try {
 
          // Send content to Stanbol for enhancement
-         String enhancedText = stanbolClient.enhance(chainName, content, StanbolMediaTypes.RDFXML);
+         String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), content, StanbolMediaTypes.RDFXML);
 
          // Parse enhancedText into an rdf document
          List<Statement> rdfDocument = stanbolClient.parseRDF(enhancedText);
          if (rdfDocument != null) {
             // Generate dictionary with properties we are interested in
-            properties = generateSolrDocument(rdfDocument, content);
+            properties = generateSolrDocument(rdfDocument, content, docType);
             if (title != null && !title.isEmpty()) {
                properties.setProperty("title", title);
             }
 
             // Add enhanced document to Solr
             urn = properties.getProperty("about");
-            solrClient.addDocument(solrCollection, properties);
+            solrClient.addDocument(configuration.getSolrCollection(), properties);
 
             // Store full enhanced doc (rdf) at S3
             s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, enhancedText,
@@ -110,6 +127,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             Document document = new Document();
             document.setUrn(urn);
             document.setTitle(title);
+            document.setType(DocumentType.valueOf(docType));
             document.setContent(content.getBytes());
             documentService.create(document);
          }
@@ -117,14 +135,14 @@ public class EnhancerServiceImpl implements EnhancerService {
       } catch (Exception e) {
          // if there was any error in the process we remove the documents stored under the URN in process
          if (urn != null) {
-            rollbackEnhancement(urn, solrCollection);
+            rollbackEnhancement(urn);
          }
          throw e;
       }
    }
 
    @Override
-   public void reindexDocument(String urn, String solrCollection, boolean enhance) throws Exception {
+   public void reindexDocument(String urn, boolean enhance) throws Exception {
 
       String enhancedText = null;
       Properties properties = null;
@@ -148,18 +166,18 @@ public class EnhancerServiceImpl implements EnhancerService {
       List<Statement> rdfDocument = stanbolClient.parseRDF(enhancedText);
       if (rdfDocument != null) {
          // Generate dictionary with properties we are interested in
-         properties = generateSolrDocument(rdfDocument, new String(document.getContent()));
+         properties = generateSolrDocument(rdfDocument, new String(document.getContent()), document.getType().name());
          if (document.getTitle() != null && !document.getTitle().isEmpty()) {
             properties.setProperty("title", document.getTitle());
          }
 
          // Reindex enhanced document in Solr
          urn = properties.getProperty("about");
-         solrClient.addDocument(solrCollection, properties);
+         solrClient.addDocument(configuration.getSolrCollection(), properties);
       }
    }
 
-   private void rollbackEnhancement(String urn, String solrCollection) throws Exception {
+   private void rollbackEnhancement(String urn) throws Exception {
       // Delete document from database
       documentService.deleteByUrn(urn);
 
@@ -167,7 +185,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn);
 
       // Delete document from Solr
-      solrClient.deleteDocument(solrCollection, urn);
+      solrClient.deleteDocument(configuration.getSolrCollection(), urn);
    }
 
 }

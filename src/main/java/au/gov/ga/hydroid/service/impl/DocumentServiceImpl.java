@@ -33,7 +33,7 @@ public class DocumentServiceImpl implements DocumentService {
    @Override
    @Transactional
    public void create(Document document) {
-      jdbcTemplate.update("insert into documents (urn, content) values (?, ?)",
+      jdbcTemplate.update("insert into documents (urn, title, type, content) values (?, ?, ?, ?)",
             document.getUrn(), document.getContent());
    }
 

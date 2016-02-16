@@ -4,6 +4,7 @@ CREATE TABLE hydroid.documents (
     id bigserial PRIMARY KEY,
     urn varchar(100) NOT NULL,
     title varchar(100) NULL,
+    type varchar(20) NULL,
     content bytea NOT NULL
 );
 
