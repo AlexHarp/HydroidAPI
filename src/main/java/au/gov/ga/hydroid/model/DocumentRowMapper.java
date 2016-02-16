@@ -23,6 +23,7 @@ public class DocumentRowMapper implements RowMapper {
       document.setId(resultSet.getLong("id"));
       document.setUrn(resultSet.getString("urn"));
       document.setTitle(resultSet.getString("title"));
+      document.setType(DocumentType.valueOf(resultSet.getString("type")));
       document.setContent(resultSet.getBytes("content"));
       return document;
    }

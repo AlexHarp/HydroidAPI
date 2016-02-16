@@ -5,7 +5,7 @@ package au.gov.ga.hydroid.service;
  */
 public interface EnhancerService {
 
-   public void enhance(String chainName, String title, String content, String solrCollection) throws Exception;
-   public void reindexDocument(String urn, String solrCollection, boolean enhance) throws Exception;
+   public void enhance(String title, String content, String docType) throws Exception;
+   public void reindexDocument(String urn, boolean enhance) throws Exception;
 
 }
