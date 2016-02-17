@@ -1,15 +1,12 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.service.JenaService;
 import au.gov.ga.hydroid.service.RestClient;
 import au.gov.ga.hydroid.service.StanbolClient;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
+import com.hp.hpl.jena.rdf.model.Statement;
 import org.apache.commons.io.IOUtils;
-import org.openrdf.model.Statement;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.StatementCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +16,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -38,6 +33,9 @@ public class StanbolClientImpl implements StanbolClient {
 
    @Autowired
    private RestClient restClient;
+
+   @Autowired
+   private JenaService jenaService;
 
    @Override
    public String enhance(String chainName, String content, MediaType outputFormat) throws Exception {
@@ -87,32 +85,21 @@ public class StanbolClientImpl implements StanbolClient {
    }
 
    @Override
-   public List<Statement> parseRDF(String enhancedText) throws Exception {
-      List<Statement> graph = new ArrayList<Statement>();
-
-      enhancedText = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" + enhancedText;
-
-      RDFParser rdfParser = Rio.createParser(RDFFormat.RDFXML);
-      rdfParser.setRDFHandler(new StatementCollector(graph));
-      rdfParser.parse(new ByteArrayInputStream(enhancedText.getBytes()), "");
-
-      return graph;
-   }
-
-   @Override
    public Properties findAllPredicates(String chainName, String content, MediaType outputFormat) throws Exception {
 
       Properties allPredicates = new Properties();
 
       String enhancedText = enhance(chainName, content, StanbolMediaTypes.RDFXML);
-      List<Statement> rdfDocument = parseRDF(enhancedText);
+      List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
 
       if (rdfDocument != null) {
          String predicate;
          for (Statement statement : rdfDocument) {
             predicate = statement.getPredicate().getLocalName().toLowerCase();
             if (allPredicates.getProperty(predicate) == null) {
-               allPredicates.put(predicate, statement.getObject().stringValue());
+               String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
+                     : statement.getObject().asResource().getURI();
+               allPredicates.put(predicate, objectValue);
             }
          }
       }

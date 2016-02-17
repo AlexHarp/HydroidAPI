@@ -2,6 +2,7 @@ package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.S3Client;
+import au.gov.ga.hydroid.utils.IOUtils;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 /**
@@ -44,24 +44,12 @@ public class S3ClientImpl implements S3Client {
    @Override
    public byte[] getFile(String bucketName, String key) throws Exception {
       AmazonS3 s3 = getAmazonS3();
-      byte[] fileContent = null;
-      ByteArrayOutputStream baos = null;
-      try {
-         baos = new ByteArrayOutputStream();
-         S3Object object = s3.getObject(bucketName, key);
-         InputStream is = object.getObjectContent();
-         if (is != null) {
-            int bytesRead = 0;
-            byte[] buffer = new byte[4096];
-            while ((bytesRead = is.read(buffer)) > 0) {
-               baos.write(buffer, 0, bytesRead);
-            }
-            fileContent = baos.toByteArray();
-         }
-      } finally {
-         baos.close();
+      S3Object object = s3.getObject(bucketName, key);
+      InputStream is = object.getObjectContent();
+      if (is != null) {
+         return IOUtils.fromInputStreamToByteArray(is);
       }
-      return fileContent;
+      return null;
    }
 
    @Override
