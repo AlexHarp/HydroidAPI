@@ -17,6 +17,7 @@ printf 'Stanbol ready, configuring...\n'
 sleep 10s
 # Copy GA.solrindex.zip to stanbol datafiles location
 sudo cp /var/tmp/GA.solrindex.zip /usr/share/tomcat7/stanbol/datafiles/GA.solrindex.zip
+sleep 10s
 printf 'Posting bundle...\n'
 # post bundle to OSGi
 curl -v -F 'action=install' -F 'bundlestart=start' -F 'refreshPackages=refresh' -F 'bundlestartlevel=20' -F 'bundlefile=@/var/tmp/org.apache.stanbol.data.site.GA-1.0.0.jar' http://localhost:8080/stanbol/system/console/bundles -H 'Authorization: Basic YWRtaW46YWRtaW4=' -H 'Cookie: felix-webconsole-locale=en;' -H 'Connection: keep-alive' -H 'Pragma: no-cache' -H 'Upgrade-Insecure-Requests: 1' -H 'Content-Type: multipart/form-data;' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Cache-Control: no-cache'
