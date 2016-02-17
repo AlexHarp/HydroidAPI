@@ -15,6 +15,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.InputStream;
 import java.util.List;
 
+import static org.hamcrest.Matchers.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
 @IntegrationTest
@@ -35,6 +37,7 @@ public class JenaServiceImplTestIT {
    public void testReadRdf() throws Exception {
       List<Statement> model = jenaService.readRdf("ID1455674323766");
       Assert.assertNotNull(model);
+      Assert.assertThat(model.size(),greaterThan(0));
    }
 
 }
