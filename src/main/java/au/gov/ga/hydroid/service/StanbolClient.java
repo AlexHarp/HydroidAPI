@@ -1,10 +1,6 @@
 package au.gov.ga.hydroid.service;
 
-import org.openrdf.model.Statement;
-
 import javax.ws.rs.core.MediaType;
-import java.util.Dictionary;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -13,7 +9,6 @@ import java.util.Properties;
 public interface StanbolClient {
 
    public String enhance(String chainName, String content, MediaType outputFormat) throws Exception;
-   public List<Statement> parseRDF(String enhancedText) throws Exception;
    public Properties findAllPredicates(String chainName, String content, MediaType outputFormat) throws Exception;
 
 }

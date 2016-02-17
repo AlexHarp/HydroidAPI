@@ -1,12 +1,17 @@
 package au.gov.ga.hydroid.service;
 
-import com.hp.hpl.jena.query.DatasetAccessorFactory;
+import com.hp.hpl.jena.rdf.model.Statement;
 
-import java.io.InputStream;
+import java.util.List;
 
 /**
  * Created by Layoric on 16/02/2016.
  */
 public interface JenaService {
-    void storeRdf(InputStream rdfInput,String baseRdfUrl);
+
+   public void storeRdf(String rdfId, String rdfInput, String baseRdfUrl);
+   public List<Statement> parseRdf(String rdfInput, String baseRdfUrl) throws Exception;
+   public void deleteRdf(String rdfId);
+   public List<Statement> readRdf(String rdfId);
+
 }

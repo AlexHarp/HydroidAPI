@@ -5,13 +5,8 @@ import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
+import com.hp.hpl.jena.rdf.model.*;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.http.entity.ContentType;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,46 +34,45 @@ public class EnhancerServiceImpl implements EnhancerService {
    private SolrClient solrClient;
 
    @Autowired
-   private S3Client s3Client;
+   private JenaService jenaService;
 
    @Autowired
    private DocumentService documentService;
 
    private Properties generateSolrDocument(List<Statement> rdfDocument, String content, String docType) {
       String predicate = null;
-      boolean isValidEntityRef = true;
       List<String> concepts = new ArrayList<>();
       List<String> labels = new ArrayList<>();
       Properties properties = new Properties();
       for (Statement statement : rdfDocument) {
          predicate = statement.getPredicate().getLocalName().toLowerCase();
          if (ArrayUtils.indexOf(VALID_PREDICATES, predicate) >= 0) {
+            String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
+                  : statement.getObject().asResource().getURI();
             if (predicate.equalsIgnoreCase("extracted-from") && properties.getProperty("about") == null) {
-               properties.put("about", statement.getObject().stringValue());
+               properties.put("about", objectValue);
             } else if (predicate.equalsIgnoreCase("entity-reference")) {
-               isValidEntityRef = (statement.getObject().stringValue().indexOf(GA_PUBLIC_VOCABS) >= 0);
                // add new concept if not there yet
-               if (isValidEntityRef && !concepts.contains(statement.getObject().stringValue())) {
-                  concepts.add(statement.getObject().stringValue());
+               if (!concepts.contains(objectValue)) {
+                  concepts.add(objectValue);
                }
             } else if (predicate.equalsIgnoreCase("entity-label")) {
                // add new label if not there yet
-               if (isValidEntityRef && !labels.contains(statement.getObject().stringValue())) {
-                  labels.add(statement.getObject().stringValue());
+               if (!labels.contains(objectValue)) {
+                  labels.add(objectValue);
                }
             } else {
-               properties.put(predicate, statement.getObject().stringValue());
+               properties.put(predicate, objectValue);
             }
          }
       }
 
       // If docType is provided we add it to the rdf document
       if (docType != null && !docType.isEmpty()) {
-         ValueFactory factory = ValueFactoryImpl.getInstance();
-         URI resource = factory.createURI(properties.getProperty("about"));
-         URI type = factory.createURI("https://www.w3.org/TR/rdf-schema/#ch_type");
-         Literal value = factory.createLiteral(docType);
-         Statement statement = factory.createStatement(resource, type, value);
+         Resource subject = ResourceFactory.createResource(properties.getProperty("about"));
+         Property property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_type");
+         Literal object = ResourceFactory.createPlainLiteral(docType);
+         Statement statement = ResourceFactory.createStatement(subject, property, object);
          rdfDocument.add(statement);
       }
 
@@ -107,7 +101,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), content, StanbolMediaTypes.RDFXML);
 
          // Parse enhancedText into an rdf document
-         List<Statement> rdfDocument = stanbolClient.parseRDF(enhancedText);
+         List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
          if (rdfDocument != null) {
             // Generate dictionary with properties we are interested in
             properties = generateSolrDocument(rdfDocument, content, docType);
@@ -119,9 +113,8 @@ public class EnhancerServiceImpl implements EnhancerService {
             urn = properties.getProperty("about");
             solrClient.addDocument(configuration.getSolrCollection(), properties);
 
-            // Store full enhanced doc (rdf) at S3
-            s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, enhancedText,
-                  ContentType.APPLICATION_XML.getMimeType());
+            // Store full enhanced doc (rdf) in Jena
+            jenaService.storeRdf(urn, enhancedText, "");
 
             // Store full document in DB
             Document document = new Document();
@@ -146,6 +139,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       String enhancedText = null;
       Properties properties = null;
+      List<Statement> rdfDocument = null;
       Document document = documentService.findByUrn(urn);
 
       if (document == null) {
@@ -156,14 +150,14 @@ public class EnhancerServiceImpl implements EnhancerService {
       if (enhance) {
          enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), new String(document.getContent()),
                StanbolMediaTypes.RDFXML);
+         rdfDocument = jenaService.parseRdf(enhancedText, "");
 
-      // Use cached (already enhanced) version of the document from s3
+
+      // Use cached (already enhanced) version of the document from Jena
       } else {
-         enhancedText = new String(s3Client.getFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn));
+         rdfDocument = jenaService.readRdf(urn);
       }
 
-      // Parse enhancedText into an rdf document
-      List<Statement> rdfDocument = stanbolClient.parseRDF(enhancedText);
       if (rdfDocument != null) {
          // Generate dictionary with properties we are interested in
          properties = generateSolrDocument(rdfDocument, new String(document.getContent()), document.getType().name());
@@ -172,7 +166,6 @@ public class EnhancerServiceImpl implements EnhancerService {
          }
 
          // Reindex enhanced document in Solr
-         urn = properties.getProperty("about");
          solrClient.addDocument(configuration.getSolrCollection(), properties);
       }
    }
@@ -181,8 +174,8 @@ public class EnhancerServiceImpl implements EnhancerService {
       // Delete document from database
       documentService.deleteByUrn(urn);
 
-      // Delete document from S3
-      s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn);
+      // Delete document from Jena
+      jenaService.deleteRdf(urn);
 
       // Delete document from Solr
       solrClient.deleteDocument(configuration.getSolrCollection(), urn);
