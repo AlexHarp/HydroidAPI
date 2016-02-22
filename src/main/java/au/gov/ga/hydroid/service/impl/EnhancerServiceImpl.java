@@ -39,7 +39,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private DocumentService documentService;
 
-   private Properties generateSolrDocument(List<Statement> rdfDocument, String content, String docType) {
+   private Properties generateSolrDocument(List<Statement> rdfDocument, String content, String docType, String title) {
       String predicate = null;
       List<String> concepts = new ArrayList<>();
       List<String> labels = new ArrayList<>();
@@ -69,10 +69,18 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       // If docType is provided we add it to the rdf document
       if (docType != null && !docType.isEmpty()) {
+
+         // Add property:type to rdf (DOCUMENT, DATASET or MODEL)
          Resource subject = ResourceFactory.createResource(properties.getProperty("about"));
          Property property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_type");
          Literal object = ResourceFactory.createPlainLiteral(docType);
          Statement statement = ResourceFactory.createStatement(subject, property, object);
+         rdfDocument.add(statement);
+
+         // Add property:label to the rdf (the document title)
+         property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_label");
+         object = ResourceFactory.createPlainLiteral(title);
+         statement = ResourceFactory.createStatement(subject, property, object);
          rdfDocument.add(statement);
       }
 
@@ -104,7 +112,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
          if (rdfDocument != null) {
             // Generate dictionary with properties we are interested in
-            properties = generateSolrDocument(rdfDocument, content, docType);
+            properties = generateSolrDocument(rdfDocument, content, docType, title);
             if (title != null && !title.isEmpty()) {
                properties.setProperty("title", title);
             }
@@ -160,7 +168,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       if (rdfDocument != null) {
          // Generate dictionary with properties we are interested in
-         properties = generateSolrDocument(rdfDocument, new String(document.getContent()), document.getType().name());
+         properties = generateSolrDocument(rdfDocument, new String(document.getContent()), document.getType().name(), document.getTitle());
          if (document.getTitle() != null && !document.getTitle().isEmpty()) {
             properties.setProperty("title", document.getTitle());
          }
