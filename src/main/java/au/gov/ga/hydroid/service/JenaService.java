@@ -9,8 +9,10 @@ import java.util.List;
  */
 public interface JenaService {
 
+   public void storeRdfDefault(String rdfInput, String baseRdfUrl);
    public void storeRdf(String rdfId, String rdfInput, String baseRdfUrl);
    public List<Statement> parseRdf(String rdfInput, String baseRdfUrl) throws Exception;
+   public void deleteRdfDefault();
    public void deleteRdf(String rdfId);
    public List<Statement> readRdf(String rdfId);
 

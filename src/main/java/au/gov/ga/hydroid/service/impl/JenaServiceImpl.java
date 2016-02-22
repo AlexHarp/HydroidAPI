@@ -34,14 +34,23 @@ public class JenaServiceImpl implements JenaService {
    }
 
    @Override
-   public void storeRdf(String rdfId, String rdfInput, String baseRdfUrl) {
+   public void storeRdfDefault(String rdfInput, String baseRdfUrl) {
+      storeRdf(null, rdfInput, baseRdfUrl);
+   }
+
+   @Override
+   public void storeRdf(String graphUri, String rdfInput, String baseRdfUrl) {
       String serviceURI = configuration.getFusekiUrl();
       DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
       Model model = ModelFactory.createDefaultModel();
       InputStream is = new ByteArrayInputStream(rdfInput.getBytes());
       model.read(is, baseRdfUrl);
       setNsPrefix(model);
-      accessor.putModel(rdfId, model);
+      if (graphUri == null) {
+         accessor.putModel(model);
+      } else {
+         accessor.putModel(graphUri, model);
+      }
    }
 
    @Override
@@ -53,17 +62,26 @@ public class JenaServiceImpl implements JenaService {
    }
 
    @Override
-   public void deleteRdf(String rdfId) {
-      String serviceURI = configuration.getFusekiUrl();
-      DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
-      accessor.deleteModel(rdfId);
+   public void deleteRdfDefault() {
+      deleteRdf(null);
    }
 
    @Override
-   public List<Statement> readRdf(String rdfId) {
+   public void deleteRdf(String graphUri) {
       String serviceURI = configuration.getFusekiUrl();
       DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
-      Model model = accessor.getModel(rdfId);
+      if (graphUri == null) {
+         accessor.deleteDefault();
+      } else if (accessor.containsModel(graphUri)) {
+         accessor.deleteModel(graphUri);
+      }
+   }
+
+   @Override
+   public List<Statement> readRdf(String graphUri) {
+      String serviceURI = configuration.getFusekiUrl();
+      DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
+      Model model = accessor.getModel(graphUri);
       if (model == null) {
          return null;
       }

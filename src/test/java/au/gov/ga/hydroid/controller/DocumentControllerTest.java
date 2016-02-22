@@ -1,13 +1,9 @@
 package au.gov.ga.hydroid.controller;
 
-import au.gov.ga.hydroid.CustomMockDocumentService;
+import au.gov.ga.hydroid.CustomMockS3Client;
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
-import au.gov.ga.hydroid.dto.DocumentDTO;
-import au.gov.ga.hydroid.model.Document;
-import au.gov.ga.hydroid.service.DocumentService;
-import au.gov.ga.hydroid.service.EnhancerService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import au.gov.ga.hydroid.service.S3Client;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,9 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.List;
-
-import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -32,7 +25,10 @@ public class DocumentControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    DocumentService documentService;
+    S3Client s3Client;
+
+   @Mock
+   HydroidConfiguration configuration;
 
     DocumentController documentController;
 
@@ -40,7 +36,8 @@ public class DocumentControllerTest {
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
         documentController = new DocumentController();
-        ReflectionTestUtils.setField(documentController, "documentService", this.documentService);
+        ReflectionTestUtils.setField(documentController, "s3Client", this.s3Client);
+       ReflectionTestUtils.setField(documentController, "configuration", this.configuration);
         mockMvc = MockMvcBuilders.standaloneSetup(documentController).build();
     }
 
@@ -56,7 +53,7 @@ public class DocumentControllerTest {
 
     @Test
     public void testDownload_Found() throws Exception {
-        ReflectionTestUtils.setField(documentController, "documentService", new CustomMockDocumentService());
+        ReflectionTestUtils.setField(documentController, "s3Client", new CustomMockS3Client());
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/document/urn1/download")
                         .contentType(MediaType.APPLICATION_JSON)
