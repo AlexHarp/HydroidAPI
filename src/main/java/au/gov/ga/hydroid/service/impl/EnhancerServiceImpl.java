@@ -7,6 +7,7 @@ import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import com.hp.hpl.jena.rdf.model.*;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,9 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    @Autowired
    private JenaService jenaService;
+
+   @Autowired
+   private S3Client s3Client;
 
    @Autowired
    private DocumentService documentService;
@@ -121,8 +125,11 @@ public class EnhancerServiceImpl implements EnhancerService {
             urn = properties.getProperty("about");
             solrClient.addDocument(configuration.getSolrCollection(), properties);
 
+            // Store full enhanced doc (rdf) in S3
+            s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, content, ContentType.APPLICATION_XML.getMimeType());
+
             // Store full enhanced doc (rdf) in Jena
-            jenaService.storeRdf(urn, enhancedText, "");
+            jenaService.storeRdfDefault(enhancedText, "");
 
             // Store full document in DB
             Document document = new Document();
@@ -158,29 +165,40 @@ public class EnhancerServiceImpl implements EnhancerService {
       if (enhance) {
          enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), new String(document.getContent()),
                StanbolMediaTypes.RDFXML);
-         rdfDocument = jenaService.parseRdf(enhancedText, "");
 
-
-      // Use cached (already enhanced) version of the document from Jena
+      // Use cached (already enhanced) version of the document from S3
       } else {
-         rdfDocument = jenaService.readRdf(urn);
+         enhancedText = new String(s3Client.getFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn));
       }
 
-      if (rdfDocument != null) {
-         // Generate dictionary with properties we are interested in
-         properties = generateSolrDocument(rdfDocument, new String(document.getContent()), document.getType().name(), document.getTitle());
-         if (document.getTitle() != null && !document.getTitle().isEmpty()) {
-            properties.setProperty("title", document.getTitle());
-         }
+      // Parse the enhanced content String into an rdfDocument
+      rdfDocument = jenaService.parseRdf(enhancedText, "");
 
-         // Reindex enhanced document in Solr
-         solrClient.addDocument(configuration.getSolrCollection(), properties);
+      // Generate dictionary with properties we are interested in
+      properties = generateSolrDocument(rdfDocument, new String(document.getContent()), document.getType().name(), document.getTitle());
+      if (document.getTitle() != null && !document.getTitle().isEmpty()) {
+         properties.setProperty("title", document.getTitle());
       }
+
+      // If a new enhancement is run we update references to the new URN
+      if (enhance) {
+         urn = properties.getProperty("about");
+         document.setUrn(urn);
+         documentService.update(document);
+         s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, enhancedText, ContentType.APPLICATION_XML.getMimeType());
+         jenaService.storeRdfDefault(enhancedText, "");
+      }
+
+      // Reindex enhanced document in Solr
+      solrClient.addDocument(configuration.getSolrCollection(), properties);
    }
 
    private void rollbackEnhancement(String urn) throws Exception {
       // Delete document from database
       documentService.deleteByUrn(urn);
+
+      // Delete document from S3
+      s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn);
 
       // Delete document from Jena
       jenaService.deleteRdf(urn);
