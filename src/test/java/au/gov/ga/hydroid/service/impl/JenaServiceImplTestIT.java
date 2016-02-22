@@ -5,6 +5,7 @@ import au.gov.ga.hydroid.service.JenaService;
 import au.gov.ga.hydroid.utils.IOUtils;
 import com.hp.hpl.jena.rdf.model.Statement;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,29 +16,50 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
 @IntegrationTest
 public class JenaServiceImplTestIT {
 
-    @Autowired
-    private JenaService jenaService;
+   @Autowired
+   private JenaService jenaService;
 
-    @Test
-    public void testStoreRdf() throws Exception {
-      String randomId = "ID1455674323766";
+   private String rdfId;
+
+   @Before
+   public void initialize() {
+      rdfId = "ID" + System.currentTimeMillis();
+   }
+
+   private void storeRdf() throws Exception {
       InputStream rdfStream = this.getClass().getResourceAsStream("/testfiles/test.rdf");
       String rdfString = new String(IOUtils.fromInputStreamToByteArray(rdfStream));
-      jenaService.storeRdf(randomId, rdfString, "https://editor.vocabs.ands.org.au/");
-    }
+      jenaService.storeRdf(rdfId, rdfString, "");
+   }
 
-   @Test
-   public void testReadRdf() throws Exception {
-      List<Statement> model = jenaService.readRdf("ID1455674323766");
+   private void readRdfShouldExist() throws Exception {
+      List<Statement> model = jenaService.readRdf(rdfId);
       Assert.assertNotNull(model);
       Assert.assertThat(model.size(),greaterThan(0));
+   }
+
+   private void readRdfShouldNotExist() throws Exception {
+      List<Statement> model = jenaService.readRdf(rdfId);
+      Assert.assertNull(model);
+   }
+
+   private void deleteRdf() throws Exception {
+      jenaService.deleteRdf(rdfId);
+   }
+
+   @Test
+   public void testJenaService() throws Exception {
+      storeRdf();
+      readRdfShouldExist();
+      deleteRdf();
+      readRdfShouldNotExist();
    }
 
 }
