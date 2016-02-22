@@ -7,6 +7,8 @@ import com.hp.hpl.jena.query.DatasetAccessorFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.sparql.vocabulary.FOAF;
+import com.hp.hpl.jena.vocabulary.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,17 @@ public class JenaServiceImpl implements JenaService {
    @Autowired
    private HydroidConfiguration configuration;
 
+   private void setNsPrefix(Model model) {
+      model.setNsPrefix(OWL.class.getSimpleName().toLowerCase(), OWL.getURI());
+      model.setNsPrefix(RDF.class.getSimpleName().toLowerCase(), RDF.getURI());
+      model.setNsPrefix(RDFS.class.getSimpleName().toLowerCase(), RDFS.getURI());
+      model.setNsPrefix(FOAF.class.getSimpleName().toLowerCase(), FOAF.getURI());
+      model.setNsPrefix(DC.class.getSimpleName().toLowerCase(), DC.getURI());
+      model.setNsPrefix(DCTerms.class.getSimpleName().toLowerCase(), DCTerms.getURI());
+      model.setNsPrefix("stanbol", "http://stanbol.apache.org/ontology/entityhub/entityhub#");
+      model.setNsPrefix("fise-iks", "http://fise.iks-project.eu/ontology/");
+   }
+
    @Override
    public void storeRdf(String rdfId, String rdfInput, String baseRdfUrl) {
       String serviceURI = configuration.getFusekiUrl();
@@ -27,6 +40,7 @@ public class JenaServiceImpl implements JenaService {
       Model model = ModelFactory.createDefaultModel();
       InputStream is = new ByteArrayInputStream(rdfInput.getBytes());
       model.read(is, baseRdfUrl);
+      setNsPrefix(model);
       accessor.putModel(rdfId, model);
    }
 
