@@ -62,4 +62,11 @@ public class JenaServiceImplTestIT {
       readRdfShouldNotExist();
    }
 
+   @Test
+   public void testStoreRdfDefault() throws Exception {
+      InputStream rdfStream = this.getClass().getResourceAsStream("/testfiles/shoals.xml");
+      String rdfString = new String(IOUtils.fromInputStreamToByteArray(rdfStream));
+      jenaService.storeRdfDefault( rdfString, "");
+   }
+
 }

@@ -1,0 +1,58 @@
+<rdf:RDF
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:j.1="http://stanbol.apache.org/ontology/entityhub/entityhub#"
+        xmlns:j.0="http://purl.org/dc/terms/"
+        xmlns:j.2="http://fise.iks-project.eu/ontology/" xmlns:rdfs="http://www.w3.org/1999/xhtml">
+  <rdf:Description rdf:about="urn:content-item-sha1-8c7f03f723bdb5b1e960a0a6284bd4a30f6776e5">
+	<j.0:type>DOCUMENT</j.0:type>
+	<rdfs:label xml:lang="en">The document about Shoals</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="urn:enhancement-b6a48ac8-c4d2-c6cd-20f9-9fb9ed47ddf8">
+    <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.9999955118474632</j.2:confidence>
+    <j.2:extracted-from rdf:resource="urn:content-item-sha1-8c7f03f723bdb5b1e960a0a6284bd4a30f6776e5"/>
+    <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-16T04:04:45.658Z</j.0:created>
+    <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.langdetect.LanguageDetectionEnhancementEngine</j.0:creator>
+    <j.0:language>en</j.0:language>
+    <j.0:type rdf:resource="http://purl.org/dc/terms/LinguisticSystem"/>
+    <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+    <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="urn:enhancement-b4cf4b39-48b1-f196-75c9-9b058a278b7a">
+    <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+    <j.2:entity-label xml:lang="en">shoals</j.2:entity-label>
+    <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/150"/>
+    <j.2:extracted-from rdf:resource="urn:content-item-sha1-8c7f03f723bdb5b1e960a0a6284bd4a30f6776e5"/>
+    <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-16T04:04:45.677Z</j.0:created>
+    <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+    <j.0:relation rdf:resource="urn:enhancement-e0563208-e65a-e38e-65be-ced9f2d53454"/>
+    <j.1:site>GA</j.1:site>
+    <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+    <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="urn:enhancement-e0563208-e65a-e38e-65be-ced9f2d53454">
+    <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+    <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">35</j.2:end>
+    <j.2:extracted-from rdf:resource="urn:content-item-sha1-8c7f03f723bdb5b1e960a0a6284bd4a30f6776e5"/>
+    <j.2:selected-text xml:lang="en">shoal</j.2:selected-text>
+    <j.2:selection-context xml:lang="en">This document should refer to shoal</j.2:selection-context>
+    <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">30</j.2:start>
+    <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-16T04:04:45.677Z</j.0:created>
+    <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+    <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+    <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="urn:enhancement-40f96de6-30ec-7b48-1d12-0b9d4e4247c7">
+    <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+    <j.2:entity-label xml:lang="en">shoals</j.2:entity-label>
+    <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/180"/>
+    <j.2:entity-type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <j.2:extracted-from rdf:resource="urn:content-item-sha1-8c7f03f723bdb5b1e960a0a6284bd4a30f6776e5"/>
+    <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-02-16T04:04:45.677Z</j.0:created>
+    <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+    <j.0:relation rdf:resource="urn:enhancement-e0563208-e65a-e38e-65be-ced9f2d53454"/>
+    <j.1:site>GA</j.1:site>
+    <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+    <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+  </rdf:Description>
+</rdf:RDF>
