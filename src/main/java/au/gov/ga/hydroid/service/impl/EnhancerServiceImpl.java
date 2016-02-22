@@ -7,6 +7,8 @@ import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import com.hp.hpl.jena.rdf.model.*;
 import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,8 @@ import java.util.Properties;
  */
 @Service
 public class EnhancerServiceImpl implements EnhancerService {
+
+   private Logger logger = LoggerFactory.getLogger(getClass());
 
    private static final String[] VALID_PREDICATES = {"title", "subject", "created", "extracted-from", "entity-reference", "entity-label"};
    private static final String GA_PUBLIC_VOCABS = "GAPublicVocabsSandbox";
@@ -106,7 +110,9 @@ public class EnhancerServiceImpl implements EnhancerService {
       try {
 
          // Send content to Stanbol for enhancement
+         logger.info("enhance - about to post to stanbol server");
          String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), content, StanbolMediaTypes.RDFXML);
+         logger.info("enhance - received results from stanbol server");
 
          // Parse enhancedText into an rdf document
          List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
@@ -118,22 +124,29 @@ public class EnhancerServiceImpl implements EnhancerService {
             }
 
             // Add enhanced document to Solr
+            logger.info("enhance - about to add document to solr");
             urn = properties.getProperty("about");
             solrClient.addDocument(configuration.getSolrCollection(), properties);
+            logger.info("enhance - document added to solr");
 
             // Store full enhanced doc (rdf) in Jena
+            logger.info("enhance - about to store RDF in Jena");
             jenaService.storeRdf(urn, enhancedText, "");
+            logger.info("enhance - RDF stored in Jena");
 
             // Store full document in DB
+            logger.info("enhance - saving document in the database");
             Document document = new Document();
             document.setUrn(urn);
             document.setTitle(title);
             document.setType(DocumentType.valueOf(docType));
             document.setContent(content.getBytes());
             documentService.create(document);
+            logger.info("enhance - document saved in the database");
          }
 
       } catch (Exception e) {
+         logger.error("enhance - Exception: ", e);
          // if there was any error in the process we remove the documents stored under the URN in process
          if (urn != null) {
             rollbackEnhancement(urn);
