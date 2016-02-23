@@ -3,7 +3,7 @@ package au.gov.ga.hydroid.service.impl;
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.service.JenaService;
 import au.gov.ga.hydroid.utils.IOUtils;
-import com.hp.hpl.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.Statement;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
