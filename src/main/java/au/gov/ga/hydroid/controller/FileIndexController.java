@@ -45,7 +45,7 @@ public class FileIndexController {
                 byte[] bytes = file.getBytes();
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
                 String text = parseFile(byteArrayInputStream);
-                enhancerService.enhance(name, text, "document");
+                enhancerService.enhance(name, text, "Document");
             } catch (Exception e) {
                 throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,"Failed extracting/indexing text from file");
             }
