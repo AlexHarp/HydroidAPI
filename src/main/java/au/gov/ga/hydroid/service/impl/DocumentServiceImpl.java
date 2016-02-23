@@ -4,6 +4,7 @@ import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentRowMapper;
 import au.gov.ga.hydroid.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +27,13 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public Document findByUrn(String urn) {
-      return (Document) jdbcTemplate.queryForObject("SELECT * FROM hydroid.documents where urn = ?",
-            new String[] {urn}, new DocumentRowMapper());
+      try {
+         return (Document) jdbcTemplate.queryForObject("SELECT * FROM hydroid.documents where urn = ?",
+               new String[]{urn}, new DocumentRowMapper());
+      } catch (IncorrectResultSizeDataAccessException e) {
+         // document was not found
+         return null;
+      }
    }
 
    @Override

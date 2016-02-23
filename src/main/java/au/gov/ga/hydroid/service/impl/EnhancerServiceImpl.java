@@ -5,10 +5,10 @@ import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
-import org.apache.jena.rdf.model.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.entity.ContentType;
+import org.apache.jena.rdf.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,12 +141,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
             // Store full document in DB
             logger.info("enhance - saving document in the database");
-            Document document = new Document();
-            document.setUrn(urn);
-            document.setTitle(title);
-            document.setType(DocumentType.valueOf(docType));
-            document.setContent(content.getBytes());
-            documentService.create(document);
+            saveOrUpdateDocument(urn, title, docType, content);
             logger.info("enhance - document saved in the database");
 
             // Store full enhanced doc (rdf) in Jena
@@ -162,6 +157,22 @@ public class EnhancerServiceImpl implements EnhancerService {
             rollbackEnhancement(urn);
          }
          throw e;
+      }
+   }
+
+   private void saveOrUpdateDocument(String urn, String title, String docType, String content) {
+      Document document = documentService.findByUrn(urn);
+      if (document == null) {
+         document = new Document();
+      }
+      document.setUrn(urn);
+      document.setTitle(title);
+      document.setType(DocumentType.valueOf(docType));
+      document.setContent(content.getBytes());
+      if (document.getId() == 0) {
+         documentService.create(document);
+      } else {
+         documentService.update(document);
       }
    }
 
@@ -196,18 +207,14 @@ public class EnhancerServiceImpl implements EnhancerService {
          properties.setProperty("title", document.getTitle());
       }
 
-      // Reindex enhanced document in Solr
+      // Save the new enhanced document in Solr
       solrClient.addDocument(configuration.getSolrCollection(), properties);
 
-      // If a new enhancement is run we update references to the new URN
+      // If new enhancement was run we save the RDF in S3 and Jena
       if (enhance) {
-         urn = properties.getProperty("about");
-         document.setUrn(urn);
-         documentService.update(document);
          s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, enhancedText, ContentType.APPLICATION_XML.getMimeType());
          jenaService.storeRdfDefault(enhancedText, "");
       }
-
    }
 
    private void rollbackEnhancement(String urn) throws Exception {
