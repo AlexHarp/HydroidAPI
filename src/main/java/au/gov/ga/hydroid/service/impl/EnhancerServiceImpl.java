@@ -7,12 +7,12 @@ import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import com.hp.hpl.jena.rdf.model.*;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,8 +118,8 @@ public class EnhancerServiceImpl implements EnhancerService {
          logger.info("enhance - about to post to stanbol server");
          String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), content, StanbolMediaTypes.RDFXML);
          logger.info("enhance - received results from stanbol server");
-         enhancedText = enhancedText.replaceAll(":content-item-sha1-", ":content-item-sha1:");
-         logger.info("enhance - changed urn pattern");
+         enhancedText = StringUtils.replace(enhancedText, ":content-item-sha1-", ":content-item-sha1:");
+         logger.info("enhance - changed urn pattern, still contain old: " + enhancedText.contains(":content-item-sha1-"));
 
          // Parse enhancedText into an rdf document
          List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
