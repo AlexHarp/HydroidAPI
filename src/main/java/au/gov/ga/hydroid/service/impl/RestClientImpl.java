@@ -3,14 +3,20 @@ package au.gov.ga.hydroid.service.impl;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.RestClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
@@ -51,4 +57,14 @@ public class RestClientImpl implements RestClient {
       return httpRequest.post(entity);
    }
 
+   public Response postFile(URI uri,String fileName, InputStream fileInputStream) throws FileNotFoundException {
+      WebTarget target = builder.build().target(uri);
+      MultipartFormDataOutput mdo = new MultipartFormDataOutput();
+      mdo.addFormData("file", fileInputStream, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+      mdo.addFormData("name",fileName,MediaType.TEXT_PLAIN_TYPE);
+      GenericEntity<MultipartFormDataOutput> entity = new GenericEntity<MultipartFormDataOutput>(mdo) {};
+      Builder httpRequest = target.request();
+      httpRequest.accept(MediaType.APPLICATION_JSON_TYPE);
+      return target.request().post( Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE));
+   }
 }
