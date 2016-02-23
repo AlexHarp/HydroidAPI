@@ -118,8 +118,8 @@ public class EnhancerServiceImpl implements EnhancerService {
          logger.info("enhance - about to post to stanbol server");
          String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), content, StanbolMediaTypes.RDFXML);
          logger.info("enhance - received results from stanbol server");
-
-         enhancedText = StringUtils.replace(enhancedText, ":content-item-sha1-", ":content-item-sha1:");
+         enhancedText = enhancedText.replaceAll(":content-item-sha1-", ":content-item-sha1:");
+         logger.info("enhance - changed urn pattern");
 
          // Parse enhancedText into an rdf document
          List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
@@ -195,13 +195,13 @@ public class EnhancerServiceImpl implements EnhancerService {
       if (document.getTitle() != null && !document.getTitle().isEmpty()) {
          properties.setProperty("title", document.getTitle());
       }
-      urn = properties.getProperty("about");
 
       // Reindex enhanced document in Solr
       solrClient.addDocument(configuration.getSolrCollection(), properties);
 
       // If a new enhancement is run we update references to the new URN
       if (enhance) {
+         urn = properties.getProperty("about");
          document.setUrn(urn);
          documentService.update(document);
          s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, enhancedText, ContentType.APPLICATION_XML.getMimeType());
