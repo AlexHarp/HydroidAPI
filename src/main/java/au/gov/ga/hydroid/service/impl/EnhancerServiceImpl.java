@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,6 +119,8 @@ public class EnhancerServiceImpl implements EnhancerService {
          String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), content, StanbolMediaTypes.RDFXML);
          logger.info("enhance - received results from stanbol server");
 
+         enhancedText = StringUtils.replace(enhancedText, ":content-item-sha1-", ":content-item-sha1:");
+
          // Parse enhancedText into an rdf document
          List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
          if (rdfDocument != null) {
@@ -136,11 +139,6 @@ public class EnhancerServiceImpl implements EnhancerService {
             // Store full enhanced doc (rdf) in S3
             s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, content, ContentType.APPLICATION_XML.getMimeType());
 
-            // Store full enhanced doc (rdf) in Jena
-            logger.info("enhance - about to store RDF in Jena");
-            jenaService.storeRdfDefault(enhancedText, "");
-            logger.info("enhance - RDF stored in Jena");
-
             // Store full document in DB
             logger.info("enhance - saving document in the database");
             Document document = new Document();
@@ -150,6 +148,11 @@ public class EnhancerServiceImpl implements EnhancerService {
             document.setContent(content.getBytes());
             documentService.create(document);
             logger.info("enhance - document saved in the database");
+
+            // Store full enhanced doc (rdf) in Jena
+            logger.info("enhance - about to store RDF in Jena");
+            jenaService.storeRdfDefault(enhancedText, "");
+            logger.info("enhance - RDF stored in Jena");
          }
 
       } catch (Exception e) {
@@ -192,18 +195,19 @@ public class EnhancerServiceImpl implements EnhancerService {
       if (document.getTitle() != null && !document.getTitle().isEmpty()) {
          properties.setProperty("title", document.getTitle());
       }
+      urn = properties.getProperty("about");
+
+      // Reindex enhanced document in Solr
+      solrClient.addDocument(configuration.getSolrCollection(), properties);
 
       // If a new enhancement is run we update references to the new URN
       if (enhance) {
-         urn = properties.getProperty("about");
          document.setUrn(urn);
          documentService.update(document);
          s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, enhancedText, ContentType.APPLICATION_XML.getMimeType());
          jenaService.storeRdfDefault(enhancedText, "");
       }
 
-      // Reindex enhanced document in Solr
-      solrClient.addDocument(configuration.getSolrCollection(), properties);
    }
 
    private void rollbackEnhancement(String urn) throws Exception {
@@ -212,9 +216,6 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       // Delete document from S3
       s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn);
-
-      // Delete document from Jena
-      jenaService.deleteRdf(urn);
 
       // Delete document from Solr
       solrClient.deleteDocument(configuration.getSolrCollection(), urn);
