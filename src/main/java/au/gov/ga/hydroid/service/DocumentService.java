@@ -13,5 +13,6 @@ public interface DocumentService {
    public Document findByUrn(String urn);
    public void create(Document document);
    public void deleteByUrn(String urn);
+   public void update(Document document);
 
 }

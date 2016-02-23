@@ -44,4 +44,9 @@ public class CustomMockDocumentService implements DocumentService {
 
    }
 
+   @Override
+   public void update(Document document) {
+
+   }
+
 }
