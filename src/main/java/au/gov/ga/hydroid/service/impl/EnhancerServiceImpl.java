@@ -5,8 +5,9 @@ import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
-import com.hp.hpl.jena.rdf.model.*;
+import org.apache.jena.rdf.model.*;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,6 +118,8 @@ public class EnhancerServiceImpl implements EnhancerService {
          logger.info("enhance - about to post to stanbol server");
          String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), content, StanbolMediaTypes.RDFXML);
          logger.info("enhance - received results from stanbol server");
+         enhancedText = StringUtils.replace(enhancedText, ":content-item-sha1-", ":content-item-sha1:");
+         logger.info("enhance - changed urn pattern, still contain old: " + enhancedText.contains(":content-item-sha1-"));
 
          // Parse enhancedText into an rdf document
          List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
@@ -136,11 +139,6 @@ public class EnhancerServiceImpl implements EnhancerService {
             // Store full enhanced doc (rdf) in S3
             s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, content, ContentType.APPLICATION_XML.getMimeType());
 
-            // Store full enhanced doc (rdf) in Jena
-            logger.info("enhance - about to store RDF in Jena");
-            jenaService.storeRdfDefault(enhancedText, "");
-            logger.info("enhance - RDF stored in Jena");
-
             // Store full document in DB
             logger.info("enhance - saving document in the database");
             Document document = new Document();
@@ -150,6 +148,11 @@ public class EnhancerServiceImpl implements EnhancerService {
             document.setContent(content.getBytes());
             documentService.create(document);
             logger.info("enhance - document saved in the database");
+
+            // Store full enhanced doc (rdf) in Jena
+            logger.info("enhance - about to store RDF in Jena");
+            jenaService.storeRdfDefault(enhancedText, "");
+            logger.info("enhance - RDF stored in Jena");
          }
 
       } catch (Exception e) {
@@ -193,6 +196,9 @@ public class EnhancerServiceImpl implements EnhancerService {
          properties.setProperty("title", document.getTitle());
       }
 
+      // Reindex enhanced document in Solr
+      solrClient.addDocument(configuration.getSolrCollection(), properties);
+
       // If a new enhancement is run we update references to the new URN
       if (enhance) {
          urn = properties.getProperty("about");
@@ -202,8 +208,6 @@ public class EnhancerServiceImpl implements EnhancerService {
          jenaService.storeRdfDefault(enhancedText, "");
       }
 
-      // Reindex enhanced document in Solr
-      solrClient.addDocument(configuration.getSolrCollection(), properties);
    }
 
    private void rollbackEnhancement(String urn) throws Exception {
@@ -212,9 +216,6 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       // Delete document from S3
       s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn);
-
-      // Delete document from Jena
-      jenaService.deleteRdf(urn);
 
       // Delete document from Solr
       solrClient.deleteDocument(configuration.getSolrCollection(), urn);

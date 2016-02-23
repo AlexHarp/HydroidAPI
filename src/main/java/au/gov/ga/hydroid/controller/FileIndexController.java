@@ -2,6 +2,7 @@ package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.dto.ServiceResponse;
+import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.EnhancerService;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -45,7 +46,7 @@ public class FileIndexController {
                 byte[] bytes = file.getBytes();
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
                 String text = parseFile(byteArrayInputStream);
-                enhancerService.enhance(name, text, "document");
+                enhancerService.enhance(name, text, DocumentType.DOCUMENT.name());
             } catch (Exception e) {
                 throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,"Failed extracting/indexing text from file");
             }

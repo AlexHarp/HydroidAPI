@@ -5,7 +5,7 @@ import au.gov.ga.hydroid.service.JenaService;
 import au.gov.ga.hydroid.service.RestClient;
 import au.gov.ga.hydroid.service.StanbolClient;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
-import com.hp.hpl.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

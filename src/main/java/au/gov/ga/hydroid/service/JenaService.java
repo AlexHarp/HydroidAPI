@@ -1,6 +1,6 @@
 package au.gov.ga.hydroid.service;
 
-import com.hp.hpl.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.Statement;
 
 import java.util.List;
 
