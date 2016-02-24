@@ -56,15 +56,4 @@ public class RestClientImpl implements RestClient {
       }
       return httpRequest.post(entity);
    }
-
-   public Response postFile(URI uri,String fileName, InputStream fileInputStream) throws FileNotFoundException {
-      WebTarget target = builder.build().target(uri);
-      MultipartFormDataOutput mdo = new MultipartFormDataOutput();
-      mdo.addFormData("file", fileInputStream, MediaType.APPLICATION_OCTET_STREAM_TYPE);
-      mdo.addFormData("name",fileName,MediaType.TEXT_PLAIN_TYPE);
-      GenericEntity<MultipartFormDataOutput> entity = new GenericEntity<MultipartFormDataOutput>(mdo) {};
-      Builder httpRequest = target.request();
-      httpRequest.accept(MediaType.APPLICATION_JSON_TYPE);
-      return target.request().post( Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE));
-   }
 }

@@ -14,5 +14,4 @@ public interface RestClient {
 
    public Response get(URI uri, MediaType acceptType);
    public Response post(URI uri, Entity<?> entity, MediaType acceptType);
-   public Response postFile(URI uri, String fileName, InputStream fileInputStream) throws FileNotFoundException;
 }
