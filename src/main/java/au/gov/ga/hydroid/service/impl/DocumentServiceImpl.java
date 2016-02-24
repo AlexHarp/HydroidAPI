@@ -22,13 +22,13 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public List<Document> findAll() {
-      return jdbcTemplate.query("SELECT * FROM hydroid.documents", new DocumentRowMapper());
+      return jdbcTemplate.query("SELECT * FROM documents", new DocumentRowMapper());
    }
 
    @Override
    public Document findByUrn(String urn) {
       try {
-         return (Document) jdbcTemplate.queryForObject("SELECT * FROM hydroid.documents where urn = ?",
+         return (Document) jdbcTemplate.queryForObject("SELECT * FROM documents where urn = ?",
                new String[]{urn}, new DocumentRowMapper());
       } catch (IncorrectResultSizeDataAccessException e) {
          // document was not found
@@ -39,9 +39,10 @@ public class DocumentServiceImpl implements DocumentService {
    @Override
    @Transactional
    public void create(Document document) {
-      jdbcTemplate.update("insert into documents (urn, title, type, content, status, status_reason) values (?, ?, ?, ?, ?, ?)",
-            document.getUrn(), document.getTitle(), document.getType().name(), document.getContent(),
-            document.getStatus().name(), document.getStatusReason());
+      String sql = new StringBuilder("insert into documents (origin, urn, title, type, content, status, ")
+            .append("status_reason, process_date) values (?, ?, ?, ?, ?, ?, ?, timezone('UTC', now()))").toString();
+      jdbcTemplate.update(sql, document.getOrigin(), document.getUrn(), document.getTitle(), document.getType().name(),
+            document.getContent(), document.getStatus().name(), document.getStatusReason());
    }
 
    @Override
@@ -51,8 +52,8 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void update(Document document) {
-      jdbcTemplate.update("update documents set urn = ?, status = ?, status_reason = ? where id = ?",
-            document.getUrn(), document.getStatus().name(), document.getStatusReason(), document.getId());
+      String sql = "update documents set urn = ?, status = ?, status_reason = ?, process_date = timezone('UTC', now()) where id = ?";
+      jdbcTemplate.update(sql, document.getUrn(), document.getStatus().name(), document.getStatusReason(), document.getId());
    }
 
 }
