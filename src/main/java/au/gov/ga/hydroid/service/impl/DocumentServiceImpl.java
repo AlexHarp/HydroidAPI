@@ -56,4 +56,9 @@ public class DocumentServiceImpl implements DocumentService {
       jdbcTemplate.update(sql, document.getUrn(), document.getStatus().name(), document.getStatusReason(), document.getId());
    }
 
+   @Override
+   public void clearAll() {
+      jdbcTemplate.update("delete from documents");
+   }
+
 }
