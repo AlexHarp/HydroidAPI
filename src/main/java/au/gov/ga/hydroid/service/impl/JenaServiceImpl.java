@@ -47,9 +47,9 @@ public class JenaServiceImpl implements JenaService {
       model.read(is, baseRdfUrl);
       setNsPrefix(model);
       if (graphUri == null) {
-         accessor.putModel(model);
+         accessor.add(model);
       } else {
-         accessor.putModel(graphUri, model);
+         accessor.add(graphUri, model);
       }
    }
 
