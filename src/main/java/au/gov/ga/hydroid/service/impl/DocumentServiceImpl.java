@@ -39,8 +39,9 @@ public class DocumentServiceImpl implements DocumentService {
    @Override
    @Transactional
    public void create(Document document) {
-      jdbcTemplate.update("insert into documents (urn, title, type, content) values (?, ?, ?, ?)",
-            document.getUrn(), document.getTitle(), document.getType().name(), document.getContent());
+      jdbcTemplate.update("insert into documents (urn, title, type, content, status, status_reason) values (?, ?, ?, ?, ?, ?)",
+            document.getUrn(), document.getTitle(), document.getType().name(), document.getContent(),
+            document.getStatus().name(), document.getStatusReason());
    }
 
    @Override
@@ -50,7 +51,8 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void update(Document document) {
-      jdbcTemplate.update("update documents set urn = ? where id = ?", document.getUrn(), document.getId());
+      jdbcTemplate.update("update documents set urn = ?, status = ?, status_reason = ? where id = ?",
+            document.getUrn(), document.getStatus().name(), document.getStatusReason(), document.getId());
    }
 
 }

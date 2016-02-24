@@ -25,6 +25,8 @@ public class DocumentRowMapper implements RowMapper {
       document.setTitle(resultSet.getString("title"));
       document.setType(DocumentType.valueOf(resultSet.getString("type")));
       document.setContent(resultSet.getBytes("content"));
+      document.setStatus(EnhancementStatus.valueOf(resultSet.getString("status")));
+      document.setStatusReason(resultSet.getString("status_reason"));
       return document;
    }
 

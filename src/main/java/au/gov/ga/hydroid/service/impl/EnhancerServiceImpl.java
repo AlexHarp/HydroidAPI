@@ -3,6 +3,7 @@ package au.gov.ga.hydroid.service.impl;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
+import au.gov.ga.hydroid.model.EnhancementStatus;
 import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.lang.ArrayUtils;
@@ -141,7 +142,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
             // Store full document in DB
             logger.info("enhance - saving document in the database");
-            saveOrUpdateDocument(urn, title, docType, content);
+            saveOrUpdateDocument(urn, title, docType, content, EnhancementStatus.SUCCESS, null);
             logger.info("enhance - document saved in the database");
 
             // Store full enhanced doc (rdf) in Jena
@@ -154,13 +155,15 @@ public class EnhancerServiceImpl implements EnhancerService {
          logger.error("enhance - Exception: ", e);
          // if there was any error in the process we remove the documents stored under the URN in process
          if (urn != null) {
+            saveOrUpdateDocument(urn, title, docType, content, EnhancementStatus.FAILURE, e.getLocalizedMessage());
             rollbackEnhancement(urn);
          }
          throw e;
       }
    }
 
-   private void saveOrUpdateDocument(String urn, String title, String docType, String content) {
+   private void saveOrUpdateDocument(String urn, String title, String docType, String content,
+                                     EnhancementStatus status, String statusReason) {
       Document document = documentService.findByUrn(urn);
       if (document == null) {
          document = new Document();
@@ -169,6 +172,8 @@ public class EnhancerServiceImpl implements EnhancerService {
       document.setTitle(title);
       document.setType(DocumentType.valueOf(docType));
       document.setContent(content.getBytes());
+      document.setStatus(status);
+      document.setStatusReason(statusReason);
       if (document.getId() == 0) {
          documentService.create(document);
       } else {
@@ -218,9 +223,6 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    private void rollbackEnhancement(String urn) throws Exception {
-      // Delete document from database
-      documentService.deleteByUrn(urn);
-
       // Delete document from S3
       s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn);
 

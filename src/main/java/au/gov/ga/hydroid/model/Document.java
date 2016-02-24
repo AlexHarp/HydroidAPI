@@ -11,6 +11,8 @@ public class Document {
    private String title;
    private DocumentType type;
    private byte[] content;
+   private EnhancementStatus status;
+   private String statusReason;
 
    public long getId() {
       return id;
@@ -50,6 +52,22 @@ public class Document {
 
    public void setContent(byte[] content) {
       this.content = content;
+   }
+
+   public EnhancementStatus getStatus() {
+      return status;
+   }
+
+   public void setStatus(EnhancementStatus status) {
+      this.status = status;
+   }
+
+   public String getStatusReason() {
+      return statusReason;
+   }
+
+   public void setStatusReason(String statusReason) {
+      this.statusReason = statusReason;
    }
 
 }
