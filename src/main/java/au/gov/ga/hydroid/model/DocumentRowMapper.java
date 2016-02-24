@@ -21,10 +21,14 @@ public class DocumentRowMapper implements RowMapper {
    public Object mapRow(ResultSet resultSet, int rowNum) throws SQLException {
       Document document = new Document();
       document.setId(resultSet.getLong("id"));
+      document.setOrigin(resultSet.getString("origin"));
       document.setUrn(resultSet.getString("urn"));
       document.setTitle(resultSet.getString("title"));
       document.setType(DocumentType.valueOf(resultSet.getString("type")));
       document.setContent(resultSet.getBytes("content"));
+      document.setStatus(EnhancementStatus.valueOf(resultSet.getString("status")));
+      document.setStatusReason(resultSet.getString("status_reason"));
+      document.setProcessDate(resultSet.getTimestamp("process_date"));
       return document;
    }
 
