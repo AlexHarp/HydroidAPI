@@ -49,4 +49,9 @@ public class CustomMockDocumentService implements DocumentService {
 
    }
 
+   @Override
+   public void clearAll() {
+      
+   }
+
 }
