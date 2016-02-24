@@ -14,5 +14,6 @@ public interface DocumentService {
    public void create(Document document);
    public void deleteByUrn(String urn);
    public void update(Document document);
+   public void clearAll();
 
 }
