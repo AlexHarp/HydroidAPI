@@ -48,7 +48,7 @@ import static org.mockito.Matchers.isNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
 @IntegrationTest
-public class FileImportTest {
+public class FileImportTestIT {
 
    @Autowired
    private HydroidConfiguration configuration;
