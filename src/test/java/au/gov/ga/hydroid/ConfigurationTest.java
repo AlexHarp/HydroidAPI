@@ -19,7 +19,7 @@ public class ConfigurationTest {
    private HydroidConfiguration configuration;
 
    @Test
-   public void testConfiguration() throws Exception {
+   public void testConfiguration() {
       Assert.assertNotNull(configuration);
       Assert.assertEquals(3128, configuration.getProxyPort());
       Assert.assertEquals("default", configuration.getStanbolChain());

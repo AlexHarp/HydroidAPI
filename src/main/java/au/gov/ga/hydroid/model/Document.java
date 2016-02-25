@@ -13,7 +13,6 @@ public class Document {
    private String urn;
    private String title;
    private DocumentType type;
-   private byte[] content;
    private EnhancementStatus status;
    private String statusReason;
    private Date processDate;
@@ -56,14 +55,6 @@ public class Document {
 
    public void setType(DocumentType type) {
       this.type = type;
-   }
-
-   public byte[] getContent() {
-      return content;
-   }
-
-   public void setContent(byte[] content) {
-      this.content = content;
    }
 
    public EnhancementStatus getStatus() {

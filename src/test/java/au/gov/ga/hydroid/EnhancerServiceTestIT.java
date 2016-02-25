@@ -1,8 +1,8 @@
 package au.gov.ga.hydroid;
 
-import au.gov.ga.hydroid.controller.FileIndexController;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.EnhancerService;
+import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -34,26 +33,17 @@ public class EnhancerServiceTestIT {
    private EnhancerService enhancerService;
 
    @Test
-   public void testEnhance() throws Exception {
+   public void testEnhance() {
       String randomText = "Created: " + System.currentTimeMillis();
-      String text = parseFile(this.getClass().getResourceAsStream("/testfiles/36_4_1175-1197_Buss_and_Clote.pdf"));
+      String origin = "/testfiles/36_4_1175-1197_Buss_and_Clote.pdf";
+      String text = IOUtils.parseFile(this.getClass().getResourceAsStream(origin));
 
-      enhancerService.enhance("Document Title" + randomText,
-              text,
-              DocumentType.DOCUMENT.name());
+      enhancerService.enhance("Document Title" + randomText, text, DocumentType.DOCUMENT.name(), origin);
    }
 
    @Test
-   public void testReindexDocument() throws Exception {
-      enhancerService.reindexDocument("urn:content-item-sha1-88d676ed33e1b645fbd1e1a812f78b514ada8b16", false);
-   }
-
-   public static String parseFile(InputStream stream) throws IOException, SAXException, TikaException {
-      AutoDetectParser parser = new AutoDetectParser();
-      BodyContentHandler handler = new BodyContentHandler();
-      Metadata metadata = new Metadata();
-      parser.parse(stream, handler, metadata);
-      return handler.toString();
+   public void testEnhanceDocuments() {
+      enhancerService.enhanceDocuments();
    }
 
 }

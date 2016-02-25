@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -22,42 +23,42 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = HydroidApplication.class)
 public class DocumentControllerTest {
-    private MockMvc mockMvc;
-
-    @Mock
-    S3Client s3Client;
+   private MockMvc mockMvc;
 
    @Mock
+   S3Client s3Client;
+
+   @Autowired
    HydroidConfiguration configuration;
 
-    DocumentController documentController;
+   DocumentController documentController;
 
-    @Before
-    public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        documentController = new DocumentController();
-        ReflectionTestUtils.setField(documentController, "s3Client", this.s3Client);
-       ReflectionTestUtils.setField(documentController, "configuration", this.configuration);
-        mockMvc = MockMvcBuilders.standaloneSetup(documentController).build();
-    }
+   @Before
+   public void setup() {
+      MockitoAnnotations.initMocks(this);
+      documentController = new DocumentController();
+      ReflectionTestUtils.setField(documentController, "s3Client", this.s3Client);
+      ReflectionTestUtils.setField(documentController, "configuration", this.configuration);
+      mockMvc = MockMvcBuilders.standaloneSetup(documentController).build();
+   }
 
-    @Test
-    public void testDownload_NotFound() throws Exception {
-        this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/document/missing-urn/download")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
+   @Test
+   public void testDownload_NotFound() throws Exception {
+      this.mockMvc.perform(
+            MockMvcRequestBuilders.get("/document/missing-urn/download")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+   }
 
 
-    @Test
-    public void testDownload_Found() throws Exception {
-        ReflectionTestUtils.setField(documentController, "s3Client", new CustomMockS3Client());
-        this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/document/urn1/download")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
+   @Test
+   public void testDownload_Found() throws Exception {
+      ReflectionTestUtils.setField(documentController, "s3Client", new CustomMockS3Client());
+      this.mockMvc.perform(
+            MockMvcRequestBuilders.get("/document/urn1/download")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+   }
 }

@@ -15,7 +15,6 @@ public class CustomMockDocumentService implements DocumentService {
             doc.setUrn("urn" + i);
             doc.setId(i);
             doc.setTitle("Title");
-            doc.setContent("My content".getBytes());
             all.add(doc);
         }
     }
@@ -34,7 +33,12 @@ public class CustomMockDocumentService implements DocumentService {
         return null;
     }
 
-    @Override
+   @Override
+   public Document findByOrigin(String origin) {
+      return null;
+   }
+
+   @Override
     public void create(Document document) {
 
     }

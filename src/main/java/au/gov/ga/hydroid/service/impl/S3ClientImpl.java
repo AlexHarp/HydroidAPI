@@ -7,13 +7,17 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by u24529 on 8/02/2016.
@@ -42,7 +46,14 @@ public class S3ClientImpl implements S3Client {
    }
 
    @Override
-   public byte[] getFile(String bucketName, String key) throws Exception {
+   public InputStream getFile(String bucketName, String key)  {
+      AmazonS3 s3 = getAmazonS3();
+      S3Object object = s3.getObject(bucketName, key);
+      return object.getObjectContent();
+   }
+
+   @Override
+   public byte[] getFileAsByteArray(String bucketName, String key)  {
       AmazonS3 s3 = getAmazonS3();
       S3Object object = s3.getObject(bucketName, key);
       InputStream is = object.getObjectContent();
@@ -74,6 +85,27 @@ public class S3ClientImpl implements S3Client {
       if (s3.doesBucketExist(bucketName)) {
          s3.deleteObject(bucketName, key);
       }
+   }
+
+   @Override
+   public List<S3ObjectSummary> listObjects(String bucketName, String key) {
+      List<S3ObjectSummary> objects = new ArrayList();
+
+      AmazonS3 s3 = getAmazonS3();
+
+      ObjectListing objectListing = s3.listObjects(bucketName, key);
+
+      do {
+         for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
+            objects.add(objectSummary);
+         }
+         if (!objectListing.isTruncated()) {
+            break;
+         }
+         objectListing = s3.listNextBatchOfObjects(objectListing);
+      } while (true);
+
+      return objects;
    }
 
 }

@@ -5,7 +5,10 @@ import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.model.EnhancementStatus;
 import au.gov.ga.hydroid.service.*;
+import au.gov.ga.hydroid.utils.HydroidException;
+import au.gov.ga.hydroid.utils.IOUtils;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.entity.ContentType;
@@ -15,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -107,8 +111,12 @@ public class EnhancerServiceImpl implements EnhancerService {
       return properties;
    }
 
+   private String getFileNameFromS3ObjectSummary(S3ObjectSummary objectSummary) {
+      return objectSummary.getKey().substring(objectSummary.getKey().lastIndexOf("/") + 1);
+   }
+
    @Override
-   public void enhance(String title, String content, String docType) throws Exception {
+   public void enhance(String title, String content, String docType, String origin) {
 
       String urn = null;
       Properties properties = null;
@@ -142,7 +150,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
             // Store full document in DB
             logger.info("enhance - saving document in the database");
-            saveOrUpdateDocument(urn, title, docType, content, EnhancementStatus.SUCCESS, null);
+            saveOrUpdateDocument(urn, title, docType, EnhancementStatus.SUCCESS, null);
             logger.info("enhance - document saved in the database");
 
             // Store full enhanced doc (rdf) in Jena
@@ -151,18 +159,18 @@ public class EnhancerServiceImpl implements EnhancerService {
             logger.info("enhance - RDF stored in Jena");
          }
 
-      } catch (Exception e) {
+      } catch (Throwable e) {
          logger.error("enhance - Exception: ", e);
          // if there was any error in the process we remove the documents stored under the URN in process
          if (urn != null) {
-            saveOrUpdateDocument(urn, title, docType, content, EnhancementStatus.FAILURE, e.getLocalizedMessage());
+            saveOrUpdateDocument(urn, title, docType, EnhancementStatus.FAILURE, e.getLocalizedMessage());
             rollbackEnhancement(urn);
          }
-         throw e;
+         throw new HydroidException(e);
       }
    }
 
-   private void saveOrUpdateDocument(String urn, String title, String docType, String content,
+   private void saveOrUpdateDocument(String urn, String title, String docType,
                                      EnhancementStatus status, String statusReason) {
       Document document = documentService.findByUrn(urn);
       if (document == null) {
@@ -171,7 +179,6 @@ public class EnhancerServiceImpl implements EnhancerService {
       document.setUrn(urn);
       document.setTitle(title);
       document.setType(DocumentType.valueOf(docType));
-      document.setContent(content.getBytes());
       document.setStatus(status);
       document.setStatusReason(statusReason);
       if (document.getId() == 0) {
@@ -182,7 +189,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    @Override
-   public void reindexDocument(String urn, boolean enhance) throws Exception {
+   public void reindexDocument(String urn, boolean enhance) {
 
       String enhancedText = null;
       Properties properties = null;
@@ -195,19 +202,19 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       // Post to Stanbol for enhancement again
       if (enhance) {
-         enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), new String(document.getContent()),
-               StanbolMediaTypes.RDFXML);
+         //enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), new String(document.getContent()),
+               //StanbolMediaTypes.RDFXML);
 
          // Use cached (already enhanced) version of the document from S3
       } else {
-         enhancedText = new String(s3Client.getFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn));
+         enhancedText = new String(s3Client.getFileAsByteArray(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn));
       }
 
       // Parse the enhanced content String into an rdfDocument
       rdfDocument = jenaService.parseRdf(enhancedText, "");
 
       // Generate dictionary with properties we are interested in
-      properties = generateSolrDocument(rdfDocument, new String(document.getContent()), document.getType().name(), document.getTitle());
+      //properties = generateSolrDocument(rdfDocument, new String(document.getContent()), document.getType().name(), document.getTitle());
       if (document.getTitle() != null && !document.getTitle().isEmpty()) {
          properties.setProperty("title", document.getTitle());
       }
@@ -222,7 +229,67 @@ public class EnhancerServiceImpl implements EnhancerService {
       }
    }
 
-   private void rollbackEnhancement(String urn) throws Exception {
+   private List<S3ObjectSummary> getDocumentsForEnhancement(List<S3ObjectSummary> input) {
+      List<S3ObjectSummary> output = new ArrayList();
+      if (!input.isEmpty()) {
+         String origin;
+         Document document;
+         // remove the folder item
+         input.remove(0);
+         for (S3ObjectSummary object : input) {
+            origin = object.getBucketName() + ":" + object.getKey();
+            document = documentService.findByOrigin(origin);
+            // Document was not enhanced or previous enhancement failed
+            if (document == null || document.getStatus() == EnhancementStatus.FAILURE) {
+               output.add(object);
+            }
+         }
+      }
+      return output;
+   }
+
+   private void enhanceCollection(DocumentType documentType) {
+      String title;
+      String origin;
+      String fileContent;
+      InputStream s3FileContent;
+      String key = "enhancer/input/" + documentType.name().toLowerCase() + "s";
+      List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
+      objects = getDocumentsForEnhancement(objects);
+      for (S3ObjectSummary object : objects) {
+         s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+         fileContent = IOUtils.parseFile(s3FileContent);
+         title = getFileNameFromS3ObjectSummary(object);
+         origin = configuration.getS3Bucket() + ":" + object.getKey();
+         try {
+            enhance(title, fileContent, documentType.name(), origin);
+         } catch (Throwable e) {
+            logger.error("enhanceCollection - error processing file key: " + key);
+         }
+      }
+   }
+
+   @Override
+   public void enhanceDocuments() {
+      enhanceCollection(DocumentType.DOCUMENT);
+   }
+
+   @Override
+   public void enhanceDatasets() {
+      enhanceCollection(DocumentType.DATASET);
+   }
+
+   @Override
+   public void enhanceModels() {
+      enhanceCollection(DocumentType.MODEL);
+   }
+
+   @Override
+   public void enhanceImages() {
+
+   }
+
+   private void rollbackEnhancement(String urn) {
       // Delete document from S3
       s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn);
 

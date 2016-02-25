@@ -1,5 +1,10 @@
 package au.gov.ga.hydroid.utils;
 
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.sax.BodyContentHandler;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +14,7 @@ import java.io.InputStream;
  */
 public class IOUtils {
 
-   public static byte[] fromInputStreamToByteArray(InputStream input) throws IOException {
+   public static byte[] fromInputStreamToByteArray(InputStream input) {
       byte[] output = null;
       ByteArrayOutputStream baos = null;
       try {
@@ -20,10 +25,36 @@ public class IOUtils {
             baos.write(buffer, 0, bytesRead);
          }
          output = baos.toByteArray();
+      } catch (IOException e) {
+         throw new HydroidException(e);
       } finally {
-         baos.close();
+         try {
+            baos.close();
+         } catch (IOException e) {
+            throw new HydroidException(e);
+         }
       }
       return output;
+   }
+
+   public static String parseFile(InputStream stream)  {
+      AutoDetectParser parser = new AutoDetectParser();
+      BodyContentHandler handler = new BodyContentHandler(-1);
+      try {
+         Metadata metadata = new Metadata();
+         parser.parse(stream, handler, metadata);
+      } catch (Throwable e) {
+         throw new HydroidException(e);
+      }
+      return handler.toString();
+   }
+
+   public static void sendResponseError(HttpServletResponse response, int errorCode) {
+      try {
+         response.sendError(errorCode);
+      } catch (Throwable e) {
+         throw new HydroidException(e);
+      }
    }
 
 }
