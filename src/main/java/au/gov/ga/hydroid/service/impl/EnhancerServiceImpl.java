@@ -53,6 +53,9 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private DocumentService documentService;
 
+   @Autowired
+   private ImageService imageService;
+
    private Properties generateSolrDocument(List<Statement> rdfDocument, String content, String docType, String title) {
       String predicate = null;
       List<String> concepts = new ArrayList<>();
@@ -150,7 +153,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
             // Store full document in DB
             logger.info("enhance - saving document in the database");
-            saveOrUpdateDocument(urn, title, docType, EnhancementStatus.SUCCESS, null);
+            saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.SUCCESS, null);
             logger.info("enhance - document saved in the database");
 
             // Store full enhanced doc (rdf) in Jena
@@ -163,19 +166,20 @@ public class EnhancerServiceImpl implements EnhancerService {
          logger.error("enhance - Exception: ", e);
          // if there was any error in the process we remove the documents stored under the URN in process
          if (urn != null) {
-            saveOrUpdateDocument(urn, title, docType, EnhancementStatus.FAILURE, e.getLocalizedMessage());
+            saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.FAILURE, e.getLocalizedMessage());
             rollbackEnhancement(urn);
          }
          throw new HydroidException(e);
       }
    }
 
-   private void saveOrUpdateDocument(String urn, String title, String docType,
+   private void saveOrUpdateDocument(String origin, String urn, String title, String docType,
                                      EnhancementStatus status, String statusReason) {
       Document document = documentService.findByUrn(urn);
       if (document == null) {
          document = new Document();
       }
+      document.setOrigin(origin);
       document.setUrn(urn);
       document.setTitle(title);
       document.setType(DocumentType.valueOf(docType));
@@ -286,7 +290,27 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    @Override
    public void enhanceImages() {
-
+      String title;
+      String origin;
+      String fileContent;
+      String metadata;
+      InputStream s3FileContent;
+      String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
+      List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
+      objects = getDocumentsForEnhancement(objects);
+      for (S3ObjectSummary object : objects) {
+         s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+         String imageMetadata = imageService.getImageMetadata(s3FileContent);
+         title = getFileNameFromS3ObjectSummary(object);
+         // Adding title to imageMetadata to guarantee an unique URN
+         imageMetadata = title + "\n" + imageMetadata;
+         origin = configuration.getS3Bucket() + ":" + object.getKey();
+         try {
+            enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
+         } catch (Throwable e) {
+            logger.error("enhanceImages - error processing file key: " + key);
+         }
+      }
    }
 
    private void rollbackEnhancement(String urn) {

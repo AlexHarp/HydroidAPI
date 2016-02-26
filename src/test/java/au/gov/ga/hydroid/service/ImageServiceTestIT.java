@@ -24,7 +24,7 @@ public class ImageServiceTestIT {
    private ImageService imageService;
 
    @Test
-   public void testExtractRDFString() throws Exception {
+   public void testExtractRDFString() {
       InputStream imageStream = this.getClass().getResourceAsStream("/testfiles/hydroid-3.jpg");
       String imageRDFString = imageService.extractRDFString(imageStream);
 
@@ -43,7 +43,7 @@ public class ImageServiceTestIT {
    }
 
    @Test
-   public void testGetImageMetadata() throws Exception {
+   public void testGetImageMetadata() {
       InputStream imageStream = this.getClass().getResourceAsStream("/testfiles/hydroid-3.jpg");
       String metadata = imageService.getImageMetadata(imageStream);
 

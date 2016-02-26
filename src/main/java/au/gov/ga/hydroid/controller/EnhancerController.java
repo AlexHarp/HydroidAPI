@@ -104,7 +104,7 @@ public class EnhancerController {
             HttpStatus.OK);
    }
 
-   @RequestMapping(value = "/s3", method = {RequestMethod.POST})
+   @RequestMapping(value = "/s3", method = {RequestMethod.GET, RequestMethod.POST})
    public @ResponseBody ResponseEntity<ServiceResponse> enhanceS3() {
 
       enhancerService.enhanceDocuments();

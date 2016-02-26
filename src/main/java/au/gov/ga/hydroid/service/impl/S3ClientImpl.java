@@ -7,10 +7,7 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,16 +44,20 @@ public class S3ClientImpl implements S3Client {
 
    @Override
    public InputStream getFile(String bucketName, String key)  {
-      AmazonS3 s3 = getAmazonS3();
-      S3Object object = s3.getObject(bucketName, key);
-      return object.getObjectContent();
+      InputStream fileContent = null;
+      try {
+         AmazonS3 s3 = getAmazonS3();
+         S3Object object = s3.getObject(bucketName, key);
+         fileContent = object.getObjectContent();
+      } catch (AmazonS3Exception e) {
+         // No object with this key was found
+      }
+      return fileContent;
    }
 
    @Override
    public byte[] getFileAsByteArray(String bucketName, String key)  {
-      AmazonS3 s3 = getAmazonS3();
-      S3Object object = s3.getObject(bucketName, key);
-      InputStream is = object.getObjectContent();
+      InputStream is = getFile(bucketName, key);
       if (is != null) {
          return IOUtils.fromInputStreamToByteArray(is);
       }

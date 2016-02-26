@@ -2,6 +2,7 @@ package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.service.ImageService;
 import au.gov.ga.hydroid.service.JenaService;
+import au.gov.ga.hydroid.utils.HydroidException;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.pdfbox.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class ImageServiceImpl implements ImageService {
          rdfString = imageString.substring(imageString.indexOf("<rdf:RDF"));
          rdfString = rdfString.substring(0, rdfString.indexOf("</x:xmpmeta>"));
       } catch (Throwable e) {
-         throw new RuntimeException(e);
+         throw new HydroidException(e);
       }
 
       return rdfString;
@@ -60,7 +61,7 @@ public class ImageServiceImpl implements ImageService {
             }
          }
       } catch (Throwable e) {
-         throw new RuntimeException(e);
+         throw new HydroidException(e);
       }
 
       return metadata.toString();
