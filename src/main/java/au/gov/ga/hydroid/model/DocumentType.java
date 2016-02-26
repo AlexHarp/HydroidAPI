@@ -5,6 +5,6 @@ package au.gov.ga.hydroid.model;
  */
 public enum DocumentType {
 
-   DOCUMENT, DATASET, MODEL;
+   DOCUMENT, DATASET, MODEL, IMAGE;
 
 }

@@ -25,12 +25,12 @@ public class StanbolClientTestIT {
    private StanbolClient stanbolClient;
 
    @Test
-   public void testEnhance() throws Exception {
+   public void testEnhance() {
       stanbolClient.enhance("default", "Bob Barley is cool", StanbolMediaTypes.RDFXML);
    }
 
    @Test
-   public void testFindAllPredicates() throws Exception {
+   public void testFindAllPredicates() {
       Properties allPredicates = stanbolClient.findAllPredicates("default", "Bob Barley is cool", StanbolMediaTypes.RDFXML);
       Enumeration<String> predicateNames = (Enumeration<String>) allPredicates.propertyNames();
       while (predicateNames.hasMoreElements()) {

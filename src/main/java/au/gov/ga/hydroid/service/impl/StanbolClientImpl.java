@@ -4,9 +4,10 @@ import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.JenaService;
 import au.gov.ga.hydroid.service.RestClient;
 import au.gov.ga.hydroid.service.StanbolClient;
+import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
-import org.apache.jena.rdf.model.Statement;
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.rdf.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class StanbolClientImpl implements StanbolClient {
    private JenaService jenaService;
 
    @Override
-   public String enhance(String chainName, String content, MediaType outputFormat) throws Exception {
+   public String enhance(String chainName, String content, MediaType outputFormat) {
 
       String result = null;
 
@@ -54,11 +55,11 @@ public class StanbolClientImpl implements StanbolClient {
          final Response.StatusType statusInfo = response.getStatusInfo();
          switch (statusInfo.getFamily()) {
             case CLIENT_ERROR: {
-               throw new Exception(String.format("An unknown client error occurred while enhancing content: [HTTP %d] %s",
+               throw new HydroidException(String.format("An unknown client error occurred while enhancing content: [HTTP %d] %s",
                      statusInfo.getStatusCode(), statusInfo.getReasonPhrase()));
             }
             case SERVER_ERROR: {
-               throw new Exception(String.format("An unknown server error occurred while enhancing content: [HTTP %d] %s",
+               throw new HydroidException(String.format("An unknown server error occurred while enhancing content: [HTTP %d] %s",
                      statusInfo.getStatusCode(), statusInfo.getReasonPhrase()));
             }
             case SUCCESSFUL: {
@@ -74,7 +75,7 @@ public class StanbolClientImpl implements StanbolClient {
             default: {
                String errorMessage = String.format("Received unknown response from server: [HTTP %d] %s",
                      statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
-               throw new Exception(errorMessage);
+               throw new HydroidException(errorMessage);
             }
          }
       } finally {
@@ -85,7 +86,7 @@ public class StanbolClientImpl implements StanbolClient {
    }
 
    @Override
-   public Properties findAllPredicates(String chainName, String content, MediaType outputFormat) throws Exception {
+   public Properties findAllPredicates(String chainName, String content, MediaType outputFormat) {
 
       Properties allPredicates = new Properties();
 

@@ -32,8 +32,11 @@ public class HydroidConfiguration {
    @Value("${s3.bucket}")
    private String s3Bucket;
 
-   @Value("${s3.rdf.folder}")
-   private String s3RDFFolder;
+   @Value("${s3.enhancer.input}")
+   private String s3EnhancerInput;
+
+   @Value("${s3.enhancer.output}")
+   private String s3EnhancerOutput;
 
    @Value("${fuseki.url}")
    private String fusekiUrl;
@@ -66,8 +69,12 @@ public class HydroidConfiguration {
       return s3Bucket;
    }
 
-   public String getS3RDFFolder() {
-      return s3RDFFolder;
+   public String getS3EnhancerInput() {
+      return s3EnhancerInput;
+   }
+
+   public String getS3EnhancerOutput() {
+      return s3EnhancerOutput;
    }
 
    public String getFusekiUrl() { return fusekiUrl; }

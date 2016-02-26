@@ -8,7 +8,7 @@ import java.util.Properties;
  */
 public interface StanbolClient {
 
-   public String enhance(String chainName, String content, MediaType outputFormat) throws Exception;
-   public Properties findAllPredicates(String chainName, String content, MediaType outputFormat) throws Exception;
+   public String enhance(String chainName, String content, MediaType outputFormat);
+   public Properties findAllPredicates(String chainName, String content, MediaType outputFormat);
 
 }

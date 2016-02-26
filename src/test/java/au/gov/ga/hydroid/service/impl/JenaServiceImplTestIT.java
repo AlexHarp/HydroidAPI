@@ -33,29 +33,29 @@ public class JenaServiceImplTestIT {
       rdfId = "ID" + System.currentTimeMillis();
    }
 
-   private void storeRdf() throws Exception {
+   private void storeRdf() {
       InputStream rdfStream = this.getClass().getResourceAsStream("/testfiles/test.rdf");
       String rdfString = new String(IOUtils.fromInputStreamToByteArray(rdfStream));
       jenaService.storeRdf(rdfId, rdfString, "");
    }
 
-   private void readRdfShouldExist() throws Exception {
+   private void readRdfShouldExist() {
       List<Statement> model = jenaService.readRdf(rdfId);
       Assert.assertNotNull(model);
       Assert.assertThat(model.size(),greaterThan(0));
    }
 
-   private void readRdfShouldNotExist() throws Exception {
+   private void readRdfShouldNotExist() {
       List<Statement> model = jenaService.readRdf(rdfId);
       Assert.assertNull(model);
    }
 
-   private void deleteRdf() throws Exception {
+   private void deleteRdf() {
       jenaService.deleteRdf(rdfId);
    }
 
    @Test
-   public void testJenaService() throws Exception {
+   public void testJenaService() {
       storeRdf();
       readRdfShouldExist();
       deleteRdf();
@@ -63,7 +63,7 @@ public class JenaServiceImplTestIT {
    }
 
    @Test
-   public void testStoreRdfDefault() throws Exception {
+   public void testStoreRdfDefault() {
       InputStream rdfStream = this.getClass().getResourceAsStream("/testfiles/shoals.xml");
       String rdfString = new String(IOUtils.fromInputStreamToByteArray(rdfStream));
       jenaService.storeRdfDefault( rdfString, "");

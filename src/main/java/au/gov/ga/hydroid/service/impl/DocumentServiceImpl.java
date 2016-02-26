@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,13 +35,22 @@ public class DocumentServiceImpl implements DocumentService {
       }
    }
 
+   public Document findByOrigin(String origin) {
+      try {
+         return (Document) jdbcTemplate.queryForObject("SELECT * FROM documents where origin = ?",
+               new String[]{origin}, new DocumentRowMapper());
+      } catch (IncorrectResultSizeDataAccessException e) {
+         // document was not found
+         return null;
+      }
+   }
+
    @Override
-   @Transactional
    public void create(Document document) {
-      String sql = new StringBuilder("insert into documents (origin, urn, title, type, content, status, ")
-            .append("status_reason, process_date) values (?, ?, ?, ?, ?, ?, ?, timezone('UTC', now()))").toString();
+      String sql = new StringBuilder("insert into documents (origin, urn, title, type, status, ")
+            .append("status_reason, process_date) values (?, ?, ?, ?, ?, ?, timezone('UTC', now()))").toString();
       jdbcTemplate.update(sql, document.getOrigin(), document.getUrn(), document.getTitle(), document.getType().name(),
-            document.getContent(), document.getStatus().name(), document.getStatusReason());
+            document.getStatus().name(), document.getStatusReason());
    }
 
    @Override
