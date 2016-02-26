@@ -65,7 +65,7 @@ public class EnhancerController {
                   HttpStatus.BAD_REQUEST);
 
          }
-         String origin = new StringBuilder(configuration.getS3Bucket()).append(":enhancer/input/")
+         String origin = new StringBuilder(configuration.getS3Bucket()).append(":").append(configuration.getS3EnhancerInput())
                .append(document.docType.toLowerCase()).append("s/").append(document.title).toString();
 
          enhancerService.enhance(document.title, document.content, document.docType, origin);
@@ -89,7 +89,7 @@ public class EnhancerController {
             byte[] bytes = file.getBytes();
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
             String text = IOUtils.parseFile(byteArrayInputStream);
-            String origin = new StringBuilder(configuration.getS3Bucket()).append(":enhancer/input/")
+            String origin = new StringBuilder(configuration.getS3Bucket()).append(":").append(configuration.getS3EnhancerInput())
                   .append(DocumentType.DOCUMENT.name().toLowerCase()).append("s/").append(name).toString();
             enhancerService.enhance(name, text, DocumentType.DOCUMENT.name(), origin);
          } catch (Throwable e) {

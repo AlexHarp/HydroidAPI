@@ -31,12 +31,12 @@ public class S3ClientTestIT {
 
    @Test
    public void testStoreFile() {
-      s3Client.storeFile("hydroid", "rdfs/first-file.rdf", "Sample content for rdf file", ContentType.APPLICATION_XML.getMimeType());
+      s3Client.storeFile("hydroid", "enhancer/output/rdfs/first-file.rdf", "Sample content for rdf file", ContentType.APPLICATION_XML.getMimeType());
    }
 
    @Test
    public void testDeleteFile() {
-      s3Client.deleteFile("hydroid", "rdfs/first-file.rdf");
+      s3Client.deleteFile("hydroid", "enhancer/output/rdfs/first-file.rdf");
    }
 
    @Test

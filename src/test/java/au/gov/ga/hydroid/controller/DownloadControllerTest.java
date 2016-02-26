@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = HydroidApplication.class)
-public class DocumentControllerTest {
+public class DownloadControllerTest {
    private MockMvc mockMvc;
 
    @Mock
@@ -31,15 +31,15 @@ public class DocumentControllerTest {
    @Autowired
    HydroidConfiguration configuration;
 
-   DocumentController documentController;
+   DownloadController downloadController;
 
    @Before
    public void setup() {
       MockitoAnnotations.initMocks(this);
-      documentController = new DocumentController();
-      ReflectionTestUtils.setField(documentController, "s3Client", this.s3Client);
-      ReflectionTestUtils.setField(documentController, "configuration", this.configuration);
-      mockMvc = MockMvcBuilders.standaloneSetup(documentController).build();
+      downloadController = new DownloadController();
+      ReflectionTestUtils.setField(downloadController, "s3Client", this.s3Client);
+      ReflectionTestUtils.setField(downloadController, "configuration", this.configuration);
+      mockMvc = MockMvcBuilders.standaloneSetup(downloadController).build();
    }
 
    @Test
@@ -54,7 +54,7 @@ public class DocumentControllerTest {
 
    @Test
    public void testDownload_Found() throws Exception {
-      ReflectionTestUtils.setField(documentController, "s3Client", new CustomMockS3Client());
+      ReflectionTestUtils.setField(downloadController, "s3Client", new CustomMockS3Client());
       this.mockMvc.perform(
             MockMvcRequestBuilders.get("/document/urn1/download")
                   .contentType(MediaType.APPLICATION_JSON)

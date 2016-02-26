@@ -146,7 +146,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             logger.info("enhance - document added to solr");
 
             // Store full enhanced doc (rdf) in S3
-            s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, content, ContentType.APPLICATION_XML.getMimeType());
+            s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn, content, ContentType.APPLICATION_XML.getMimeType());
 
             // Store full document in DB
             logger.info("enhance - saving document in the database");
@@ -207,7 +207,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
          // Use cached (already enhanced) version of the document from S3
       } else {
-         enhancedText = new String(s3Client.getFileAsByteArray(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn));
+         enhancedText = new String(s3Client.getFileAsByteArray(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn));
       }
 
       // Parse the enhanced content String into an rdfDocument
@@ -224,7 +224,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       // If new enhancement was run we save the RDF in S3 and Jena
       if (enhance) {
-         s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn, enhancedText, ContentType.APPLICATION_XML.getMimeType());
+         s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn, enhancedText, ContentType.APPLICATION_XML.getMimeType());
          jenaService.storeRdfDefault(enhancedText, "");
       }
    }
@@ -253,7 +253,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       String origin;
       String fileContent;
       InputStream s3FileContent;
-      String key = "enhancer/input/" + documentType.name().toLowerCase() + "s";
+      String key = configuration.getS3EnhancerInput() + documentType.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
       objects = getDocumentsForEnhancement(objects);
       for (S3ObjectSummary object : objects) {
@@ -291,7 +291,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    private void rollbackEnhancement(String urn) {
       // Delete document from S3
-      s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3RDFFolder() + urn);
+      s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn);
 
       // Delete document from Solr
       solrClient.deleteDocument(configuration.getSolrCollection(), urn);
