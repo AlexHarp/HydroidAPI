@@ -2,6 +2,7 @@ package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.SolrClient;
+import au.gov.ga.hydroid.utils.HydroidException;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
@@ -43,17 +44,25 @@ public class SolrClientImpl implements SolrClient {
    }
 
    @Override
-   public void addDocument(String collectionName, Properties properties) throws Exception {
+   public void addDocument(String collectionName, Properties properties) {
       SolrServer server = new HttpSolrServer(configuration.getSolrUrl() + collectionName);
       SolrInputDocument document = buildDocument(properties);
-      server.add(document);
-      server.commit();
+      try {
+         server.add(document);
+         server.commit();
+      } catch (Throwable e) {
+         throw new HydroidException(e);
+      }
    }
 
    @Override
-   public void deleteDocument(String collectionName, String id) throws Exception {
+   public void deleteDocument(String collectionName, String id) {
       SolrServer server = new HttpSolrServer(configuration.getSolrUrl() + collectionName);
-      server.deleteById(id);
+      try {
+         server.deleteById(id);
+      } catch (Throwable e) {
+         throw new HydroidException(e);
+      }
    }
 
 }

@@ -54,7 +54,7 @@ public class JenaServiceImpl implements JenaService {
    }
 
    @Override
-   public List<Statement> parseRdf(String rdfInput, String baseRdfUrl) throws Exception {
+   public List<Statement> parseRdf(String rdfInput, String baseRdfUrl) {
       Model model = ModelFactory.createDefaultModel();
       InputStream is = new ByteArrayInputStream(rdfInput.getBytes());
       model.read(is, baseRdfUrl);
