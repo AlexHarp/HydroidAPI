@@ -45,7 +45,7 @@ public class DownloadControllerTest {
    @Test
    public void testDownload_NotFound() throws Exception {
       this.mockMvc.perform(
-            MockMvcRequestBuilders.get("/document/missing-urn/download")
+            MockMvcRequestBuilders.get("/download/single/missing-urn")
                   .contentType(MediaType.APPLICATION_JSON)
                   .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
@@ -56,7 +56,7 @@ public class DownloadControllerTest {
    public void testDownload_Found() throws Exception {
       ReflectionTestUtils.setField(downloadController, "s3Client", new CustomMockS3Client());
       this.mockMvc.perform(
-            MockMvcRequestBuilders.get("/document/urn1/download")
+            MockMvcRequestBuilders.get("/download/single/urn1")
                   .contentType(MediaType.APPLICATION_JSON)
                   .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
