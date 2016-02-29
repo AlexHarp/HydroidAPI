@@ -16,6 +16,7 @@ import org.apache.jena.rdf.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -53,7 +54,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private DocumentService documentService;
 
-   @Autowired
+   @Autowired @Qualifier("imageServiceImpl")
    private ImageService imageService;
 
    private Properties generateSolrDocument(List<Statement> rdfDocument, String content, String docType, String title) {
