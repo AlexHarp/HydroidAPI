@@ -303,8 +303,6 @@ public class EnhancerServiceImpl implements EnhancerService {
          s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
          String imageMetadata = imageService.getImageMetadata(s3FileContent);
          title = getFileNameFromS3ObjectSummary(object);
-         // Adding title to imageMetadata to guarantee an unique URN
-         imageMetadata = title + "\n" + imageMetadata;
          origin = configuration.getS3Bucket() + ":" + object.getKey();
          try {
             enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
