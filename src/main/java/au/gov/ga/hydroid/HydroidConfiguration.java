@@ -41,6 +41,9 @@ public class HydroidConfiguration {
    @Value("${fuseki.url}")
    private String fusekiUrl;
 
+   @Value("${google.vision.apiKey}")
+   private String googleVisionApiKey;
+
    public String getProxyHost() {
       return proxyHost;
    }
@@ -78,5 +81,7 @@ public class HydroidConfiguration {
    }
 
    public String getFusekiUrl() { return fusekiUrl; }
+
+   public String getGoogleVisionApiKey() {return googleVisionApiKey;}
 
 }
