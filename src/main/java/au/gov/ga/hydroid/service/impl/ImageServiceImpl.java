@@ -1,15 +1,17 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.service.ImageService;
-import au.gov.ga.hydroid.service.JenaService;
 import au.gov.ga.hydroid.utils.HydroidException;
-import org.apache.jena.rdf.model.Statement;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.pdfbox.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.BodyContentHandler;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.List;
 
 /**
  * Created by u24529 on 26/02/2016.
@@ -17,8 +19,10 @@ import java.util.List;
 @Service
 public class ImageServiceImpl implements ImageService {
 
-   @Autowired
-   private JenaService jenaService;
+   private static final String[] VALID_PROPERTIES = {"Author", "creator", "dc:creator",
+         "dc:description", "dc:subject", "dc:title", "description", "Image Description",
+         "Keywords", "meta:author", "meta:keyword", "subject", "Subject", "title",
+         "Windows XP Comment", "Windows XP Keywords", "Windows XP Subject", "Windows XP Title"};
 
    @Override
    public String extractRDFString(InputStream is) {
@@ -40,31 +44,39 @@ public class ImageServiceImpl implements ImageService {
 
    @Override
    public String getImageMetadata(InputStream is) {
-      StringBuilder metadata = new StringBuilder();
+      StringBuilder imageMetadata = new StringBuilder();
 
       try {
-         // Convert image content to String and extract RDF data
-         String rdfInput = extractRDFString(is);
+         Parser parser = new AutoDetectParser();
+         BodyContentHandler handler = new BodyContentHandler(-1);
+         Metadata metadata = new Metadata();
 
-         // Parse RDF into a list of Statements
-         List<Statement> triples = jenaService.parseRdf(rdfInput, "");
+         ParseContext context = new ParseContext();
+         parser.parse(is, handler, metadata, context);
 
-         // Collect unique object values and add them to the result
-         if (triples != null) {
-            String objectValue;
-            for (Statement statement : triples) {
-               if (statement.getObject().isLiteral()
-                     && metadata.indexOf(statement.getObject().asLiteral().getString()) < 0) {
-                  objectValue = statement.getObject().asLiteral().getString();
-                  metadata.append(objectValue).append("\n");
+         // Collect valid property values add them to the result
+         String[] metadataNames = metadata.names();
+         if (metadataNames != null) {
+            for (String propertyName : metadataNames) {
+               if (ArrayUtils.indexOf(VALID_PROPERTIES, propertyName) >= 0) {
+                  String propertyValue = metadata.get(propertyName);
+                  // If propertyValue has multiple values, break it down into multiple lines
+                  if (propertyValue.indexOf(";") >= 0) {
+                     propertyValue = propertyValue.replaceAll(";", "\n");
+                  }
+                  // Only store unique values
+                  if (!imageMetadata.toString().toLowerCase().contains(propertyValue.toLowerCase())) {
+                     imageMetadata.append(propertyValue).append("\n");
+                  }
                }
             }
          }
+
       } catch (Throwable e) {
          throw new HydroidException(e);
       }
 
-      return metadata.toString();
+      return imageMetadata.toString();
    }
 
 }
