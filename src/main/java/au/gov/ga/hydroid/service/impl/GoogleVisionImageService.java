@@ -33,11 +33,6 @@ public class GoogleVisionImageService implements ImageService {
    private HydroidConfiguration configuration;
 
    @Override
-   public String extractRDFString(InputStream is) {
-      return getImageMetadata(is);
-   }
-
-   @Override
    public String getImageMetadata(InputStream is) {
       if(is == null) {
          logger.debug("GoogleVisionImageService:getImageMetadata - input stream is null.");
