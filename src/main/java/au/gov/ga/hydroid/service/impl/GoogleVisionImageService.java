@@ -3,7 +3,6 @@ package au.gov.ga.hydroid.service.impl;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.ImageService;
 import au.gov.ga.hydroid.utils.HydroidException;
-import com.drew.lang.annotations.NotNull;
 import com.google.api.client.googleapis.GoogleUtils;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
