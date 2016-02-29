@@ -3,7 +3,6 @@ package au.gov.ga.hydroid.service.impl;
 import au.gov.ga.hydroid.service.ImageService;
 import au.gov.ga.hydroid.utils.HydroidException;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.pdfbox.io.IOUtils;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
@@ -23,24 +22,6 @@ public class ImageServiceImpl implements ImageService {
          "dc:description", "dc:subject", "dc:title", "description", "Image Description",
          "Keywords", "meta:author", "meta:keyword", "subject", "Subject", "title",
          "Windows XP Comment", "Windows XP Keywords", "Windows XP Subject", "Windows XP Title"};
-
-   @Override
-   public String extractRDFString(InputStream is) {
-      String rdfString;
-
-      try {
-         // Convert image content to String and extract RDF data
-         byte[] bytes = IOUtils.toByteArray(is);
-         String imageString = new String(bytes);
-         rdfString = imageString.substring(imageString.indexOf("<rdf:RDF"));
-         rdfString = rdfString.substring(0, rdfString.indexOf("</x:xmpmeta>"));
-      } catch (Throwable e) {
-         throw new HydroidException(e);
-      }
-
-      return rdfString;
-   }
-
 
    @Override
    public String getImageMetadata(InputStream is) {

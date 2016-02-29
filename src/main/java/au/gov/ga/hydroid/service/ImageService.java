@@ -7,7 +7,6 @@ import java.io.InputStream;
  */
 public interface ImageService {
 
-   public String extractRDFString(InputStream is);
    public String getImageMetadata(InputStream is);
 
 }
