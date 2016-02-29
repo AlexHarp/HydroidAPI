@@ -1,0 +1,39 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about="uuid:faf5bdd5-ba3d-11da-ad31-d33d75182f1b" xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:title>
+            <rdf:Alt xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:li xml:lang="x-default">The Hydroid 3 Photo</rdf:li>
+            </rdf:Alt>
+        </dc:title>
+        <dc:description>
+            <rdf:Alt xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:li xml:lang="x-default">The Hydroid 3 Photo</rdf:li>
+            </rdf:Alt>
+        </dc:description>
+        <dc:creator>
+            <rdf:Seq xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:li>PhotoMedia</rdf:li>
+            </rdf:Seq>
+        </dc:creator>
+        <dc:subject>
+            <rdf:Bag xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:li>Hydroid</rdf:li>
+                <rdf:li>Hydrozoa</rdf:li>
+                <rdf:li>Jellyfish</rdf:li>
+                <rdf:li>Corals</rdf:li>
+            </rdf:Bag>
+        </dc:subject>
+    </rdf:Description>
+    <rdf:Description rdf:about="uuid:faf5bdd5-ba3d-11da-ad31-d33d75182f1b" xmlns:MicrosoftPhoto="http://ns.microsoft.com/photo/1.0/">
+        <MicrosoftPhoto:LastKeywordXMP>
+            <rdf:Bag xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:li>Hydroid</rdf:li>
+                <rdf:li>Hydrozoa</rdf:li>
+                <rdf:li>Jellyfish</rdf:li>
+                <rdf:li>Corals</rdf:li>
+            </rdf:Bag>
+        </MicrosoftPhoto:LastKeywordXMP>
+    </rdf:Description>
+    <rdf:Description rdf:about="uuid:faf5bdd5-ba3d-11da-ad31-d33d75182f1b" xmlns:dc="http://purl.org/dc/elements/1.1/"/>
+    <rdf:Description rdf:about="uuid:faf5bdd5-ba3d-11da-ad31-d33d75182f1b" xmlns:MicrosoftPhoto="http://ns.microsoft.com/photo/1.0/"/>
+</rdf:RDF>

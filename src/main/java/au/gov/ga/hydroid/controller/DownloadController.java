@@ -135,8 +135,12 @@ public class DownloadController {
             return null;
          }
 
-         String key = document.getOrigin().substring(configuration.getS3Bucket().length());
+         String key = document.getOrigin().substring(configuration.getS3Bucket().length() + 1);
          InputStream fileContent = s3Client.getFile(configuration.getS3Bucket(), key);
+         if (fileContent == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+         }
 
          OutputStream out = response.getOutputStream();
          fileContent.mark(0);
