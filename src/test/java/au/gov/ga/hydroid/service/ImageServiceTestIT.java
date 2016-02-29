@@ -1,11 +1,13 @@
 package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.HydroidApplication;
+import au.gov.ga.hydroid.service.impl.ImageServiceImpl;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -21,7 +23,7 @@ import java.io.InputStream;
 public class ImageServiceTestIT {
 
    @Autowired
-   private ImageService imageService;
+   private ImageServiceImpl imageService;
 
    @Test
    public void testExtractRDFString() {
