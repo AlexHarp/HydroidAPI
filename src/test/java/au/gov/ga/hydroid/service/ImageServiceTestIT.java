@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.HydroidApplication;
+import au.gov.ga.hydroid.service.impl.ImageServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +21,7 @@ import java.io.InputStream;
 public class ImageServiceTestIT {
 
    @Autowired
-   private ImageService imageService;
+   private ImageServiceImpl imageService;
 
    @Test
    public void testGetImageMetadata() {
