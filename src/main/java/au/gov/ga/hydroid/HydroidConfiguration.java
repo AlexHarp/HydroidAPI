@@ -44,6 +44,9 @@ public class HydroidConfiguration {
    @Value("${google.vision.apiKey}")
    private String googleVisionApiKey;
 
+   @Value("${store.ga.vocabs.only}")
+   private boolean storeGAVocabsOnly;
+
    public String getProxyHost() {
       return proxyHost;
    }
@@ -83,5 +86,9 @@ public class HydroidConfiguration {
    public String getFusekiUrl() { return fusekiUrl; }
 
    public String getGoogleVisionApiKey() {return googleVisionApiKey;}
+
+   public boolean isStoreGAVocabsOnly() {
+      return storeGAVocabsOnly;
+   }
 
 }

@@ -3,20 +3,14 @@ package au.gov.ga.hydroid;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.EnhancerService;
 import au.gov.ga.hydroid.utils.IOUtils;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.sax.BodyContentHandler;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.io.InputStream;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -44,6 +38,24 @@ public class EnhancerServiceTestIT {
    @Test
    public void testEnhanceDocuments() {
       enhancerService.enhanceDocuments();
+   }
+
+   @Test
+   public void testMatchedGAVocabs() {
+      ReflectionTestUtils.setField(configuration, "stanbolChain", "hydroid");
+      ReflectionTestUtils.setField(configuration, "storeGAVocabsOnly", true);
+      String randomText = "Created: " + System.currentTimeMillis();
+      String text = "This enhancement should find Corals, Terrace and Bob Marley. But Bob Marley should be discarded.";
+      Assert.assertTrue(enhancerService.enhance("Document Title" + randomText, text, DocumentType.DOCUMENT.name(), "Pasted Content"));
+   }
+
+   @Test
+   public void testNotMatchedGAVocabs() {
+      ReflectionTestUtils.setField(configuration, "stanbolChain", "default");
+      ReflectionTestUtils.setField(configuration, "storeGAVocabsOnly", true);
+      String randomText = "Created: " + System.currentTimeMillis();
+      String text = "This enhancement should find Corals, Terrace and Bob Marley. But Bob Marley should be discarded.";
+      Assert.assertFalse(enhancerService.enhance("Document Title" + randomText, text, DocumentType.DOCUMENT.name(), "Pasted Content"));
    }
 
 }
