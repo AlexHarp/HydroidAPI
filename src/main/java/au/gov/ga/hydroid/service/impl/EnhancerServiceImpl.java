@@ -20,9 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -58,18 +56,34 @@ public class EnhancerServiceImpl implements EnhancerService {
    private ImageService imageService;
 
    private Properties generateSolrDocument(List<Statement> rdfDocument, String content, String docType, String title) {
-      String predicate = null;
       List<String> concepts = new ArrayList<>();
       List<String> labels = new ArrayList<>();
       Properties properties = new Properties();
+      Map<String,String> gaVocabSubjects = new HashMap();
       for (Statement statement : rdfDocument) {
-         predicate = statement.getPredicate().getLocalName().toLowerCase();
+
+         String subject = statement.getSubject().getLocalName().toLowerCase();
+         String predicate = statement.getPredicate().getLocalName().toLowerCase();
+         String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
+               : statement.getObject().asResource().getURI();
+
+         // Discard any statement where the subject is not related to the GAPublicVocabs
+         if (configuration.isStoreGAVocabsOnly() && (gaVocabSubjects.get(subject) == null) && !objectValue.contains(GA_PUBLIC_VOCABS)) {
+            continue;
+         }
+
+         // Check if the predicate is included in the list we are after
          if (ArrayUtils.indexOf(VALID_PREDICATES, predicate) >= 0) {
-            String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
-                  : statement.getObject().asResource().getURI();
+
             if (predicate.equalsIgnoreCase("extracted-from") && properties.getProperty("about") == null) {
                properties.put("about", objectValue);
             } else if (predicate.equalsIgnoreCase("entity-reference")) {
+
+               // Add a new subject to the GA Vocab Subjects list
+               if (objectValue.contains(GA_PUBLIC_VOCABS) && gaVocabSubjects.get(subject) == null) {
+                  gaVocabSubjects.put(subject, objectValue);
+               }
+
                // add new concept if not there yet
                if (!concepts.contains(objectValue)) {
                   concepts.add(objectValue);
@@ -107,10 +121,17 @@ public class EnhancerServiceImpl implements EnhancerService {
          solrContent = solrContent.substring(0, 500) + "...";
       }
       properties.put("content", solrContent);
+      properties.put("title", title);
       properties.put("label", labels);
       properties.put("concept", concepts);
       properties.put("docType", docType);
       properties.put("creator", DOCUMENT_CREATOR);
+
+      // No labels or concepts were found so we discard
+      // the process by clearing all the properties
+      if (labels.isEmpty() && concepts.isEmpty()) {
+         properties.clear();
+      }
 
       return properties;
    }
@@ -120,10 +141,11 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    @Override
-   public void enhance(String title, String content, String docType, String origin) {
+   public boolean enhance(String title, String content, String docType, String origin) {
 
       String urn = null;
       Properties properties = null;
+      boolean enhancementSucceed = false;
 
       try {
 
@@ -139,28 +161,31 @@ public class EnhancerServiceImpl implements EnhancerService {
          if (rdfDocument != null) {
             // Generate dictionary with properties we are interested in
             properties = generateSolrDocument(rdfDocument, content, docType, title);
-            if (title != null && !title.isEmpty()) {
-               properties.setProperty("title", title);
+
+            // Nothing was matched/tagged with our vocabularies
+            if (!properties.isEmpty()) {
+
+               // Add enhanced document to Solr
+               logger.info("enhance - about to add document to solr");
+               urn = properties.getProperty("about");
+               solrClient.addDocument(configuration.getSolrCollection(), properties);
+               logger.info("enhance - document added to solr");
+
+               // Store full enhanced doc (rdf) in S3
+               s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn, content, ContentType.APPLICATION_XML.getMimeType());
+
+               // Store full document in DB
+               logger.info("enhance - saving document in the database");
+               saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.SUCCESS, null);
+               logger.info("enhance - document saved in the database");
+
+               // Store full enhanced doc (rdf) in Jena
+               logger.info("enhance - about to store RDF in Jena");
+               jenaService.storeRdfDefault(enhancedText, "");
+               logger.info("enhance - RDF stored in Jena");
+
+               enhancementSucceed = true;
             }
-
-            // Add enhanced document to Solr
-            logger.info("enhance - about to add document to solr");
-            urn = properties.getProperty("about");
-            solrClient.addDocument(configuration.getSolrCollection(), properties);
-            logger.info("enhance - document added to solr");
-
-            // Store full enhanced doc (rdf) in S3
-            s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn, content, ContentType.APPLICATION_XML.getMimeType());
-
-            // Store full document in DB
-            logger.info("enhance - saving document in the database");
-            saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.SUCCESS, null);
-            logger.info("enhance - document saved in the database");
-
-            // Store full enhanced doc (rdf) in Jena
-            logger.info("enhance - about to store RDF in Jena");
-            jenaService.storeRdfDefault(enhancedText, "");
-            logger.info("enhance - RDF stored in Jena");
          }
 
       } catch (Throwable e) {
@@ -172,6 +197,8 @@ public class EnhancerServiceImpl implements EnhancerService {
          }
          throw new HydroidException(e);
       }
+
+      return enhancementSucceed;
    }
 
    private void saveOrUpdateDocument(String origin, String urn, String title, String docType,
@@ -190,47 +217,6 @@ public class EnhancerServiceImpl implements EnhancerService {
          documentService.create(document);
       } else {
          documentService.update(document);
-      }
-   }
-
-   @Override
-   public void reindexDocument(String urn, boolean enhance) {
-
-      String enhancedText = null;
-      Properties properties = null;
-      List<Statement> rdfDocument = null;
-      Document document = documentService.findByUrn(urn);
-
-      if (document == null) {
-         throw new RuntimeException("No document was found under " + urn);
-      }
-
-      // Post to Stanbol for enhancement again
-      if (enhance) {
-         //enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), new String(document.getContent()),
-               //StanbolMediaTypes.RDFXML);
-
-         // Use cached (already enhanced) version of the document from S3
-      } else {
-         enhancedText = new String(s3Client.getFileAsByteArray(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn));
-      }
-
-      // Parse the enhanced content String into an rdfDocument
-      rdfDocument = jenaService.parseRdf(enhancedText, "");
-
-      // Generate dictionary with properties we are interested in
-      //properties = generateSolrDocument(rdfDocument, new String(document.getContent()), document.getType().name(), document.getTitle());
-      if (document.getTitle() != null && !document.getTitle().isEmpty()) {
-         properties.setProperty("title", document.getTitle());
-      }
-
-      // Save the new enhanced document in Solr
-      solrClient.addDocument(configuration.getSolrCollection(), properties);
-
-      // If new enhancement was run we save the RDF in S3 and Jena
-      if (enhance) {
-         s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn, enhancedText, ContentType.APPLICATION_XML.getMimeType());
-         jenaService.storeRdfDefault(enhancedText, "");
       }
    }
 
