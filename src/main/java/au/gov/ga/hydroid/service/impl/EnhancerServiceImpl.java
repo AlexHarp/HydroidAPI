@@ -142,6 +142,10 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    @Override
    public boolean enhance(String title, String content, String docType, String origin) {
+      return enhance(title, content, docType, origin, null);
+   }
+
+   private boolean enhance(String title, String content, String docType, String origin, String originalContent) {
 
       String urn = null;
       Properties properties = null;
@@ -172,12 +176,13 @@ public class EnhancerServiceImpl implements EnhancerService {
                logger.info("enhance - document added to solr");
 
                // Store full enhanced doc (rdf) in S3
-               if (docType.equals(DocumentType.IMAGE)) {
+               s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
+                     enhancedText, ContentType.APPLICATION_XML.getMimeType());
+
+               // Also store original image in S3
+               if (docType.equals(DocumentType.IMAGE.name())) {
                   s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn,
-                        content, ContentType.APPLICATION_OCTET_STREAM.getMimeType());
-               } else {
-                  s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
-                        content, ContentType.APPLICATION_XML.getMimeType());
+                        originalContent, ContentType.APPLICATION_OCTET_STREAM.getMimeType());
                }
 
                // Store full document in DB
@@ -295,7 +300,8 @@ public class EnhancerServiceImpl implements EnhancerService {
          title = getFileNameFromS3ObjectSummary(object);
          origin = configuration.getS3Bucket() + ":" + object.getKey();
          try {
-            enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
+            enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin,
+                  new String(IOUtils.fromInputStreamToByteArray(s3FileContent)));
          } catch (Throwable e) {
             logger.error("enhanceImages - error processing file key: " + key);
          }
