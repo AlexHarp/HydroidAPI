@@ -12,9 +12,9 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 /**
  * Created by u24529 on 1/03/2016.
  */
-public class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory implements ApplicationContextAware {
+public class AutoWiringSpringBeanJobFactory extends SpringBeanJobFactory implements ApplicationContextAware {
 
-   private static final Logger logger = LoggerFactory.getLogger(AutowiringSpringBeanJobFactory.class);
+   private static final Logger logger = LoggerFactory.getLogger(AutoWiringSpringBeanJobFactory.class);
    private transient AutowireCapableBeanFactory beanFactory;
 
    @Override
