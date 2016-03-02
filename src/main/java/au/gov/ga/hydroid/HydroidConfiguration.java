@@ -47,6 +47,12 @@ public class HydroidConfiguration {
    @Value("${store.ga.vocabs.only}")
    private boolean storeGAVocabsOnly;
 
+   @Value("${s3.output.bucket}")
+   private String s3OutputBucket;
+
+   @Value("${s3.output.bucket}")
+   private String s3OutputUrl;
+
    public String getProxyHost() {
       return proxyHost;
    }
@@ -89,6 +95,14 @@ public class HydroidConfiguration {
 
    public boolean isStoreGAVocabsOnly() {
       return storeGAVocabsOnly;
+   }
+
+   public String getS3OutputBucket() {
+      return s3OutputBucket;
+   }
+
+   public String getS3OutputUrl() {
+      return s3OutputUrl;
    }
 
 }
