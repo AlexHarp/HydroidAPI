@@ -2,13 +2,11 @@ package au.gov.ga.hydroid;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  * Created by u24529 on 9/02/2016.
  */
 @Configuration
-@PropertySource(value = "classpath:application.properties")
 public class HydroidConfiguration {
 
    @Value("${proxy.host}")
