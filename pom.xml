@@ -44,7 +44,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>4.1.1.RELEASE</version>
+            <version>4.2.3.RELEASE</version>
         </dependency>
 
         <dependency>
