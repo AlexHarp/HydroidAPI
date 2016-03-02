@@ -38,6 +38,9 @@ public class HydroidConfiguration {
    @Value("${s3.enhancer.output}")
    private String s3EnhancerOutput;
 
+   @Value("${s3.enhancer.output.images}")
+   private String s3EnhancerOutputImages;
+
    @Value("${fuseki.url}")
    private String fusekiUrl;
 
@@ -87,6 +90,10 @@ public class HydroidConfiguration {
 
    public String getS3EnhancerOutput() {
       return s3EnhancerOutput;
+   }
+
+   public String getS3EnhancerOutputImages() {
+      return s3EnhancerOutputImages;
    }
 
    public String getFusekiUrl() { return fusekiUrl; }

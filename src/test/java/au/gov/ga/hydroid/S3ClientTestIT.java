@@ -31,7 +31,7 @@ public class S3ClientTestIT {
 
    @Test
    public void testStoreFile() {
-      s3Client.storeFile("hydroid", "enhancer/output/rdfs/first-file.rdf", "Sample content for rdf file", ContentType.APPLICATION_XML.getMimeType());
+      s3Client.storeFile("hydroid-output", "rdfs/first-file.rdf", "Sample content for rdf file", ContentType.APPLICATION_XML.getMimeType());
    }
 
    @Test

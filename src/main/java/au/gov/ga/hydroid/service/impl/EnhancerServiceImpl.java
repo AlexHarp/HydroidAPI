@@ -172,7 +172,13 @@ public class EnhancerServiceImpl implements EnhancerService {
                logger.info("enhance - document added to solr");
 
                // Store full enhanced doc (rdf) in S3
-               s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn, content, ContentType.APPLICATION_XML.getMimeType());
+               if (docType.equals(DocumentType.IMAGE)) {
+                  s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn,
+                        content, ContentType.APPLICATION_OCTET_STREAM.getMimeType());
+               } else {
+                  s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
+                        content, ContentType.APPLICATION_XML.getMimeType());
+               }
 
                // Store full document in DB
                logger.info("enhance - saving document in the database");
@@ -279,8 +285,6 @@ public class EnhancerServiceImpl implements EnhancerService {
    public void enhanceImages() {
       String title;
       String origin;
-      String fileContent;
-      String metadata;
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
