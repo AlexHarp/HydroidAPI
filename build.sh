@@ -3,4 +3,4 @@ mkdir staging
 
 # build hydroid api
 mvn clean package
-cp target/hydroid.war staging/
+cp target/hydroid.jar staging/

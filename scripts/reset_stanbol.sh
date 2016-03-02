@@ -1,8 +1,15 @@
 cd /var/tmp
+
+# update hydroid app
+kill -9 $(cat /usr/share/tomcat7/hydroid/hydroid.pid)
+sudo cp /var/tmp/hydroid.jar /usr/share/tomcat7/hydroid/.
+java -jar /usr/share/tomcat7/hydroid/hydroid.jar &
+
+# update tomcat-stanbol
 sudo service tomcat7 stop
 sudo rm -rf /usr/share/tomcat7/stanbol
-sudo rm -rf /usr/share/tomcat7/webapps/hydroid
-sudo cp /var/tmp/hydroid.war /usr/share/tomcat7/webapps/.
+#sudo rm -rf /usr/share/tomcat7/webapps/hydroid
+#sudo cp /var/tmp/hydroid.war /usr/share/tomcat7/webapps/.
 sudo service tomcat7 start
 response=$(curl --output /dev/null --silent --fail -w %{http_code} http://localhost:8080/stanbol/enhancer/chain)
 while [[ "${response}" != "200" ]]

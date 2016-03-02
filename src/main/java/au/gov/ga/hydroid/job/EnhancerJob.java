@@ -9,6 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
 
 /**
@@ -25,7 +29,15 @@ public class EnhancerJob implements Job {
 
    @Override
    public void execute(JobExecutionContext jobExecutionContext)  {
-      logger.info("execute started at: " + new Date());
+      Instant started = Instant.now();
+      logger.info("execute started at..: " + started.toString());
+      enhancerService.enhanceDocuments();
+      enhancerService.enhanceDatasets();
+      enhancerService.enhanceModels();
+      enhancerService.enhanceImages();
+      Instant finished = Instant.now();
+      logger.info("execute finished at.: " + finished);
+      logger.info("execute elapsed time: " + Duration.between(started, finished));
    }
 
 }
