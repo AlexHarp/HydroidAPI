@@ -8,6 +8,8 @@ script:
     - ./build-index.sh
 deploy:
   - provider: s3
+    edge:
+      branch: s3-backward-compat
     region: ap-southeast-2
     access_key_id: AKIAJ6KUCAF2VXKIRVNQ
     secret_access_key:
