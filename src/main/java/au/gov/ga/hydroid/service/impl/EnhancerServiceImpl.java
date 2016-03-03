@@ -166,8 +166,8 @@ public class EnhancerServiceImpl implements EnhancerService {
             if (!properties.isEmpty()) {
 
                // Add enhanced document to Solr
-               urn = properties.getProperty("about");
                logger.info("enhance - about to add document to solr");
+               urn = properties.getProperty("about");
                solrClient.addDocument(configuration.getSolrCollection(), properties);
                logger.info("enhance - document added to solr");
 
