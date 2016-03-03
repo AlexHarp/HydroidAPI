@@ -1,6 +1,8 @@
 package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.model.Document;
+import au.gov.ga.hydroid.service.DocumentService;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
@@ -29,6 +31,9 @@ public class DownloadController {
 
    @Autowired
    private HydroidConfiguration configuration;
+
+   @Autowired
+   private DocumentService documentService;
 
    @Autowired
    private S3Client s3Client;
@@ -124,6 +129,12 @@ public class DownloadController {
 
       try {
 
+         Document document = documentService.findByUrn(urn);
+         if (document == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+         }
+
          InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
          if (fileContent == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -134,7 +145,7 @@ public class DownloadController {
          fileContent.mark(0);
          Long length = IOUtils.copyLarge(fileContent, out);
 
-         response.setHeader("Content-Disposition", "inline; filename=\"" + key + "\"");
+         response.setHeader("Content-Disposition", "inline; filename=\"" + document.getTitle() + "\"");
          response.setContentLength(length.intValue());
          response.setContentType(ContentType.APPLICATION_OCTET_STREAM.toString());
 
