@@ -1,8 +1,6 @@
 package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
-import au.gov.ga.hydroid.model.Document;
-import au.gov.ga.hydroid.service.DocumentService;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
@@ -33,9 +31,6 @@ public class DownloadController {
    private HydroidConfiguration configuration;
 
    @Autowired
-   private DocumentService documentService;
-
-   @Autowired
    private S3Client s3Client;
 
    @RequestMapping(value = "/single/{urn}", method = {RequestMethod.GET})
@@ -43,7 +38,7 @@ public class DownloadController {
 
       try {
 
-         InputStream fileContent = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn);
+         InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn);
          if (fileContent == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -82,7 +77,7 @@ public class DownloadController {
          ZipOutputStream zipOut  = new ZipOutputStream(new FileOutputStream(zipFile));
          byte[] buffer = new byte[1024];
          for (String urn : urnArray) {
-            InputStream fileContent = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn);
+            InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn);
             if (fileContent != null) {
                try {
                   zipOut.putNextEntry(new ZipEntry(urn + ".rdf"));
@@ -129,14 +124,7 @@ public class DownloadController {
 
       try {
 
-         Document document = documentService.findByUrn(urn);
-         if (document == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return null;
-         }
-
-         String key = document.getOrigin().substring(configuration.getS3Bucket().length() + 1);
-         InputStream fileContent = s3Client.getFile(configuration.getS3Bucket(), key);
+         InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
          if (fileContent == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
