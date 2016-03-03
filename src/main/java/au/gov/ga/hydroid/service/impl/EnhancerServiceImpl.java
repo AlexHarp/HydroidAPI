@@ -216,7 +216,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    private void saveOrUpdateDocument(String origin, String urn, String title, String docType,
                                      EnhancementStatus status, String statusReason) {
-      Document document = documentService.findByUrn(urn);
+      Document document = documentService.findByOrigin(origin);
       if (document == null) {
          document = new Document();
       }
