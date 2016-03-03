@@ -42,4 +42,9 @@ public class CustomMockS3Client implements S3Client {
       return null;
    }
 
+   @Override
+   public void copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey) {
+
+   }
+
 }

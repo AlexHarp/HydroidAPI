@@ -28,7 +28,7 @@ import java.util.*;
 @Service
 public class EnhancerServiceImpl implements EnhancerService {
 
-   private Logger logger = LoggerFactory.getLogger(getClass());
+   private static final Logger logger = LoggerFactory.getLogger(EnhancerServiceImpl.class);
 
    private static final String[] VALID_PREDICATES = {"title", "subject", "created", "extracted-from", "entity-reference", "entity-label"};
    private static final String GA_PUBLIC_VOCABS = "GAPublicVocabsSandbox";
@@ -129,8 +129,11 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       // No labels or concepts were found so we discard
       // the process by clearing all the properties
+      // but keep the about property to be saved in the DB
       if (labels.isEmpty() && concepts.isEmpty()) {
+         String about = properties.getProperty("about");
          properties.clear();
+         properties.put("about", about);
       }
 
       return properties;
@@ -142,10 +145,6 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    @Override
    public boolean enhance(String title, String content, String docType, String origin) {
-      return enhance(title, content, docType, origin, null);
-   }
-
-   private boolean enhance(String title, String content, String docType, String origin, String originalContent) {
 
       String urn = null;
       Properties properties = null;
@@ -165,13 +164,13 @@ public class EnhancerServiceImpl implements EnhancerService {
          if (rdfDocument != null) {
             // Generate dictionary with properties we are interested in
             properties = generateSolrDocument(rdfDocument, content, docType, title);
+            urn = properties.getProperty("about");
 
-            // Nothing was matched/tagged with our vocabularies
-            if (!properties.isEmpty()) {
+            // Nothing was matched/tagged with our vocabularies (about is always present)
+            if (properties.size() > 1) {
 
                // Add enhanced document to Solr
                logger.info("enhance - about to add document to solr");
-               urn = properties.getProperty("about");
                solrClient.addDocument(configuration.getSolrCollection(), properties);
                logger.info("enhance - document added to solr");
 
@@ -181,8 +180,8 @@ public class EnhancerServiceImpl implements EnhancerService {
 
                // Also store original image in S3
                if (docType.equals(DocumentType.IMAGE.name())) {
-                  s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn,
-                        originalContent, ContentType.APPLICATION_OCTET_STREAM.getMimeType());
+                  s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + title,
+                        configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
                }
 
                // Store full document in DB
@@ -196,6 +195,12 @@ public class EnhancerServiceImpl implements EnhancerService {
                logger.info("enhance - RDF stored in Jena");
 
                enhancementSucceed = true;
+
+            } else {
+               logger.info("enhance - saving document in the database");
+               saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.FAILURE,
+                     "No matches were found in the vocabularies used by the chain: " + configuration.getStanbolChain());
+               logger.info("enhance - document saved in the database");
             }
          }
 
@@ -242,7 +247,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             origin = object.getBucketName() + ":" + object.getKey();
             document = documentService.findByOrigin(origin);
             // Document was not enhanced or previous enhancement failed
-            if (document == null || document.getStatus() == EnhancementStatus.FAILURE) {
+            if (document == null || (document.getStatus() == EnhancementStatus.FAILURE)) {
                output.add(object);
             }
          }
@@ -258,6 +263,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       String key = configuration.getS3EnhancerInput() + documentType.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
       objects = getDocumentsForEnhancement(objects);
+      logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
       for (S3ObjectSummary object : objects) {
          s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
          fileContent = IOUtils.parseFile(s3FileContent);
@@ -293,15 +299,15 @@ public class EnhancerServiceImpl implements EnhancerService {
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
+      logger.info("enhanceImages - there are " + objects.size() + " images to be enhanced");
       objects = getDocumentsForEnhancement(objects);
       for (S3ObjectSummary object : objects) {
          s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
-         String imageMetadata = imageService.getImageMetadata(s3FileContent);
          title = getFileNameFromS3ObjectSummary(object);
+         String imageMetadata = title + "\n" + imageService.getImageMetadata(s3FileContent);
          origin = configuration.getS3Bucket() + ":" + object.getKey();
          try {
-            enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin,
-                  new String(IOUtils.fromInputStreamToByteArray(s3FileContent)));
+            enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
          } catch (Throwable e) {
             logger.error("enhanceImages - error processing file key: " + key);
          }
