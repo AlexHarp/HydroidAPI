@@ -129,11 +129,8 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       // No labels or concepts were found so we discard
       // the process by clearing all the properties
-      // but keep the about property to be saved in the DB
       if (labels.isEmpty() && concepts.isEmpty()) {
-         String about = properties.getProperty("about");
          properties.clear();
-         properties.put("about", about);
       }
 
       return properties;
@@ -164,12 +161,12 @@ public class EnhancerServiceImpl implements EnhancerService {
          if (rdfDocument != null) {
             // Generate dictionary with properties we are interested in
             properties = generateSolrDocument(rdfDocument, content, docType, title);
-            urn = properties.getProperty("about");
 
-            // Nothing was matched/tagged with our vocabularies (about is always present)
-            if (properties.size() > 1) {
+            // Nothing was matched/tagged with our vocabularies
+            if (!properties.isEmpty()) {
 
                // Add enhanced document to Solr
+               urn = properties.getProperty("about");
                logger.info("enhance - about to add document to solr");
                solrClient.addDocument(configuration.getSolrCollection(), properties);
                logger.info("enhance - document added to solr");
@@ -299,8 +296,8 @@ public class EnhancerServiceImpl implements EnhancerService {
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
-      logger.info("enhanceImages - there are " + objects.size() + " images to be enhanced");
       objects = getDocumentsForEnhancement(objects);
+      logger.info("enhanceImages - there are " + objects.size() + " images to be enhanced");
       for (S3ObjectSummary object : objects) {
          s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
          title = getFileNameFromS3ObjectSummary(object);
