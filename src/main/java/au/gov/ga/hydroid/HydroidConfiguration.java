@@ -36,6 +36,9 @@ public class HydroidConfiguration {
    @Value("${s3.enhancer.output}")
    private String s3EnhancerOutput;
 
+   @Value("${s3.enhancer.output.images}")
+   private String s3EnhancerOutputImages;
+
    @Value("${fuseki.url}")
    private String fusekiUrl;
 
@@ -44,6 +47,12 @@ public class HydroidConfiguration {
 
    @Value("${store.ga.vocabs.only}")
    private boolean storeGAVocabsOnly;
+
+   @Value("${s3.output.bucket}")
+   private String s3OutputBucket;
+
+   @Value("${s3.output.bucket}")
+   private String s3OutputUrl;
 
    public String getProxyHost() {
       return proxyHost;
@@ -81,12 +90,24 @@ public class HydroidConfiguration {
       return s3EnhancerOutput;
    }
 
+   public String getS3EnhancerOutputImages() {
+      return s3EnhancerOutputImages;
+   }
+
    public String getFusekiUrl() { return fusekiUrl; }
 
    public String getGoogleVisionApiKey() {return googleVisionApiKey;}
 
    public boolean isStoreGAVocabsOnly() {
       return storeGAVocabsOnly;
+   }
+
+   public String getS3OutputBucket() {
+      return s3OutputBucket;
+   }
+
+   public String getS3OutputUrl() {
+      return s3OutputUrl;
    }
 
 }

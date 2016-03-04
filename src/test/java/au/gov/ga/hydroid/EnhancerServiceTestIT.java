@@ -41,6 +41,11 @@ public class EnhancerServiceTestIT {
    }
 
    @Test
+   public void testEnhanceImages() {
+      enhancerService.enhanceImages();
+   }
+
+   @Test
    public void testMatchedGAVocabs() {
       ReflectionTestUtils.setField(configuration, "stanbolChain", "hydroid");
       ReflectionTestUtils.setField(configuration, "storeGAVocabsOnly", true);

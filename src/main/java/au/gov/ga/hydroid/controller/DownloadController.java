@@ -43,7 +43,7 @@ public class DownloadController {
 
       try {
 
-         InputStream fileContent = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn);
+         InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn);
          if (fileContent == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -82,7 +82,7 @@ public class DownloadController {
          ZipOutputStream zipOut  = new ZipOutputStream(new FileOutputStream(zipFile));
          byte[] buffer = new byte[1024];
          for (String urn : urnArray) {
-            InputStream fileContent = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn);
+            InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn);
             if (fileContent != null) {
                try {
                   zipOut.putNextEntry(new ZipEntry(urn + ".rdf"));
@@ -135,8 +135,7 @@ public class DownloadController {
             return null;
          }
 
-         String key = document.getOrigin().substring(configuration.getS3Bucket().length() + 1);
-         InputStream fileContent = s3Client.getFile(configuration.getS3Bucket(), key);
+         InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
          if (fileContent == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -146,7 +145,7 @@ public class DownloadController {
          fileContent.mark(0);
          Long length = IOUtils.copyLarge(fileContent, out);
 
-         response.setHeader("Content-Disposition", "inline; filename=\"" + key + "\"");
+         response.setHeader("Content-Disposition", "inline; filename=\"" + document.getTitle() + "\"");
          response.setContentLength(length.intValue());
          response.setContentType(ContentType.APPLICATION_OCTET_STREAM.toString());
 

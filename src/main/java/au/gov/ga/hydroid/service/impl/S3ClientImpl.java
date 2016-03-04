@@ -80,7 +80,9 @@ public class S3ClientImpl implements S3Client {
 
       InputStream fileContent = new ByteArrayInputStream(content.getBytes());
       ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentType(contentType);
+      if (contentType != null) {
+         metadata.setContentType(contentType);
+      }
 
       s3.putObject(bucketName, key, fileContent, metadata);
    }
@@ -112,6 +114,12 @@ public class S3ClientImpl implements S3Client {
       } while (true);
 
       return objects;
+   }
+
+   @Override
+   public void copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey) {
+      AmazonS3 s3 = getAmazonS3();
+      s3.copyObject(sourceBucketName, sourceKey, destinationBucketName, destinationKey);
    }
 
 }

@@ -28,7 +28,7 @@ import java.util.*;
 @Service
 public class EnhancerServiceImpl implements EnhancerService {
 
-   private Logger logger = LoggerFactory.getLogger(getClass());
+   private static final Logger logger = LoggerFactory.getLogger(EnhancerServiceImpl.class);
 
    private static final String[] VALID_PREDICATES = {"title", "subject", "created", "extracted-from", "entity-reference", "entity-label"};
    private static final String GA_PUBLIC_VOCABS = "GAPublicVocabsSandbox";
@@ -172,7 +172,14 @@ public class EnhancerServiceImpl implements EnhancerService {
                logger.info("enhance - document added to solr");
 
                // Store full enhanced doc (rdf) in S3
-               s3Client.storeFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn, content, ContentType.APPLICATION_XML.getMimeType());
+               s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
+                     enhancedText, ContentType.APPLICATION_XML.getMimeType());
+
+               // Also store original image in S3
+               if (docType.equals(DocumentType.IMAGE.name())) {
+                  s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + title,
+                        configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
+               }
 
                // Store full document in DB
                logger.info("enhance - saving document in the database");
@@ -185,6 +192,12 @@ public class EnhancerServiceImpl implements EnhancerService {
                logger.info("enhance - RDF stored in Jena");
 
                enhancementSucceed = true;
+
+            } else {
+               logger.info("enhance - saving document in the database");
+               saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.FAILURE,
+                     "No matches were found in the vocabularies used by the chain: " + configuration.getStanbolChain());
+               logger.info("enhance - document saved in the database");
             }
          }
 
@@ -203,7 +216,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    private void saveOrUpdateDocument(String origin, String urn, String title, String docType,
                                      EnhancementStatus status, String statusReason) {
-      Document document = documentService.findByUrn(urn);
+      Document document = documentService.findByOrigin(origin);
       if (document == null) {
          document = new Document();
       }
@@ -231,7 +244,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             origin = object.getBucketName() + ":" + object.getKey();
             document = documentService.findByOrigin(origin);
             // Document was not enhanced or previous enhancement failed
-            if (document == null || document.getStatus() == EnhancementStatus.FAILURE) {
+            if (document == null || (document.getStatus() == EnhancementStatus.FAILURE)) {
                output.add(object);
             }
          }
@@ -247,6 +260,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       String key = configuration.getS3EnhancerInput() + documentType.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
       objects = getDocumentsForEnhancement(objects);
+      logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
       for (S3ObjectSummary object : objects) {
          s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
          fileContent = IOUtils.parseFile(s3FileContent);
@@ -279,16 +293,15 @@ public class EnhancerServiceImpl implements EnhancerService {
    public void enhanceImages() {
       String title;
       String origin;
-      String fileContent;
-      String metadata;
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
       objects = getDocumentsForEnhancement(objects);
+      logger.info("enhanceImages - there are " + objects.size() + " images to be enhanced");
       for (S3ObjectSummary object : objects) {
          s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
-         String imageMetadata = imageService.getImageMetadata(s3FileContent);
          title = getFileNameFromS3ObjectSummary(object);
+         String imageMetadata = title + "\n" + imageService.getImageMetadata(s3FileContent);
          origin = configuration.getS3Bucket() + ":" + object.getKey();
          try {
             enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
