@@ -9,3 +9,5 @@ buildNumber.properties
 
 .idea/
 *.iml
+
+src/test/resources/testfiles/google_vision/
