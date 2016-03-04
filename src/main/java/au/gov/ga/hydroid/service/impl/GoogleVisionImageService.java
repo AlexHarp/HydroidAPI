@@ -4,12 +4,14 @@ import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.ImageService;
 import au.gov.ga.hydroid.utils.HydroidException;
 import com.google.api.client.googleapis.GoogleUtils;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.vision.v1.Vision;
 import com.google.api.services.vision.v1.VisionRequestInitializer;
+import com.google.api.services.vision.v1.VisionScopes;
 import com.google.api.services.vision.v1.model.*;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -41,8 +43,9 @@ public class GoogleVisionImageService implements ImageService {
       try {
          JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
          Vision.Builder builder;
+         GoogleCredential credential = GoogleCredential.getApplicationDefault().createScoped(VisionScopes.all());
 
-         builder = new Vision.Builder(newProxyTransport(configuration), jsonFactory, null);
+         builder = new Vision.Builder(newProxyTransport(configuration), jsonFactory, credential);
 
          String apiKey = configuration.getGoogleVisionApiKey();
          if(apiKey == null || apiKey.length() == 0) {
