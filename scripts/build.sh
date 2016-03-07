@@ -1,4 +1,5 @@
 # create common folder
+cd ..
 mkdir staging
 
 # build hydroid api
