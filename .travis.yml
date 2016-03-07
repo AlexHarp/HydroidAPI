@@ -2,9 +2,6 @@ language: java
 jdk:
   - oraclejdk8
 script:
-    - chmod a+x ./scripts/build.sh
-    - chmod a+x ./scripts/build-index.sh
-    - ./scripts/build.sh
     - ./scripts/build-index.sh
 deploy:
   - provider: s3
@@ -32,3 +29,7 @@ deploy:
       branch: master
 before_install:
   - openssl aes-256-cbc -k "$google_vision_key" -in google-vision.json.enc -out google-vision.json -d
+  - chmod a+x ./scripts/build.sh
+  - chmod a+x ./scripts/build-index.sh
+install:
+  - ./scripts/build.sh
