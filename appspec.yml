@@ -5,10 +5,11 @@ files:
     destination: /var/tmp/
 permissions:
     - object: /var/tmp
+      pattern: "*.sh"
       owner: root
-      mode: 777
+      mode: 755
       type:
-        - directory
+        - file
 hooks:
   AfterInstall:
     - location: reset_stanbol.sh
