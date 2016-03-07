@@ -52,7 +52,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private DocumentService documentService;
 
-   @Autowired @Qualifier("imageServiceImpl")
+   @Autowired @Qualifier("googleVisionImageService")
    private ImageService imageService;
 
    private Properties generateSolrDocument(List<Statement> rdfDocument, String content, String docType, String title) {

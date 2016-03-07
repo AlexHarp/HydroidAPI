@@ -2,6 +2,8 @@ cd /var/tmp
 
 # update hydroid app
 kill -9 $(cat /usr/share/tomcat7/hydroid/hydroid.pid)
+sudo mv /var/tmp/google-vision.json /usr/share/tomcat7/hydroid/google-vision.json
+export GOOGLE_APPLICATION_CREDENTIALS=/usr/share/tomcat7/hydroid/google-vision.json
 sudo cp /var/tmp/hydroid.jar /usr/share/tomcat7/hydroid/.
 sudo -u ec2-user nohup java -jar /usr/share/tomcat7/hydroid/hydroid.jar > /usr/share/tomcat7/hydroid/hydroid.log &
 
