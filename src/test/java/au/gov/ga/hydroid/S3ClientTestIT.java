@@ -44,6 +44,9 @@ public class S3ClientTestIT {
       List<S3ObjectSummary> objects = s3Client.listObjects("hydroid", "enhancer/input/");
       Assert.assertNotNull(objects);
       Assert.assertEquals("enhancer/input/", objects.get(0).getKey());
+      for (S3ObjectSummary objectSummary : objects) {
+         System.out.println(objectSummary.getKey() + ": " + objectSummary.getStorageClass());
+      }
    }
 
    @Test

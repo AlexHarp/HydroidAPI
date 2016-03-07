@@ -1,6 +1,8 @@
 language: java
 jdk:
   - oraclejdk8
+before_install:
+  - openssl aes-256-cbc -K $encrypted_0a6446eb3ae3_key -iv $encrypted_0a6446eb3ae3_key -in google-vision.json.enc -out google-vision.json -d
 script: 
     - chmod a+x ./build.sh
     - chmod a+x ./build-index.sh

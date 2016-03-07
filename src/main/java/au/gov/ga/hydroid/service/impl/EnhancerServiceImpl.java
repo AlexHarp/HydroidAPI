@@ -177,8 +177,11 @@ public class EnhancerServiceImpl implements EnhancerService {
 
                // Also store original image in S3
                if (docType.equals(DocumentType.IMAGE.name())) {
+                  logger.info("enhance - saving image in S3 and its metadata in the database");
                   s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + title,
                         configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
+                  saveOrUpdateImageMetadata(origin, content);
+                  logger.info("enhance - original image content and metadata saved");
                }
 
                // Store full document in DB
@@ -233,19 +236,28 @@ public class EnhancerServiceImpl implements EnhancerService {
       }
    }
 
+   private void saveOrUpdateImageMetadata(String origin, String metadata) {
+      if (documentService.readImageMetadata(origin) == null) {
+         documentService.createImageMetadata(origin, metadata);
+      } else {
+         documentService.updateImageMetadata(origin, metadata);
+      }
+   }
+
    private List<S3ObjectSummary> getDocumentsForEnhancement(List<S3ObjectSummary> input) {
       List<S3ObjectSummary> output = new ArrayList();
       if (!input.isEmpty()) {
          String origin;
          Document document;
-         // remove the folder item
-         input.remove(0);
          for (S3ObjectSummary object : input) {
-            origin = object.getBucketName() + ":" + object.getKey();
-            document = documentService.findByOrigin(origin);
-            // Document was not enhanced or previous enhancement failed
-            if (document == null || (document.getStatus() == EnhancementStatus.FAILURE)) {
-               output.add(object);
+            // Ignore folders
+            if (!object.getKey().endsWith("/")) {
+               origin = object.getBucketName() + ":" + object.getKey();
+               document = documentService.findByOrigin(origin);
+               // Document was not enhanced or previous enhancement failed
+               if (document == null || (document.getStatus() == EnhancementStatus.FAILURE)) {
+                  output.add(object);
+               }
             }
          }
       }
@@ -296,13 +308,21 @@ public class EnhancerServiceImpl implements EnhancerService {
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
-      objects = getDocumentsForEnhancement(objects);
-      logger.info("enhanceImages - there are " + objects.size() + " images to be enhanced");
+      List<S3ObjectSummary> objectsForEnhancement = getDocumentsForEnhancement(objects);
+      logger.info("enhanceImages - there are " + objectsForEnhancement.size() + " images to be enhanced");
+      logger.info("enhanceImages - (" + (objects.size() - objectsForEnhancement.size()) + " images will be taken from the cache");
+      String imageMetadata;
       for (S3ObjectSummary object : objects) {
-         s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
          title = getFileNameFromS3ObjectSummary(object);
-         String imageMetadata = title + "\n" + imageService.getImageMetadata(s3FileContent);
          origin = configuration.getS3Bucket() + ":" + object.getKey();
+         // The image metadata will be extracted and used for enhancement
+         if (objectsForEnhancement.contains(object)) {
+            s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+            imageMetadata = title + "\n" + imageService.getImageMetadata(s3FileContent);
+         // The cached imaged metadata will be used for enhancement
+         } else {
+            imageMetadata = documentService.readImageMetadata(origin);
+         }
          try {
             enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
          } catch (Throwable e) {

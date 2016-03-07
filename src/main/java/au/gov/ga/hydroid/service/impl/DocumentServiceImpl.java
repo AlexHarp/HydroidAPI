@@ -69,4 +69,27 @@ public class DocumentServiceImpl implements DocumentService {
       jdbcTemplate.update("delete from documents");
    }
 
+   @Override
+   public void createImageMetadata(String origin, String metadata) {
+      String sql = "insert into image_metadata (origin, metadata) values (?, ?)";
+      jdbcTemplate.update(sql, origin, metadata);
+   }
+
+   @Override
+   public String readImageMetadata(String origin) {
+      try {
+         return jdbcTemplate.queryForObject("SELECT metadata FROM image_metadata where origin = ?",
+               new String[] {origin}, String.class);
+      } catch (IncorrectResultSizeDataAccessException e) {
+         // image metadata was not found
+         return null;
+      }
+   }
+
+   @Override
+   public void updateImageMetadata(String origin, String metadata) {
+      String sql = "update image_metadata set metadata = ? where origin = ?";
+      jdbcTemplate.update(sql, metadata, origin);
+   }
+
 }

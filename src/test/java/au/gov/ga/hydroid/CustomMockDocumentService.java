@@ -58,4 +58,19 @@ public class CustomMockDocumentService implements DocumentService {
       
    }
 
+   @Override
+   public void createImageMetadata(String origin, String metadata) {
+
+   }
+
+   @Override
+   public String readImageMetadata(String origin) {
+      return null;
+   }
+
+   @Override
+   public void updateImageMetadata(String origin, String metadata) {
+
+   }
+
 }

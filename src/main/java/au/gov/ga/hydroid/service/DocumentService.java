@@ -17,4 +17,8 @@ public interface DocumentService {
    public void update(Document document);
    public void clearAll();
 
+   public void createImageMetadata(String origin, String metadata);
+   public String readImageMetadata(String origin);
+   public void updateImageMetadata(String origin, String metadata);
+
 }
