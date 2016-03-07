@@ -1,7 +1,7 @@
 language: java
 jdk:
   - oraclejdk8
-script: 
+script:
     - chmod a+x ./build.sh
     - chmod a+x ./build-index.sh
     - ./build.sh
@@ -30,3 +30,5 @@ deploy:
     region: ap-southeast-2
     on:
       branch: master
+before_install:
+  - openssl aes-256-cbc -k "$google_vision_key" -in google-vision.json.enc -out google-vision.json -d
