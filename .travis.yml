@@ -1,9 +1,7 @@
 language: java
 jdk:
   - oraclejdk8
-before_install:
-  - openssl aes-256-cbc -K $encrypted_efadf58fbb00_key -iv $encrypted_efadf58fbb00_iv -in google-vision.json.enc -out google-vision.json -d
-script: 
+script:
     - chmod a+x ./build.sh
     - chmod a+x ./build-index.sh
     - ./build.sh
@@ -32,3 +30,5 @@ deploy:
     region: ap-southeast-2
     on:
       branch: master
+before_install:
+  - openssl aes-256-cbc -k "$google_vision_key" -in google-vision.json.enc -out google-vision.json -d
