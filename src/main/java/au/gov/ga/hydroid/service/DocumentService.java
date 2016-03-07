@@ -8,17 +8,17 @@ import java.util.List;
  * Created by u24529 on 4/02/2016.
  */
 public interface DocumentService {
+   
+   List<Document> findAll();
+   Document findByUrn(String urn);
+   Document findByOrigin(String origin);
+   void create(Document document);
+   void deleteByUrn(String urn);
+   void update(Document document);
+   void clearAll();
 
-   public List<Document> findAll();
-   public Document findByUrn(String urn);
-   public Document findByOrigin(String origin);
-   public void create(Document document);
-   public void deleteByUrn(String urn);
-   public void update(Document document);
-   public void clearAll();
-
-   public void createImageMetadata(String origin, String metadata);
-   public String readImageMetadata(String origin);
-   public void updateImageMetadata(String origin, String metadata);
-
+   void createImageMetadata(String origin, String metadata);
+   String readImageMetadata(String origin);
+   void updateImageMetadata(String origin, String metadata);
+   
 }
