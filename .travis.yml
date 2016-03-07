@@ -2,8 +2,8 @@ language: java
 jdk:
   - oraclejdk8
 script:
-    - chmod a+x ./build.sh
-    - chmod a+x ./build-index.sh
+    - chmod a+x ./scripts/build.sh
+    - chmod a+x ./scripts/build-index.sh
     - ./scripts/build.sh
     - ./scripts/build-index.sh
 deploy:
