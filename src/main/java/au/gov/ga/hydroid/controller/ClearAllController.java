@@ -28,7 +28,7 @@ public class ClearAllController {
    @Autowired
    private DocumentService documentService;
 
-   @RequestMapping(value = "/all", method = {RequestMethod.GET})
+   @RequestMapping(value = "/all", method = {RequestMethod.POST})
    public @ResponseBody
    String resetAll() throws Exception {
       logger.debug("Deleting from SOLR");
