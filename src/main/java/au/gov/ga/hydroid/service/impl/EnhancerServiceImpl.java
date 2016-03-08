@@ -101,7 +101,9 @@ public class EnhancerServiceImpl implements EnhancerService {
       }
 
       documentUrl.setLength(0);
-      documentUrl = new StringBuilder(configuration.getS3OutputUrl()).append("/").append(docType.toLowerCase()).append("s/").append(properties.getProperty("about"));
+      documentUrl = new StringBuilder(configuration.getS3OutputUrl())
+            .append(docType.equals(DocumentType.IMAGE.name()) ? "/images/" : "/rdfs/")
+            .append(properties.getProperty("about"));
 
       // Add property:type to rdf (DOCUMENT, DATASET, MODEL or IMAGE)
       Resource subject = ResourceFactory.createResource(properties.getProperty("about"));
