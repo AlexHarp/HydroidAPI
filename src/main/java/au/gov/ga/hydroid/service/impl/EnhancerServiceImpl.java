@@ -206,9 +206,9 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       } catch (Throwable e) {
          logger.error("enhance - Exception: ", e);
-         // if there was any error in the process we remove the documents stored under the URN in process
+         saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.FAILURE, e.getLocalizedMessage());
+         // if there was any error in the process we remove the documents stored under the URN if created
          if (urn != null) {
-            saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.FAILURE, e.getLocalizedMessage());
             rollbackEnhancement(urn);
          }
          throw new HydroidException(e);
