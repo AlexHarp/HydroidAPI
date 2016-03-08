@@ -3,19 +3,26 @@ package au.gov.ga.hydroid.controller;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.dto.ServiceResponse;
+import au.gov.ga.hydroid.job.EnhancerJob;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.EnhancerService;
 import au.gov.ga.hydroid.utils.IOUtils;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -31,6 +38,9 @@ public class EnhancerController {
 
    @Autowired
    private HydroidConfiguration configuration;
+
+   @Autowired
+   private ApplicationContext context;
 
    private boolean validateDocType(String docType) {
       if (docType == null || docType.isEmpty()) {
@@ -107,12 +117,36 @@ public class EnhancerController {
    @RequestMapping(value = "/s3", method = {RequestMethod.GET, RequestMethod.POST})
    public @ResponseBody ResponseEntity<ServiceResponse> enhanceS3() {
 
-      enhancerService.enhanceDocuments();
-      enhancerService.enhanceDatasets();
-      enhancerService.enhanceModels();
-      enhancerService.enhanceImages();
+      try {
 
-      return new ResponseEntity<ServiceResponse>(new ServiceResponse("Your documents have been enhanced successfully."),
+         SchedulerFactoryBean schedulerFactoryBean = context.getBean(SchedulerFactoryBean.class);
+
+         if (schedulerFactoryBean != null) {
+            Scheduler scheduler = schedulerFactoryBean.getScheduler();
+
+            // Check if any jobs are currently running
+            List<JobExecutionContext> jobs = schedulerFactoryBean.getScheduler().getCurrentlyExecutingJobs();
+            if (jobs != null && !jobs.isEmpty()) {
+               for (JobExecutionContext job : jobs) {
+                  if (job.getJobDetail().getJobClass().equals(EnhancerJob.class)) {
+                     return new ResponseEntity<ServiceResponse>(new ServiceResponse("The enhancement process is currently in progress, try again later."),
+                           HttpStatus.OK);
+                  }
+               }
+            // if not trigger job manually
+            } else {
+               JobDetail jobDetail = (JobDetail) context.getBean("enhancerJobDetail");
+               if (jobDetail != null) {
+                  scheduler.triggerJob(jobDetail.getKey());
+               }
+            }
+         }
+
+      } catch (Throwable e) {
+         logger.error("enhanceS3 - Throwable: ", e);
+      }
+
+      return new ResponseEntity<ServiceResponse>(new ServiceResponse("The enhancement process has started successfully."),
             HttpStatus.OK);
 
    }
