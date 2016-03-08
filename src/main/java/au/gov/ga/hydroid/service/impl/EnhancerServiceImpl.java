@@ -59,6 +59,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       List<String> concepts = new ArrayList<>();
       List<String> labels = new ArrayList<>();
       Properties properties = new Properties();
+      StringBuilder documentUrl = new StringBuilder();
       Map<String,String> gaVocabSubjects = new HashMap();
       for (Statement statement : rdfDocument) {
 
@@ -99,19 +100,26 @@ public class EnhancerServiceImpl implements EnhancerService {
          }
       }
 
-      // If docType is provided we add it to the rdf document
-      if (docType != null && !docType.isEmpty()) {
+      documentUrl.setLength(0);
+      documentUrl = new StringBuilder(configuration.getS3OutputUrl()).append("/").append(docType.toLowerCase()).append("s/").append(properties.getProperty("about"));
 
-         // Add property:type to rdf (DOCUMENT, DATASET or MODEL)
-         Resource subject = ResourceFactory.createResource(properties.getProperty("about"));
-         Property property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_type");
-         Literal object = ResourceFactory.createPlainLiteral(docType);
-         Statement statement = ResourceFactory.createStatement(subject, property, object);
-         rdfDocument.add(statement);
+      // Add property:type to rdf (DOCUMENT, DATASET, MODEL or IMAGE)
+      Resource subject = ResourceFactory.createResource(properties.getProperty("about"));
+      Property property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_type");
+      RDFNode object = ResourceFactory.createPlainLiteral(docType);
+      Statement statement = ResourceFactory.createStatement(subject, property, object);
+      rdfDocument.add(statement);
 
-         // Add property:label to the rdf (the document title)
-         property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_label");
-         object = ResourceFactory.createPlainLiteral(title);
+      // Add property:label to the rdf (the document title)
+      property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_label");
+      object = ResourceFactory.createPlainLiteral(title);
+      statement = ResourceFactory.createStatement(subject, property, object);
+      rdfDocument.add(statement);
+
+      // Added property:image to the RDF document
+      if (docType.equals(DocumentType.DOCUMENT.name())) {
+         property = ResourceFactory.createProperty("http://purl.org/dc/dcmitype/Image");
+         object = ResourceFactory.createProperty(documentUrl.toString());
          statement = ResourceFactory.createStatement(subject, property, object);
          rdfDocument.add(statement);
       }
@@ -125,6 +133,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       properties.put("label", labels);
       properties.put("concept", concepts);
       properties.put("docType", docType);
+      properties.put("docUrl", documentUrl.toString());
       properties.put("creator", DOCUMENT_CREATOR);
 
       // No labels or concepts were found so we discard
@@ -162,7 +171,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             // Generate dictionary with properties we are interested in
             properties = generateSolrDocument(rdfDocument, content, docType, title);
 
-            // Nothing was matched/tagged with our vocabularies
+            // Content has been tagged with our vocabularies
             if (!properties.isEmpty()) {
 
                // Add enhanced document to Solr
@@ -325,7 +334,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
       List<S3ObjectSummary> objectsForEnhancement = getDocumentsForEnhancement(objects);
       logger.info("enhanceImages - there are " + objectsForEnhancement.size() + " images to be enhanced");
-      logger.info("enhanceImages - (" + (objects.size() - objectsForEnhancement.size()) + " images will be taken from the cache");
+      logger.info("enhanceImages - " + (objects.size() - objectsForEnhancement.size()) + " images will be taken from the cache");
       String imageMetadata;
       for (S3ObjectSummary object : objects) {
          // Ignore folders
