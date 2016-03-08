@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RestClientImpl implements RestClient {
 
-   private static final int TIMEOUT = 60;
+   private static final int TIMEOUT = 120;
    private ResteasyClientBuilder builder;
 
    @Autowired
