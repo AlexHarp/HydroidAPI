@@ -201,12 +201,27 @@ public class EnhancerServiceImpl implements EnhancerService {
                saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.FAILURE,
                      "No matches were found in the vocabularies used by the chain: " + configuration.getStanbolChain());
                logger.info("enhance - document saved in the database");
+
+               // Also store original image metadata
+               if (docType.equals(DocumentType.IMAGE.name())) {
+                  logger.info("enhance - saving image metadata in the database");
+                  saveOrUpdateImageMetadata(origin, content);
+                  logger.info("enhance - image metadata saved");
+               }
             }
          }
 
       } catch (Throwable e) {
          logger.error("enhance - Exception: ", e);
          saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.FAILURE, e.getLocalizedMessage());
+
+         // Also store original image metadata
+         if (docType.equals(DocumentType.IMAGE.name())) {
+            logger.info("enhance - saving image metadata in the database");
+            saveOrUpdateImageMetadata(origin, content);
+            logger.info("enhance - image metadata saved");
+         }
+
          // if there was any error in the process we remove the documents stored under the URN if created
          if (urn != null) {
             rollbackEnhancement(urn);
