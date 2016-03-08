@@ -281,7 +281,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          try {
             enhance(title, fileContent, documentType.name(), origin);
          } catch (Throwable e) {
-            logger.error("enhanceCollection - error processing file key: " + key);
+            logger.error("enhanceCollection - error processing file key: " + object.getKey());
          }
       }
    }
@@ -313,20 +313,23 @@ public class EnhancerServiceImpl implements EnhancerService {
       logger.info("enhanceImages - (" + (objects.size() - objectsForEnhancement.size()) + " images will be taken from the cache");
       String imageMetadata;
       for (S3ObjectSummary object : objects) {
-         title = getFileNameFromS3ObjectSummary(object);
-         origin = configuration.getS3Bucket() + ":" + object.getKey();
-         // The image metadata will be extracted and used for enhancement
-         if (objectsForEnhancement.contains(object)) {
-            s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
-            imageMetadata = title + "\n" + imageService.getImageMetadata(s3FileContent);
-         // The cached imaged metadata will be used for enhancement
-         } else {
-            imageMetadata = documentService.readImageMetadata(origin);
-         }
-         try {
-            enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
-         } catch (Throwable e) {
-            logger.error("enhanceImages - error processing file key: " + key);
+         // Ignore folders
+         if (!object.getKey().endsWith("/")) {
+            title = getFileNameFromS3ObjectSummary(object);
+            origin = configuration.getS3Bucket() + ":" + object.getKey();
+            // The image metadata will be extracted and used for enhancement
+            if (objectsForEnhancement.contains(object)) {
+               s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+               imageMetadata = title + "\n" + imageService.getImageMetadata(s3FileContent);
+               // The cached imaged metadata will be used for enhancement
+            } else {
+               imageMetadata = documentService.readImageMetadata(origin);
+            }
+            try {
+               enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
+            } catch (Throwable e) {
+               logger.error("enhanceImages - error processing file key: " + object.getKey());
+            }
          }
       }
    }
