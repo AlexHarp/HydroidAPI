@@ -78,7 +78,7 @@ public class SchedulerConfiguration {
       logger.debug("enhancerJobTrigger - started");
       SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
       factoryBean.setJobDetail(jobDetail);
-      factoryBean.setStartDelay(0L);
+      factoryBean.setStartDelay(Duration.ofMinutes(5).toMillis());
       factoryBean.setRepeatInterval(Duration.ofHours(frequency).toMillis());
       factoryBean.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
       factoryBean.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT);

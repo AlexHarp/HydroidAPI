@@ -51,7 +51,7 @@ public class HydroidConfiguration {
    @Value("${s3.output.bucket}")
    private String s3OutputBucket;
 
-   @Value("${s3.output.bucket}")
+   @Value("${s3.output.url}")
    private String s3OutputUrl;
 
    public String getProxyHost() {
