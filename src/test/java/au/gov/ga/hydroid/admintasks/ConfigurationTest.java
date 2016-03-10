@@ -1,5 +1,7 @@
-package au.gov.ga.hydroid;
+package au.gov.ga.hydroid.admintasks;
 
+import au.gov.ga.hydroid.HydroidApplication;
+import au.gov.ga.hydroid.HydroidConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

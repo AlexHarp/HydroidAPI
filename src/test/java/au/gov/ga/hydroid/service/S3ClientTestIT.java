@@ -1,5 +1,6 @@
-package au.gov.ga.hydroid;
+package au.gov.ga.hydroid.service;
 
+import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.service.S3Client;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.http.entity.ContentType;

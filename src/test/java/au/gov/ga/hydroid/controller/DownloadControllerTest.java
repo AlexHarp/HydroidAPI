@@ -1,6 +1,6 @@
 package au.gov.ga.hydroid.controller;
 
-import au.gov.ga.hydroid.CustomMockS3Client;
+import au.gov.ga.hydroid.mock.CustomMockS3Client;
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.S3Client;

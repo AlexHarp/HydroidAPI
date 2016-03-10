@@ -1,4 +1,4 @@
-package au.gov.ga.hydroid;
+package au.gov.ga.hydroid.mock;
 
 import au.gov.ga.hydroid.service.S3Client;
 import com.amazonaws.services.s3.model.S3ObjectSummary;

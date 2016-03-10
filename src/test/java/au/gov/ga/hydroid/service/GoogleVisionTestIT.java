@@ -1,4 +1,4 @@
-package au.gov.ga.hydroid.googlevision;
+package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.service.impl.GoogleVisionImageService;
