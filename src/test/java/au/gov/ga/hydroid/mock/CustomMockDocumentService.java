@@ -1,4 +1,4 @@
-package au.gov.ga.hydroid;
+package au.gov.ga.hydroid.mock;
 
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.service.DocumentService;
