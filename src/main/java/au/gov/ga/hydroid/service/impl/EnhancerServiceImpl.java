@@ -357,7 +357,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             // The image metadata will be extracted and used for enhancement
             if (imageMetadata == null) {
                s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
-               imageMetadata = title + "\n" + imageService.getImageMetadata(s3FileContent);
+               imageMetadata = title + "\n" + getImageMetadataAsString(s3FileContent);
                // The cached imaged metadata will be used for enhancement
             }
             try {
