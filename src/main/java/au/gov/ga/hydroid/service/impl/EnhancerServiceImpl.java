@@ -333,28 +333,25 @@ public class EnhancerServiceImpl implements EnhancerService {
       String origin;
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
-      List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
-      List<S3ObjectSummary> objectsForEnhancement = getDocumentsForEnhancement(objects);
+      List<S3ObjectSummary> objectsForEnhancement = getDocumentsForEnhancement(s3Client.listObjects(configuration.getS3Bucket(), key));
       logger.info("enhanceImages - there are " + objectsForEnhancement.size() + " images to be enhanced");
-      logger.info("enhanceImages - " + (objects.size() - objectsForEnhancement.size()) + " images will be taken from the cache");
       String imageMetadata;
-      for (S3ObjectSummary object : objects) {
+      for (S3ObjectSummary s3ObjectSummary : objectsForEnhancement) {
          // Ignore folders
-         if (!object.getKey().endsWith("/")) {
-            title = getFileNameFromS3ObjectSummary(object);
-            origin = configuration.getS3Bucket() + ":" + object.getKey();
+         if (!s3ObjectSummary.getKey().endsWith("/")) {
+            title = getFileNameFromS3ObjectSummary(s3ObjectSummary);
+            origin = configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey();
+            imageMetadata = documentService.readImageMetadata(origin);
             // The image metadata will be extracted and used for enhancement
-            if (objectsForEnhancement.contains(object)) {
-               s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+            if (imageMetadata == null) {
+               s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
                imageMetadata = title + "\n" + imageService.getImageMetadata(s3FileContent);
                // The cached imaged metadata will be used for enhancement
-            } else {
-               imageMetadata = documentService.readImageMetadata(origin);
             }
             try {
                enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
             } catch (Throwable e) {
-               logger.error("enhanceImages - error processing file key: " + object.getKey());
+               logger.error("enhanceImages - error processing file key: " + s3ObjectSummary.getKey());
             }
          }
       }
