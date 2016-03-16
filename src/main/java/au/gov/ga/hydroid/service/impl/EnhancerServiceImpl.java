@@ -318,7 +318,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       StringBuilder result = new StringBuilder();
       ImageMetadata imageMetadata = imageService.getImageMetadata(s3FileContent);
       for (ImageAnnotation imageLabel : imageMetadata.getImageLabels()) {
-         result.append(imageLabel.getDescription()).append(" (").append(imageLabel.getScore()).append(")\n");
+         result.append(imageLabel.getDescription()).append(" (").append(imageLabel.getScore()).append("),");
       }
       result.setLength(result.length() - 1);
       return result.toString();
@@ -358,7 +358,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             // The image metadata will be extracted and used for enhancement
             if (objectsForEnhancement.contains(object)) {
                s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
-               imageMetadata = title + "\n" + getImageMetadataAsString(s3FileContent);
+               imageMetadata = title + ": " + getImageMetadataAsString(s3FileContent);
                // The cached imaged metadata will be used for enhancement
             } else {
                imageMetadata = documentService.readImageMetadata(origin);
