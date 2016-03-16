@@ -1,5 +1,6 @@
-package au.gov.ga.hydroid;
+package au.gov.ga.hydroid.service;
 
+import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.service.StanbolClient;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.junit.Test;

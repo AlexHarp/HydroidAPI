@@ -1,5 +1,7 @@
-package au.gov.ga.hydroid;
+package au.gov.ga.hydroid.service;
 
+import au.gov.ga.hydroid.HydroidApplication;
+import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.EnhancerService;
 import au.gov.ga.hydroid.utils.IOUtils;

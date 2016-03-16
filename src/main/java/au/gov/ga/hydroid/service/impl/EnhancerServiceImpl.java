@@ -1,6 +1,8 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.dto.ImageAnnotation;
+import au.gov.ga.hydroid.dto.ImageMetadata;
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.model.EnhancementStatus;
@@ -310,6 +312,16 @@ public class EnhancerServiceImpl implements EnhancerService {
             logger.error("enhanceCollection - error processing file key: " + object.getKey());
          }
       }
+   }
+
+   private String getImageMetadataAsString(InputStream s3FileContent) {
+      StringBuilder result = new StringBuilder();
+      ImageMetadata imageMetadata = imageService.getImageMetadata(s3FileContent);
+      for (ImageAnnotation imageLabel : imageMetadata.getImageLabels()) {
+         result.append(imageLabel.getDescription()).append(" (").append(imageLabel.getScore()).append("),");
+      }
+      result.setLength(result.length() - 1);
+      return result.toString();
    }
 
    @Override
