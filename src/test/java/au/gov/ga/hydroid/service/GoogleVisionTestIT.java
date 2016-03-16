@@ -1,6 +1,8 @@
 package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.HydroidApplication;
+import au.gov.ga.hydroid.dto.ImageAnnotation;
+import au.gov.ga.hydroid.dto.ImageMetadata;
 import au.gov.ga.hydroid.service.impl.GoogleVisionImageService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,10 +27,11 @@ public class GoogleVisionTestIT {
 
    @Test
    public void testGoogleVisionApi() throws IOException, GeneralSecurityException {
+      Assert.assertNotNull("GOOGLE_APPLICATION_CREDENTIALS", System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
       InputStream imageStream = this.getClass().getResourceAsStream("/testfiles/hydroid-3.jpg");
-      String result = googleVisionImageService.getImageMetadata(imageStream);
+      ImageMetadata result = googleVisionImageService.getImageMetadata(imageStream);
       Assert.assertNotNull(result);
-      Assert.assertTrue(result.length() > 0);
+      Assert.assertTrue(result.getImageLabels().size() > 0);
    }
 
    @Test
@@ -42,10 +45,15 @@ public class GoogleVisionTestIT {
                String fileNameWithoutExt;
                if (Files.isRegularFile(filePath)) {
                   is = new FileInputStream(filePath.toFile());
-                  String result = googleVisionImageService.getImageMetadata(is);
+                  ImageMetadata result = googleVisionImageService.getImageMetadata(is);
                   fileNameWithoutExt = filePath.getFileName().toString().substring(0, filePath.getFileName().toString().length() - 4);
                   os = new FileOutputStream("src/test/resources/testfiles/google_vision/" + fileNameWithoutExt + ".txt");
-                  os.write(result.getBytes());
+                  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
+                  for (ImageAnnotation imageLabel : result.getImageLabels()) {
+                     bw.write(imageLabel.getDescription() + "(" + imageLabel.getScore() + ")");
+                     bw.newLine();
+                  }
+                  bw.close();
                }
             } catch (Throwable e) {
                e.printStackTrace();

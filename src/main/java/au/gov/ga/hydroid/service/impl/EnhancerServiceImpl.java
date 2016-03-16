@@ -1,6 +1,8 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.dto.ImageAnnotation;
+import au.gov.ga.hydroid.dto.ImageMetadata;
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.model.EnhancementStatus;
@@ -312,6 +314,16 @@ public class EnhancerServiceImpl implements EnhancerService {
       }
    }
 
+   private String getImageMetadataAsString(InputStream s3FileContent) {
+      StringBuilder result = new StringBuilder();
+      ImageMetadata imageMetadata = imageService.getImageMetadata(s3FileContent);
+      for (ImageAnnotation imageLabel : imageMetadata.getImageLabels()) {
+         result.append(imageLabel.getDescription()).append(" (").append(imageLabel.getScore()).append(")\n");
+      }
+      result.setLength(result.length() - 1);
+      return result.toString();
+   }
+
    @Override
    public void enhanceDocuments() {
       enhanceCollection(DocumentType.DOCUMENT);
@@ -346,7 +358,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             // The image metadata will be extracted and used for enhancement
             if (objectsForEnhancement.contains(object)) {
                s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
-               imageMetadata = title + "\n" + imageService.getImageMetadata(s3FileContent);
+               imageMetadata = title + "\n" + getImageMetadataAsString(s3FileContent);
                // The cached imaged metadata will be used for enhancement
             } else {
                imageMetadata = documentService.readImageMetadata(origin);
