@@ -1,5 +1,7 @@
 package au.gov.ga.hydroid.service.impl;
 
+import au.gov.ga.hydroid.dto.ImageAnnotation;
+import au.gov.ga.hydroid.dto.ImageMetadata;
 import au.gov.ga.hydroid.service.ImageService;
 import au.gov.ga.hydroid.utils.HydroidException;
 import org.apache.commons.lang.ArrayUtils;
@@ -24,8 +26,8 @@ public class ImageServiceImpl implements ImageService {
          "Windows XP Comment", "Windows XP Keywords", "Windows XP Subject", "Windows XP Title"};
 
    @Override
-   public String getImageMetadata(InputStream is) {
-      StringBuilder imageMetadata = new StringBuilder();
+   public ImageMetadata getImageMetadata(InputStream is) {
+      ImageMetadata imageMetadata = new ImageMetadata();
 
       try {
          Parser parser = new AutoDetectParser();
@@ -45,9 +47,10 @@ public class ImageServiceImpl implements ImageService {
                   if (propertyValue.indexOf(";") >= 0) {
                      propertyValue = propertyValue.replaceAll(";", "\n");
                   }
+                  ImageAnnotation imageLabel = new ImageAnnotation(propertyValue, 1);
                   // Only store unique values
-                  if (!imageMetadata.toString().toLowerCase().contains(propertyValue.toLowerCase())) {
-                     imageMetadata.append(propertyValue).append("\n");
+                  if (!imageMetadata.getImageLabels().contains(imageLabel)) {
+                     imageMetadata.getImageLabels().add(imageLabel);
                   }
                }
             }
@@ -57,7 +60,7 @@ public class ImageServiceImpl implements ImageService {
          throw new HydroidException(e);
       }
 
-      return imageMetadata.toString();
+      return imageMetadata;
    }
 
 }

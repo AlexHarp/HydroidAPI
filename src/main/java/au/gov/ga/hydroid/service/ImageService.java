@@ -1,5 +1,7 @@
 package au.gov.ga.hydroid.service;
 
+import au.gov.ga.hydroid.dto.ImageMetadata;
+
 import java.io.InputStream;
 
 /**
@@ -7,6 +9,6 @@ import java.io.InputStream;
  */
 public interface ImageService {
 
-   public String getImageMetadata(InputStream is);
+   public ImageMetadata getImageMetadata(InputStream is);
 
 }
