@@ -126,7 +126,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       rdfDocument.add(statement);
 
       // Added property:image to the RDF document
-      if (docType.equals(DocumentType.DOCUMENT.name())) {
+      if (docType.equals(DocumentType.IMAGE.name())) {
          property = ResourceFactory.createProperty("http://purl.org/dc/dcmitype/Image");
          object = ResourceFactory.createProperty(documentUrl.toString());
          statement = ResourceFactory.createStatement(subject, property, object);
@@ -207,10 +207,10 @@ public class EnhancerServiceImpl implements EnhancerService {
                              configuration.getS3EnhancerOutputImages() + urn + "_thumb",
                              byteArrayInputStream,
                              "image/png");
+                     properties.put("imgThumb",configuration.getS3OutputUrl() + "/images/" + urn + "_thumb");
                   } catch (Exception e) {
                      logger.error("Failed to resize image '" + title + "'.",e);
                   }
-
                }
 
                // Add enhanced document to Solr
