@@ -15,12 +15,17 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.jena.rdf.model.*;
+import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.*;
 
@@ -121,7 +126,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       rdfDocument.add(statement);
 
       // Added property:image to the RDF document
-      if (docType.equals(DocumentType.DOCUMENT.name())) {
+      if (docType.equals(DocumentType.IMAGE.name())) {
          property = ResourceFactory.createProperty("http://purl.org/dc/dcmitype/Image");
          object = ResourceFactory.createProperty(documentUrl.toString());
          statement = ResourceFactory.createStatement(subject, property, object);
@@ -174,28 +179,44 @@ public class EnhancerServiceImpl implements EnhancerService {
          if (rdfDocument != null) {
             // Generate dictionary with properties we are interested in
             properties = generateSolrDocument(rdfDocument, content, docType, title);
-
+            urn = properties.getProperty("about");
             // Content has been tagged with our vocabularies
             if (!properties.isEmpty()) {
 
-               // Add enhanced document to Solr
-               logger.info("enhance - about to add document to solr");
-               urn = properties.getProperty("about");
-               solrClient.addDocument(configuration.getSolrCollection(), properties);
-               logger.info("enhance - document added to solr");
-
                // Store full enhanced doc (rdf) in S3
                s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
-                     enhancedText, ContentType.APPLICATION_XML.getMimeType());
+                       enhancedText, ContentType.APPLICATION_XML.getMimeType());
 
                // Also store original image in S3
                if (docType.equals(DocumentType.IMAGE.name())) {
                   logger.info("enhance - saving image in S3 and its metadata in the database");
                   s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + title,
-                        configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
+                          configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
                   saveOrUpdateImageMetadata(origin, content);
                   logger.info("enhance - original image content and metadata saved");
+                  InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + title);
+                  BufferedImage image = ImageIO.read(origImage);
+
+                  try {
+                     BufferedImage resized = Scalr.resize(image,200);
+                     ByteArrayOutputStream os = new ByteArrayOutputStream();
+                     ImageIO.write(resized,"png", os);
+                     InputStream byteArrayInputStream = new ByteArrayInputStream(os.toByteArray());
+                     s3Client.storeFile(
+                             configuration.getS3OutputBucket(),
+                             configuration.getS3EnhancerOutputImages() + urn + "_thumb",
+                             byteArrayInputStream,
+                             "image/png");
+                     properties.put("imgThumb",configuration.getS3OutputUrl() + "/images/" + urn + "_thumb");
+                  } catch (Exception e) {
+                     logger.error("Failed to resize image '" + title + "'.",e);
+                  }
                }
+
+               // Add enhanced document to Solr
+               logger.info("enhance - about to add document to solr");
+               solrClient.addDocument(configuration.getSolrCollection(), properties);
+               logger.info("enhance - document added to solr");
 
                // Store full document in DB
                logger.info("enhance - saving document in the database");

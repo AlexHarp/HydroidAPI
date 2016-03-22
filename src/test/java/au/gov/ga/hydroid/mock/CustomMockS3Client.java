@@ -33,6 +33,11 @@ public class CustomMockS3Client implements S3Client {
    }
 
    @Override
+   public void storeFile(String bucketName, String key, InputStream content, String contentType) {
+
+   }
+
+   @Override
    public void deleteFile(String bucketName, String key) {
 
    }

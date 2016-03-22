@@ -14,6 +14,7 @@ public interface S3Client {
    public InputStream getFile(String bucketName, String key);
    public byte[] getFileAsByteArray(String bucketName, String key);
    public void storeFile(String bucketName, String key, String content, String contentType);
+   public void storeFile(String bucketName, String key, InputStream content, String contentType);
    public void deleteFile(String bucketName, String key);
    public List<S3ObjectSummary> listObjects(String bucketName, String key);
    public void copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey);
