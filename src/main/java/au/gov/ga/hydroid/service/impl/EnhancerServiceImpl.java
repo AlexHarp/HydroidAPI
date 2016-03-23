@@ -336,9 +336,11 @@ public class EnhancerServiceImpl implements EnhancerService {
       logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
       for (S3ObjectSummary object : objects) {
 
+         s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+
          metadata = new Metadata();
          document = new DocumentDTO();
-         s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+         document.content = IOUtils.parseFile(s3FileContent, metadata);
 
          // Get document title
          if (metadata.get("title") != null) {
@@ -352,7 +354,6 @@ public class EnhancerServiceImpl implements EnhancerService {
          document.author = metadata.get("author") == null ? metadata.get("Author") : metadata.get("author");
          document.dateCreated = metadata.get("Creation-Date") == null ? null :
                DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"});
-         document.content = IOUtils.parseFile(s3FileContent, metadata);
          document.origin = configuration.getS3Bucket() + ":" + object.getKey();
 
          try {
