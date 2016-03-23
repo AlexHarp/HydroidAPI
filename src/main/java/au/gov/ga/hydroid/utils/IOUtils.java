@@ -37,11 +37,17 @@ public class IOUtils {
       return output;
    }
 
-   public static String parseFile(InputStream stream)  {
+   public static String parseFile(InputStream stream) {
+      return parseFile(stream, null);
+   }
+
+   public static String parseFile(InputStream stream, Metadata metadata) {
       AutoDetectParser parser = new AutoDetectParser();
       BodyContentHandler handler = new BodyContentHandler(-1);
       try {
-         Metadata metadata = new Metadata();
+         if (metadata == null) {
+            metadata = new Metadata();
+         }
          parser.parse(stream, handler, metadata);
       } catch (Throwable e) {
          throw new HydroidException(e);

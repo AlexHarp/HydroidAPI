@@ -2,9 +2,11 @@ package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.model.DocumentType;
-import au.gov.ga.hydroid.service.EnhancerService;
 import au.gov.ga.hydroid.utils.IOUtils;
+import org.apache.http.client.utils.DateUtils;
+import org.apache.tika.metadata.Metadata;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,11 +32,15 @@ public class EnhancerServiceTestIT {
 
    @Test
    public void testEnhance() {
-      String randomText = "Created: " + System.currentTimeMillis();
       String origin = "/testfiles/36_4_1175-1197_Buss_and_Clote.pdf";
-      String text = IOUtils.parseFile(this.getClass().getResourceAsStream(origin));
-
-      enhancerService.enhance("Document Title" + randomText, text, DocumentType.DOCUMENT.name(), origin);
+      Metadata metadata = new Metadata();
+      DocumentDTO document = new DocumentDTO();
+      document.docType = DocumentType.DOCUMENT.name();
+      document.content = IOUtils.parseFile(this.getClass().getResourceAsStream(origin));
+      document.title = metadata.get("title");
+      document.author = metadata.get("author") == null ? metadata.get("Author") : metadata.get("author");
+      document.dateCreated = DateUtils.parseDate(metadata.get("Creation-Date"), new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"});
+      enhancerService.enhance(document);
    }
 
    @Test
@@ -51,18 +57,45 @@ public class EnhancerServiceTestIT {
    public void testMatchedGAVocabs() {
       ReflectionTestUtils.setField(configuration, "stanbolChain", "hydroid");
       ReflectionTestUtils.setField(configuration, "storeGAVocabsOnly", true);
-      String randomText = "Created: " + System.currentTimeMillis();
-      String text = "This enhancement should find Corals, Terrace and Bob Marley. But Bob Marley should be discarded.";
-      Assert.assertTrue(enhancerService.enhance("Document Title" + randomText, text, DocumentType.DOCUMENT.name(), "Pasted Content"));
+      DocumentDTO document = new DocumentDTO();
+      document.title = "Document Title Created: " + System.currentTimeMillis();
+      document.docType = DocumentType.DOCUMENT.name();
+      document.origin = "Pasted Content";
+      document.content = "This enhancement should find Corals, Terrace and Bob Marley. But Bob Marley should be discarded.";
+      Assert.assertTrue(enhancerService.enhance(document));
    }
 
    @Test
    public void testNotMatchedGAVocabs() {
       ReflectionTestUtils.setField(configuration, "stanbolChain", "default");
       ReflectionTestUtils.setField(configuration, "storeGAVocabsOnly", true);
-      String randomText = "Created: " + System.currentTimeMillis();
-      String text = "This enhancement should find Corals, Terrace and Bob Marley. But Bob Marley should be discarded.";
-      Assert.assertFalse(enhancerService.enhance("Document Title" + randomText, text, DocumentType.DOCUMENT.name(), "Pasted Content"));
+      DocumentDTO document = new DocumentDTO();
+      document.title = "Document Title Created: " + System.currentTimeMillis();
+      document.docType = DocumentType.DOCUMENT.name();
+      document.origin = "Pasted Content";
+      document.content = "This enhancement should find Corals, Terrace and Bob Marley. But Bob Marley should be discarded.";
+      Assert.assertFalse(enhancerService.enhance(document));
+   }
+
+   @Test
+   public void testPDFMetadata() {
+      String origin = "/testfiles/36_4_1175-1197_Buss_and_Clote.pdf";
+      Metadata metadata = new Metadata();
+      IOUtils.parseFile(this.getClass().getResourceAsStream(origin), metadata);
+      Assert.assertTrue(metadata.size() > 0);
+      Assert.assertEquals("Title", "Solving the Fisher-Wright and Coalescence Problems with a Discrete Markov Chain Analysis", metadata.get("title"));
+      Assert.assertNotNull("Creation-Date", DateUtils.parseDate(metadata.get("Creation-Date"), new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
+   }
+
+   @Test
+   public void testWordMetadata() {
+      String origin = "/testfiles/whale.docx";
+      Metadata metadata = new Metadata();
+      IOUtils.parseFile(this.getClass().getResourceAsStream(origin), metadata);
+      Assert.assertTrue(metadata.size() > 0);
+      Assert.assertEquals("Title", "Whale text from Wikipedia", metadata.get("title"));
+      Assert.assertEquals("Author", "Carneiro Elton", metadata.get("Author"));
+      Assert.assertNotNull("Creation-Date", DateUtils.parseDate(metadata.get("Creation-Date"), new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
    }
 
 }

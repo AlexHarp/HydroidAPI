@@ -7,6 +7,8 @@ import au.gov.ga.hydroid.job.EnhancerJob;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.EnhancerService;
 import au.gov.ga.hydroid.utils.IOUtils;
+import org.apache.http.client.utils.DateUtils;
+import org.apache.tika.metadata.Metadata;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
@@ -22,6 +24,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,24 +64,31 @@ public class EnhancerController {
       }
    }
 
+   private String validateDocument(DocumentDTO document) {
+      if (document == null || document.content == null || document.docType == null) {
+         return "Please enter the text/content and document type for enhancement.";
+      }
+      if (!validateDocType(document.docType)) {
+         return "Document.type is invalid, it must be one of DOCUMENT, DATASET OR MODEL.";
+      }
+      return null;
+   }
+
    @RequestMapping(value = "", method = {RequestMethod.POST})
    public @ResponseBody ResponseEntity<ServiceResponse> enhance(@RequestBody DocumentDTO document) {
-
-      if (document == null || document.content == null || document.content.length() == 0) {
-         return new ResponseEntity<ServiceResponse>(new ServiceResponse("Please enter the text/content for enhancement."),
-               HttpStatus.BAD_REQUEST);
-      }
-
       try {
-         if (!validateDocType(document.docType)) {
-            return new ResponseEntity<ServiceResponse>(new ServiceResponse("Document.type is invalid, it must be one of DOCUMENT, DATASET OR MODEL."),
+
+         String errorMessage = validateDocument(document);
+         if (errorMessage != null) {
+            return new ResponseEntity<ServiceResponse>(new ServiceResponse(errorMessage),
                   HttpStatus.BAD_REQUEST);
 
          }
-         String origin = new StringBuilder(configuration.getS3Bucket()).append(":").append(configuration.getS3EnhancerInput())
-               .append(document.docType.toLowerCase()).append("s/").append(document.title).toString();
 
-         enhancerService.enhance(document.title, document.content, document.docType, origin);
+         document.origin = "Manual Enhancement/UI";
+         document.dateCreated = new Date();
+         enhancerService.enhance(document);
+
       } catch (Throwable e) {
          logger.error("enhance - Exception: ", e);
          return new ResponseEntity<ServiceResponse>(new ServiceResponse("There has been an error enhancing your document, please try again later.",
@@ -87,7 +97,6 @@ public class EnhancerController {
 
       return new ResponseEntity<ServiceResponse>(new ServiceResponse("Your document has been enhanced successfully."),
             HttpStatus.OK);
-
    }
 
    @RequestMapping(value="/file", method = {RequestMethod.POST})
@@ -98,10 +107,19 @@ public class EnhancerController {
          try {
             byte[] bytes = file.getBytes();
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-            String text = IOUtils.parseFile(byteArrayInputStream);
-            String origin = new StringBuilder(configuration.getS3Bucket()).append(":").append(configuration.getS3EnhancerInput())
+
+            Metadata metadata = new Metadata();
+            DocumentDTO document = new DocumentDTO();
+            document.content = IOUtils.parseFile(byteArrayInputStream, metadata);
+            document.docType = DocumentType.DOCUMENT.name();
+            document.author = metadata.get("author") == null ? metadata.get("Author") : metadata.get("author");
+            document.title = metadata.get("title") == null ? name : metadata.get("title");
+            document.origin = new StringBuilder(configuration.getS3Bucket()).append(":").append(configuration.getS3EnhancerInput())
                   .append(DocumentType.DOCUMENT.name().toLowerCase()).append("s/").append(name).toString();
-            enhancerService.enhance(name, text, DocumentType.DOCUMENT.name(), origin);
+            document.dateCreated = metadata.get("Creation-Date") == null ? null :
+                  DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"});
+
+            enhancerService.enhance(document);
          } catch (Throwable e) {
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed extracting/indexing text from file");
          }
