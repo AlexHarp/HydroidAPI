@@ -405,6 +405,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          if (!s3ObjectSummary.getKey().endsWith("/")) {
 
             document = new DocumentDTO();
+            document.docType = DocumentType.IMAGE.name();
             document.title = getFileNameFromS3ObjectSummary(s3ObjectSummary);
             document.origin = configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey();
 
