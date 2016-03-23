@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.dto.ImageAnnotation;
 import au.gov.ga.hydroid.dto.ImageMetadata;
 import au.gov.ga.hydroid.model.Document;
@@ -13,8 +14,10 @@ import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.jena.rdf.model.*;
+import org.apache.tika.metadata.Metadata;
 import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +40,8 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    private static final Logger logger = LoggerFactory.getLogger(EnhancerServiceImpl.class);
 
-   private static final String[] VALID_PREDICATES = {"title", "subject", "created", "extracted-from", "entity-reference", "entity-label"};
+   private static final String[] VALID_PREDICATES = {"extracted-from", "entity-reference", "entity-label", "selection-context"};
    private static final String GA_PUBLIC_VOCABS = "GAPublicVocabsSandbox";
-   private static final String DOCUMENT_CREATOR = "Hydroid Enhancer App";
 
    @Autowired
    private HydroidConfiguration configuration;
@@ -62,9 +64,10 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired @Qualifier("googleVisionImageService")
    private ImageService imageService;
 
-   private Properties generateSolrDocument(List<Statement> rdfDocument, String content, String docType, String title) {
+   private Properties generateSolrDocument(List<Statement> rdfDocument, DocumentDTO document) {
       List<String> concepts = new ArrayList<>();
       List<String> labels = new ArrayList<>();
+      List<String> selectionContexts = new ArrayList<>();
       Properties properties = new Properties();
       StringBuilder documentUrl = new StringBuilder();
       Map<String,String> gaVocabSubjects = new HashMap();
@@ -101,6 +104,11 @@ public class EnhancerServiceImpl implements EnhancerService {
                if (!labels.contains(objectValue)) {
                   labels.add(objectValue);
                }
+            } else if (predicate.equalsIgnoreCase("selection-context")) {
+               // add new selection-context if not there yet
+               if (!selectionContexts.contains(objectValue)) {
+                  selectionContexts.add(objectValue);
+               }
             } else {
                properties.put(predicate, objectValue);
             }
@@ -109,41 +117,44 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       documentUrl.setLength(0);
       documentUrl = new StringBuilder(configuration.getS3OutputUrl())
-            .append(docType.equals(DocumentType.IMAGE.name()) ? "/images/" : "/rdfs/")
+            .append(document.docType.equals(DocumentType.IMAGE.name()) ? "/images/" : "/rdfs/")
             .append(properties.getProperty("about"));
 
       // Add property:type to rdf (DOCUMENT, DATASET, MODEL or IMAGE)
       Resource subject = ResourceFactory.createResource(properties.getProperty("about"));
       Property property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_type");
-      RDFNode object = ResourceFactory.createPlainLiteral(docType);
+      RDFNode object = ResourceFactory.createPlainLiteral(document.docType);
       Statement statement = ResourceFactory.createStatement(subject, property, object);
       rdfDocument.add(statement);
 
       // Add property:label to the rdf (the document title)
       property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_label");
-      object = ResourceFactory.createPlainLiteral(title);
+      object = ResourceFactory.createPlainLiteral(document.title);
       statement = ResourceFactory.createStatement(subject, property, object);
       rdfDocument.add(statement);
 
       // Added property:image to the RDF document
-      if (docType.equals(DocumentType.IMAGE.name())) {
+      if (document.docType.equals(DocumentType.IMAGE.name())) {
          property = ResourceFactory.createProperty("http://purl.org/dc/dcmitype/Image");
          object = ResourceFactory.createProperty(documentUrl.toString());
          statement = ResourceFactory.createStatement(subject, property, object);
          rdfDocument.add(statement);
       }
 
-      String solrContent = content;
+      String solrContent = document.content;
       if (solrContent.length() > 500) {
          solrContent = solrContent.substring(0, 500) + "...";
       }
       properties.put("content", solrContent);
-      properties.put("title", title);
+      properties.put("title", document.title);
+      properties.put("author", document.author);
       properties.put("label", labels);
       properties.put("concept", concepts);
-      properties.put("docType", docType);
+      properties.put("docType", document.docType);
       properties.put("docUrl", documentUrl.toString());
-      properties.put("creator", DOCUMENT_CREATOR);
+      properties.put("creator", document.author);
+      properties.put("created", document.dateCreated);
+      properties.put("selectionContext", selectionContexts);
 
       // No labels or concepts were found so we discard
       // the process by clearing all the properties
@@ -159,7 +170,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    @Override
-   public boolean enhance(String title, String content, String docType, String origin) {
+   public boolean enhance(DocumentDTO document) {
 
       String urn = null;
       Properties properties = null;
@@ -169,7 +180,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
          // Send content to Stanbol for enhancement
          logger.info("enhance - about to post to stanbol server");
-         String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), content, StanbolMediaTypes.RDFXML);
+         String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), document.content, StanbolMediaTypes.RDFXML);
          logger.info("enhance - received results from stanbol server");
          enhancedText = StringUtils.replace(enhancedText, ":content-item-sha1-", ":content-item-sha1:");
          logger.info("enhance - changed urn pattern, still contain old: " + enhancedText.contains(":content-item-sha1-"));
@@ -178,23 +189,23 @@ public class EnhancerServiceImpl implements EnhancerService {
          List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
          if (rdfDocument != null) {
             // Generate dictionary with properties we are interested in
-            properties = generateSolrDocument(rdfDocument, content, docType, title);
+            properties = generateSolrDocument(rdfDocument, document);
             urn = properties.getProperty("about");
             // Content has been tagged with our vocabularies
             if (!properties.isEmpty()) {
 
                // Store full enhanced doc (rdf) in S3
                s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
-                       enhancedText, ContentType.APPLICATION_XML.getMimeType());
+                     enhancedText, ContentType.APPLICATION_XML.getMimeType());
 
                // Also store original image in S3
-               if (docType.equals(DocumentType.IMAGE.name())) {
+               if (document.docType.equals(DocumentType.IMAGE.name())) {
                   logger.info("enhance - saving image in S3 and its metadata in the database");
-                  s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + title,
+                  s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.title,
                           configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
-                  saveOrUpdateImageMetadata(origin, content);
+                  saveOrUpdateImageMetadata(document.origin, document.content);
                   logger.info("enhance - original image content and metadata saved");
-                  InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + title);
+                  InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.title);
                   BufferedImage image = ImageIO.read(origImage);
 
                   try {
@@ -209,7 +220,7 @@ public class EnhancerServiceImpl implements EnhancerService {
                              "image/png");
                      properties.put("imgThumb",configuration.getS3OutputUrl() + "/images/" + urn + "_thumb");
                   } catch (Exception e) {
-                     logger.error("Failed to resize image '" + title + "'.",e);
+                     logger.error("Failed to resize image '" + document.title + "'.",e);
                   }
                }
 
@@ -220,7 +231,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
                // Store full document in DB
                logger.info("enhance - saving document in the database");
-               saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.SUCCESS, null);
+               saveOrUpdateDocument(document, urn, EnhancementStatus.SUCCESS, null);
                logger.info("enhance - document saved in the database");
 
                // Store full enhanced doc (rdf) in Jena
@@ -232,14 +243,14 @@ public class EnhancerServiceImpl implements EnhancerService {
 
             } else {
                logger.info("enhance - saving document in the database");
-               saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.FAILURE,
+               saveOrUpdateDocument(document, urn, EnhancementStatus.FAILURE,
                      "No matches were found in the vocabularies used by the chain: " + configuration.getStanbolChain());
                logger.info("enhance - document saved in the database");
 
                // Also store original image metadata
-               if (docType.equals(DocumentType.IMAGE.name())) {
+               if (document.docType.equals(DocumentType.IMAGE.name())) {
                   logger.info("enhance - saving image metadata in the database");
-                  saveOrUpdateImageMetadata(origin, content);
+                  saveOrUpdateImageMetadata(document.origin, document.content);
                   logger.info("enhance - image metadata saved");
                }
             }
@@ -247,12 +258,12 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       } catch (Throwable e) {
          logger.error("enhance - Exception: ", e);
-         saveOrUpdateDocument(origin, urn, title, docType, EnhancementStatus.FAILURE, e.getLocalizedMessage());
+         saveOrUpdateDocument(document, urn, EnhancementStatus.FAILURE, e.getLocalizedMessage());
 
          // Also store original image metadata
-         if (docType.equals(DocumentType.IMAGE.name())) {
+         if (document.docType.equals(DocumentType.IMAGE.name())) {
             logger.info("enhance - saving image metadata in the database");
-            saveOrUpdateImageMetadata(origin, content);
+            saveOrUpdateImageMetadata(document.origin, document.content);
             logger.info("enhance - image metadata saved");
          }
 
@@ -266,16 +277,15 @@ public class EnhancerServiceImpl implements EnhancerService {
       return enhancementSucceed;
    }
 
-   private void saveOrUpdateDocument(String origin, String urn, String title, String docType,
-                                     EnhancementStatus status, String statusReason) {
-      Document document = documentService.findByOrigin(origin);
+   private void saveOrUpdateDocument(DocumentDTO documentDTO, String urn, EnhancementStatus status, String statusReason) {
+      Document document = documentService.findByOrigin(documentDTO.origin);
       if (document == null) {
          document = new Document();
       }
-      document.setOrigin(origin);
+      document.setOrigin(documentDTO.origin);
       document.setUrn(urn);
-      document.setTitle(title);
-      document.setType(DocumentType.valueOf(docType));
+      document.setTitle(documentDTO.title);
+      document.setType(DocumentType.valueOf(documentDTO.docType));
       document.setStatus(status);
       document.setStatusReason(statusReason);
       if (document.getId() == 0) {
@@ -314,21 +324,42 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    private void enhanceCollection(DocumentType documentType) {
-      String title;
-      String origin;
-      String fileContent;
+      DocumentDTO document;
       InputStream s3FileContent;
+      Metadata metadata = new Metadata();
       String key = configuration.getS3EnhancerInput() + documentType.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
       objects = getDocumentsForEnhancement(objects);
       logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
       for (S3ObjectSummary object : objects) {
+
+         document = new DocumentDTO();
          s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
-         fileContent = IOUtils.parseFile(s3FileContent);
-         title = getFileNameFromS3ObjectSummary(object);
-         origin = configuration.getS3Bucket() + ":" + object.getKey();
+
+         // Get document title
+         if (metadata.get("title") != null) {
+            document.title = metadata.get("title");
+         } else if (metadata.get("dc:title") != null) {
+            document.title = metadata.get("dc:title");
+         } else {
+            document.title = getFileNameFromS3ObjectSummary(object);
+         }
+
+         // Get document author
+         if (metadata.get("author") != null) {
+            document.author = metadata.get("author");
+         }
+
+         // Get document date created
+         if (metadata.get("Creation-Date") != null) {
+            document.dateCreated = DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"});
+         }
+
+         document.content = IOUtils.parseFile(s3FileContent, metadata);
+         document.origin = configuration.getS3Bucket() + ":" + object.getKey();
+
          try {
-            enhance(title, fileContent, documentType.name(), origin);
+            enhance(document);
          } catch (Throwable e) {
             logger.error("enhanceCollection - error processing file key: " + object.getKey());
          }
@@ -362,27 +393,32 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    @Override
    public void enhanceImages() {
-      String title;
-      String origin;
+      //String title;
+      //String origin;
+      DocumentDTO document;
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
       List<S3ObjectSummary> objectsForEnhancement = getDocumentsForEnhancement(s3Client.listObjects(configuration.getS3Bucket(), key));
       logger.info("enhanceImages - there are " + objectsForEnhancement.size() + " images to be enhanced");
-      String imageMetadata;
       for (S3ObjectSummary s3ObjectSummary : objectsForEnhancement) {
          // Ignore folders
          if (!s3ObjectSummary.getKey().endsWith("/")) {
-            title = getFileNameFromS3ObjectSummary(s3ObjectSummary);
-            origin = configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey();
-            imageMetadata = documentService.readImageMetadata(origin);
+
+            document = new DocumentDTO();
+            document.title = getFileNameFromS3ObjectSummary(s3ObjectSummary);
+            document.origin = configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey();
+
+            // The cached imaged metadata will be used for enhancement (if exists)
+            document.content = documentService.readImageMetadata(document.origin);
+
             // The image metadata will be extracted and used for enhancement
-            if (imageMetadata == null) {
+            if (document.content == null) {
                s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
-               imageMetadata = title + "\n" + getImageMetadataAsString(s3FileContent);
-               // The cached imaged metadata will be used for enhancement
+               document.content = document.title + "\n" + getImageMetadataAsString(s3FileContent);
             }
+
             try {
-               enhance(title, imageMetadata, DocumentType.IMAGE.name(), origin);
+               enhance(document);
             } catch (Throwable e) {
                logger.error("enhanceImages - error processing file key: " + s3ObjectSummary.getKey());
             }
