@@ -345,16 +345,9 @@ public class EnhancerServiceImpl implements EnhancerService {
             document.title = getFileNameFromS3ObjectSummary(object);
          }
 
-         // Get document author
-         if (metadata.get("author") != null) {
-            document.author = metadata.get("author");
-         }
-
-         // Get document date created
-         if (metadata.get("Creation-Date") != null) {
-            document.dateCreated = DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"});
-         }
-
+         document.author = metadata.get("author") == null ? metadata.get("Author") : metadata.get("author");
+         document.dateCreated = metadata.get("Creation-Date") == null ? null :
+               DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"});
          document.content = IOUtils.parseFile(s3FileContent, metadata);
          document.origin = configuration.getS3Bucket() + ":" + object.getKey();
 

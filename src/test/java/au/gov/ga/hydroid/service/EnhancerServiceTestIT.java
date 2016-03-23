@@ -38,7 +38,7 @@ public class EnhancerServiceTestIT {
       document.docType = DocumentType.DOCUMENT.name();
       document.content = IOUtils.parseFile(this.getClass().getResourceAsStream(origin));
       document.title = metadata.get("title");
-      document.author = metadata.get("author");
+      document.author = metadata.get("author") == null ? metadata.get("Author") : metadata.get("author");
       document.dateCreated = DateUtils.parseDate(metadata.get("Creation-Date"), new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"});
       enhancerService.enhance(document);
    }
@@ -78,13 +78,24 @@ public class EnhancerServiceTestIT {
    }
 
    @Test
-   public void testDocumentMetadata() {
+   public void testPDFMetadata() {
       String origin = "/testfiles/36_4_1175-1197_Buss_and_Clote.pdf";
       Metadata metadata = new Metadata();
       IOUtils.parseFile(this.getClass().getResourceAsStream(origin), metadata);
       Assert.assertTrue(metadata.size() > 0);
-      Assert.assertEquals("Solving the Fisher-Wright and Coalescence Problems with a Discrete Markov Chain Analysis", metadata.get("title"));
-      Assert.assertNotNull(DateUtils.parseDate(metadata.get("Creation-Date"), new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
+      Assert.assertEquals("Title", "Solving the Fisher-Wright and Coalescence Problems with a Discrete Markov Chain Analysis", metadata.get("title"));
+      Assert.assertNotNull("Creation-Date", DateUtils.parseDate(metadata.get("Creation-Date"), new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
+   }
+
+   @Test
+   public void testWordMetadata() {
+      String origin = "/testfiles/whale.docx";
+      Metadata metadata = new Metadata();
+      IOUtils.parseFile(this.getClass().getResourceAsStream(origin), metadata);
+      Assert.assertTrue(metadata.size() > 0);
+      Assert.assertEquals("Title", "Whale text from Wikipedia", metadata.get("title"));
+      Assert.assertEquals("Author", "Carneiro Elton", metadata.get("Author"));
+      Assert.assertNotNull("Creation-Date", DateUtils.parseDate(metadata.get("Creation-Date"), new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
    }
 
 }

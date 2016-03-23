@@ -112,7 +112,7 @@ public class EnhancerController {
             DocumentDTO document = new DocumentDTO();
             document.content = IOUtils.parseFile(byteArrayInputStream, metadata);
             document.docType = DocumentType.DOCUMENT.name();
-            document.author = metadata.get("author");
+            document.author = metadata.get("author") == null ? metadata.get("Author") : metadata.get("author");
             document.title = metadata.get("title") == null ? name : metadata.get("title");
             document.origin = new StringBuilder(configuration.getS3Bucket()).append(":").append(configuration.getS3EnhancerInput())
                   .append(DocumentType.DOCUMENT.name().toLowerCase()).append("s/").append(name).toString();
