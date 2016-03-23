@@ -3,9 +3,7 @@ package au.gov.ga.hydroid.controller;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.dto.ServiceResponse;
 import au.gov.ga.hydroid.model.DocumentType;
-import au.gov.ga.hydroid.service.DocumentService;
 import au.gov.ga.hydroid.service.S3Client;
-import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,14 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/import")
@@ -38,13 +33,12 @@ public class CsvExtractorController {
    ResponseEntity<ServiceResponse> enhanceFile(@RequestParam("name") String name,
                                                @RequestParam("file") MultipartFile file) {
       if (!file.isEmpty()) {
-         List<String> urls = new ArrayList<>();
          try {
             String line;
             BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
             while ((line = br.readLine()) != null) {
                String url = line.split(",")[0];
-               pushToS3(url);
+               fetchUrlAndPushToS3(url);
             }
          } catch (Throwable e) {
             logger.error("Failed to get URL from CSV: " + name,e);
@@ -58,7 +52,7 @@ public class CsvExtractorController {
               HttpStatus.OK);
    }
 
-   private void pushToS3(String url) {
+   private void fetchUrlAndPushToS3(String url) {
       try {
          URL obj = new URL(url);
          HttpURLConnection con = (HttpURLConnection) obj.openConnection();
