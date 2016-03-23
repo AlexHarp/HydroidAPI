@@ -44,28 +44,10 @@ public class CsvExtractorController {
             BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
             while ((line = br.readLine()) != null) {
                String url = line.split(",")[0];
-               urls.add(url);
+               pushToS3(url);
             }
          } catch (Throwable e) {
             logger.error("Failed to get URL from CSV: " + name,e);
-            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed extracting/indexing text from file");
-         }
-
-         for(String url : urls) {
-            try {
-               URL obj = new URL(url);
-               HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-               int responseCode = con.getResponseCode();
-
-               if(responseCode < 300) {
-                  s3Client.storeFile(configuration.getS3Bucket(),
-                          configuration.getS3EnhancerInput() + DocumentType.DOCUMENT.name().toLowerCase() + "s/" + obj.getHost() + obj.getPath(),
-                          con.getInputStream(),
-                          ContentType.TEXT_XML.getMimeType());
-               }
-            } catch (IOException e) {
-               logger.error("Failed to fetch or store file in S3: " + url,e);
-            }
          }
       } else {
          return new ResponseEntity<>(
@@ -74,5 +56,22 @@ public class CsvExtractorController {
 
       return new ResponseEntity<>(new ServiceResponse("Your document has queue for enhancement successfully."),
               HttpStatus.OK);
+   }
+
+   private void pushToS3(String url) {
+      try {
+         URL obj = new URL(url);
+         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+         int responseCode = con.getResponseCode();
+
+         if(responseCode < 300) {
+            s3Client.storeFile(configuration.getS3Bucket(),
+                    configuration.getS3EnhancerInput() + DocumentType.DOCUMENT.name().toLowerCase() + "s/" + obj.getHost() + obj.getPath(),
+                    con.getInputStream(),
+                    ContentType.TEXT_XML.getMimeType());
+         }
+      } catch (IOException e) {
+         logger.error("Failed to fetch or store file in S3: " + url,e);
+      }
    }
 }
