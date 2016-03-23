@@ -70,7 +70,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       List<String> selectionContexts = new ArrayList<>();
       Properties properties = new Properties();
       StringBuilder documentUrl = new StringBuilder();
-      Map<String,String> gaVocabSubjects = new HashMap();
+      Map<String,String> gaVocabSubjects = new HashMap<>();
       for (Statement statement : rdfDocument) {
 
          String subject = statement.getSubject().getLocalName().toLowerCase();
@@ -147,13 +147,16 @@ public class EnhancerServiceImpl implements EnhancerService {
       }
       properties.put("content", solrContent);
       properties.put("title", document.title);
-      properties.put("author", document.author);
       properties.put("label", labels);
       properties.put("concept", concepts);
       properties.put("docType", document.docType);
       properties.put("docUrl", documentUrl.toString());
-      properties.put("creator", document.author);
-      properties.put("created", document.dateCreated);
+      if (document.author != null) {
+         properties.put("creator", document.author);
+      }
+      if (document.dateCreated != null) {
+         properties.put("created", document.dateCreated);
+      }
       properties.put("selectionContext", selectionContexts);
 
       // No labels or concepts were found so we discard
