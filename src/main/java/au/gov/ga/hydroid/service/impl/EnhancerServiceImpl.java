@@ -327,15 +327,16 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    private void enhanceCollection(DocumentType documentType) {
+      Metadata metadata;
       DocumentDTO document;
       InputStream s3FileContent;
-      Metadata metadata = new Metadata();
       String key = configuration.getS3EnhancerInput() + documentType.name().toLowerCase() + "s";
       List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
       objects = getDocumentsForEnhancement(objects);
       logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
       for (S3ObjectSummary object : objects) {
 
+         metadata = new Metadata();
          document = new DocumentDTO();
          s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
 
