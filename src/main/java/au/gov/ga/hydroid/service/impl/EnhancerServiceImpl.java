@@ -141,11 +141,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          rdfDocument.add(statement);
       }
 
-      String solrContent = document.content;
-      if (solrContent.length() > 500) {
-         solrContent = solrContent.substring(0, 500) + "...";
-      }
-      properties.put("content", solrContent);
+      properties.put("content", document.content);
       properties.put("title", document.title);
       properties.put("label", labels);
       properties.put("concept", concepts);
