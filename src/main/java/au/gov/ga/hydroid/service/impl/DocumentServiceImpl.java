@@ -48,7 +48,7 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public List<Document> findByStatus(EnhancementStatus status) {
-      return jdbcTemplate.query("SELECT * FROM documents status  = ?", new String[]{status.name()}, new DocumentRowMapper());
+      return jdbcTemplate.query("SELECT * FROM documents where status = ?", new String[]{status.name()}, new DocumentRowMapper());
    }
 
    @Override
@@ -66,8 +66,8 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void update(Document document) {
-      String sql = "update documents set urn = ?, status = ?, status_reason = ?, process_date = timezone('UTC', now()) where id = ?";
-      jdbcTemplate.update(sql, document.getUrn(), document.getStatus().name(), document.getStatusReason(), document.getId());
+      String sql = "update documents set title = ?, urn = ?, status = ?, status_reason = ?, process_date = timezone('UTC', now()) where id = ?";
+      jdbcTemplate.update(sql, document.getTitle(), document.getUrn(), document.getStatus().name(), document.getStatusReason(), document.getId());
    }
 
    @Override

@@ -13,6 +13,8 @@ import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.List;
+
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -52,4 +54,11 @@ public class DocumentServiceTestIT {
       Document document = documentService.findByUrn("urn:content-item-sha1-978b8d13b31cdb4b36534682b99d9614bfcb510f");
       Assert.assertNotNull(document);
    }
+
+   @Test
+   public void testFindByStatus() {
+      List<Document> documents = documentService.findByStatus(EnhancementStatus.PENDING);
+      Assert.assertNotNull(documents);
+   }
+
 }
