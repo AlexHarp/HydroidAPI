@@ -2,6 +2,7 @@ package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentRowMapper;
+import au.gov.ga.hydroid.model.EnhancementStatus;
 import au.gov.ga.hydroid.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -43,6 +44,11 @@ public class DocumentServiceImpl implements DocumentService {
          // document was not found
          return null;
       }
+   }
+
+   @Override
+   public List<Document> findByStatus(EnhancementStatus status) {
+      return jdbcTemplate.query("SELECT * FROM documents status  = ?", new String[]{status.name()}, new DocumentRowMapper());
    }
 
    @Override

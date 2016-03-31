@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid.mock;
 
 import au.gov.ga.hydroid.model.Document;
+import au.gov.ga.hydroid.model.EnhancementStatus;
 import au.gov.ga.hydroid.service.DocumentService;
 
 import java.util.ArrayList;
@@ -35,6 +36,11 @@ public class CustomMockDocumentService implements DocumentService {
 
    @Override
    public Document findByOrigin(String origin) {
+      return null;
+   }
+
+   @Override
+   public List<Document> findByStatus(EnhancementStatus status) {
       return null;
    }
 

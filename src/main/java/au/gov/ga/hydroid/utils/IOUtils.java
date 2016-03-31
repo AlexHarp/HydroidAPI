@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * Created by u24529 on 17/02/2016.
@@ -61,6 +63,20 @@ public class IOUtils {
       } catch (Throwable e) {
          throw new HydroidException(e);
       }
+   }
+
+   public static InputStream getUrlContent(String url) {
+      try {
+         URL obj = new URL(url);
+         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+         int responseCode = con.getResponseCode();
+         if (responseCode < 300) {
+            return con.getInputStream();
+         }
+      } catch (Throwable e) {
+         throw new HydroidException(e);
+      }
+      return null;
    }
 
 }

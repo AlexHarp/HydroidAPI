@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -63,6 +64,9 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    @Autowired @Qualifier("googleVisionImageService")
    private ImageService imageService;
+
+   @Autowired
+   private ApplicationContext applicationContext;
 
    private Properties generateSolrDocument(List<Statement> rdfDocument, DocumentDTO document) {
       List<String> concepts = new ArrayList<>();
@@ -370,9 +374,44 @@ public class EnhancerServiceImpl implements EnhancerService {
       return result.toString();
    }
 
+   private void enhancePendingDocuments() {
+      Metadata metadata;
+      DocumentDTO document;
+      UrlContentParser urlContentParser = (UrlContentParser) applicationContext.getBean("eCatParser");
+      List<Document> documents = documentService.findByStatus(EnhancementStatus.PENDING);
+      logger.info("enhancePendingDocuments - there are " + documents.size() + " pending documents to be enhanced");
+      for (Document dbDocument : documents) {
+
+         metadata = new Metadata();
+         document = new DocumentDTO();
+         document.content = urlContentParser.parseUrl(dbDocument.getOrigin(), metadata);
+
+         // Get document title
+         if (metadata.get("title") != null) {
+            document.title = metadata.get("title");
+         } else if (metadata.get("dc:title") != null) {
+            document.title = metadata.get("dc:title");
+         } else {
+            document.title = dbDocument.getOrigin();
+         }
+
+         document.author = metadata.get("author") == null ? metadata.get("Author") : metadata.get("author");
+         document.dateCreated = metadata.get("Creation-Date") == null ? null :
+               DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"});
+         document.origin = dbDocument.getOrigin();
+
+         try {
+            enhance(document);
+         } catch (Throwable e) {
+            logger.error("enhancePendingDocuments - error processing URL: " + dbDocument.getOrigin());
+         }
+      }
+   }
+
    @Override
    public void enhanceDocuments() {
       enhanceCollection(DocumentType.DOCUMENT);
+      enhancePendingDocuments();
    }
 
    @Override
