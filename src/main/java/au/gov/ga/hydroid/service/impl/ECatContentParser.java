@@ -22,9 +22,9 @@ import java.util.Properties;
 @Service("eCatParser")
 public class ECatContentParser implements UrlContentParser {
 
-   public static String[] VALID_PARENTS = {"citation", "CI_Citation", "date", "CI_DATE", "citedResponsibleParty", "CI_ResponsibleParty"};
-   public static String[] VALID_NODES = {"abstract", "title", "date", "individualName"};
-   public static Properties LABELS = new Properties();
+   private static final String[] VALID_PARENTS = {"citation", "CI_Citation", "date", "CI_DATE", "citedResponsibleParty", "CI_ResponsibleParty"};
+   private static final String[] VALID_NODES = {"abstract", "title", "date", "individualName"};
+   private static final Properties LABELS = new Properties();
 
    static {
       LABELS.setProperty("dateStamp", "Creation-Date");
@@ -46,27 +46,32 @@ public class ECatContentParser implements UrlContentParser {
    }
 
    private String removeLineBreak(String value) {
-      value = value.replace("\n", "");
-      return StringUtils.trimLeadingWhitespace(value).trim();
+      String tempValue = value.replace("\n", "");
+      return StringUtils.trimLeadingWhitespace(tempValue).trim();
+   }
+
+   private void setMetadata(Metadata metadata, Node node) {
+      String metadataName = getLabel(node.getNodeName());
+      String metadataValue = metadata.get(metadataName);
+      if (metadataValue == null) {
+         metadataValue = removeLineBreak(node.getTextContent());
+      } else {
+         metadataValue = metadataValue + ", " + removeLineBreak(node.getTextContent());
+      }
+      metadata.set(metadataName, metadataValue);
    }
 
    private void getChildren(Node node, Metadata metadata) {
-      NodeList children = node.getChildNodes();
+      Node localNode = node;
+      NodeList children = localNode.getChildNodes();
       if (children != null) {
          for (int i = 0; i < children.getLength(); i++) {
-            node = children.item(i);
-            if (ArrayUtils.contains(VALID_NODES, node.getNodeName())) {
-               String metadataName = getLabel(node.getNodeName());
-               String metadataValue = metadata.get(metadataName);
-               if (metadataValue == null) {
-                  metadataValue = removeLineBreak(node.getTextContent());
-               } else {
-                  metadataValue = metadataValue + ", " + removeLineBreak(node.getTextContent());
-               }
-               metadata.set(metadataName, metadataValue);
+            localNode = children.item(i);
+            if (ArrayUtils.contains(VALID_NODES, localNode.getNodeName())) {
+               setMetadata(metadata, localNode);
             }
-            if (ArrayUtils.contains(VALID_PARENTS, node.getNodeName())) {
-               getChildren(node, metadata);
+            if (ArrayUtils.contains(VALID_PARENTS, localNode.getNodeName())) {
+               getChildren(localNode, metadata);
             }
          }
       }
@@ -89,7 +94,7 @@ public class ECatContentParser implements UrlContentParser {
             Date dateStamp = DateUtils.parseDate(removeLineBreak(node.getTextContent()), new String[]{"yyyy-MM-dd"});
             metadata.set(getLabel(node.getNodeName()), DateUtils.formatDate(dateStamp, "yyyy-MM-dd'T'HH:mm:ss'Z'"));
          }
-      } catch (Throwable e) {
+      } catch (Exception e) {
          throw new HydroidException(e);
       }
    }
