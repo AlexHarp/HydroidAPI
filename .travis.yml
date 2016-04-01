@@ -6,7 +6,7 @@ before_script:
   - ./scripts/sonar-runner.sh
 script:
   - ./scripts/build-index.sh
-  - "/tmp/sonar-runner/sonar-runner-2.4/bin/sonar-runner -X -Dsonar.login=$SONAR_LOGIN -Dsonar.password=$SONAR_PASSWORD -Dsonar.host.url=https://sonar.gadevs.ga/ -Dsonar.projectKey=ga.hellfish:hydroid -Dsonar.projectName=Hydroid -Dsonar.projectVersion=0.1 -Dsonar.sources=."
+  - "/tmp/sonar-runner/sonar-runner-2.4/bin/sonar-runner -Dsonar.login=$SONAR_LOGIN -Dsonar.password=$SONAR_PASSWORD -Dsonar.host.url=https://sonar.gadevs.ga/ -Dsonar.projectKey=ga.hellfish:hydroid -Dsonar.projectName=Hydroid -Dsonar.projectVersion=0.1 -Dsonar.sources=."
 deploy:
   - provider: s3
     region: ap-southeast-2
