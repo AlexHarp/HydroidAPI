@@ -29,15 +29,14 @@ public class CsvExtractorController {
    ResponseEntity<ServiceResponse> enhanceFile(@RequestParam("name") String name,
                                                @RequestParam("file") MultipartFile file) {
       if (!file.isEmpty()) {
-         try {
+         try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
-            BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
             while ((line = br.readLine()) != null) {
                String url = line.split(",")[0];
                savePendingDocument(url);
             }
-         } catch (Throwable e) {
-            logger.error("Failed to get URL from CSV: " + name,e);
+         } catch (Exception e) {
+            logger.error("Failed to get URL from CSV: " + name, e);
          }
       } else {
          return new ResponseEntity<>(

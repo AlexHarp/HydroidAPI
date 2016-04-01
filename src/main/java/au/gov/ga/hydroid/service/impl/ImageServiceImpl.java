@@ -56,7 +56,7 @@ public class ImageServiceImpl implements ImageService {
             }
          }
 
-      } catch (Throwable e) {
+      } catch (Exception e) {
          throw new HydroidException(e);
       }
 

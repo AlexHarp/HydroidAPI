@@ -108,7 +108,7 @@ public class GoogleVisionImageService implements ImageService {
          }
          return result;
       }
-      catch (Throwable e) {
+      catch (Exception e) {
          throw new HydroidException(e);
       }
    }

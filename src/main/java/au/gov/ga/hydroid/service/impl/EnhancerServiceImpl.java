@@ -259,7 +259,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             }
          }
 
-      } catch (Throwable e) {
+      } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
          saveOrUpdateDocument(document, urn, EnhancementStatus.FAILURE, e.getLocalizedMessage());
 
@@ -358,7 +358,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
          try {
             enhance(document);
-         } catch (Throwable e) {
+         } catch (Exception e) {
             logger.error("enhanceCollection - error processing file key: " + object.getKey());
          }
       }
@@ -402,7 +402,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
          try {
             enhance(document);
-         } catch (Throwable e) {
+         } catch (Exception e) {
             logger.error("enhancePendingDocuments - error processing URL: " + dbDocument.getOrigin());
          }
       }
@@ -453,7 +453,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
             try {
                enhance(document);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                logger.error("enhanceImages - error processing file key: " + s3ObjectSummary.getKey());
             }
          }

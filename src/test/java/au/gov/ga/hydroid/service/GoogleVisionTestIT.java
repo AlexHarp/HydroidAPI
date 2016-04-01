@@ -55,7 +55,7 @@ public class GoogleVisionTestIT {
                   }
                   bw.close();
                }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                e.printStackTrace();
             } finally {
                try {
@@ -65,7 +65,7 @@ public class GoogleVisionTestIT {
                }
             }
          });
-      } catch (Throwable e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }

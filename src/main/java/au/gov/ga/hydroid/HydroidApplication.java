@@ -39,8 +39,8 @@ public class HydroidApplication {
          DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
          InputStream configInputStream = resourceLoader.getResource(configFilePath).getInputStream();
          applicationProperties.load(configInputStream);
-      } catch (Throwable e) {
-         logger.warn("loadApplicationProperties - Throwable: ", e);
+      } catch (Exception e) {
+         logger.warn("loadApplicationProperties - Exception: ", e);
       }
    }
 

@@ -50,7 +50,7 @@ public class SolrClientImpl implements SolrClient {
       try {
          server.add(document);
          server.commit();
-      } catch (Throwable e) {
+      } catch (Exception e) {
          throw new HydroidException(e);
       }
    }
@@ -60,7 +60,7 @@ public class SolrClientImpl implements SolrClient {
       SolrServer server = new HttpSolrServer(configuration.getSolrUrl() + collectionName);
       try {
          server.deleteById(id);
-      } catch (Throwable e) {
+      } catch (Exception e) {
          throw new HydroidException(e);
       }
    }
