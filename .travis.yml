@@ -1,8 +1,15 @@
 language: java
+env:
+  secure: "BiZIDCtOy40/9O/h2RpIDoFEW/2AFDcGfnF0UzS446IgUcC2+J7fysw9s4Qqw5mEIFb9eANrEtOWz+hzZLdtRfl0W4JIc0O1UtOHQ67fUV8/quyymKCSWk4NyxA1IZ+KOcMOXQezVxZbkv/Bcu/9PLJaEvlB3x33VBCs95a5oq3L02CgB2rDj0slMlCqoH+kjfheQjE2B6S6qBTEnAwqteMTuYNkamQXtGuSC9UmtyY5gjyXFXF/GroxdaWuNHCKqtcYs3HovtnSWDjcUH5JVMtCwqQ0r3feUWqE6xk6HOioisrykauujDqBVHDPRw6ZSklFjGoE78tXWmTblgH0cgTEhEDxsFosMhQM0jIy6+qjPJFp4dQaUUCiqwNGWDy1ugmtwc7ml4Nb6zcdNUtEf2Erfo8sZPn0CPqscf9ViaXzLutu1/pXJaF30qe0KzeI+yvVVCa6BSxPhEcykMZYw+YMY2ewynIWMkUWis5zkYoRkpoAEfRvoZgROW6VybbDvrU/oFbdT60gSDHqpvu7zQqsrYJ2IGabkYTbgoI/AwwiII0YSmSBxN6ZfsGmTPiT1n9d02pddMsIDXsSYExhiE3ESABkCe+GdJWgx9s8Yby4kgZ3zpCkQaaag76EQlBNiZdTb1z2mX6CpXrKNXX7F+ODkGg1Ma9AfJtW3B9HaWQ="
 jdk:
   - oraclejdk8
+before-script:
+  - chmod +x ./scripts/sonar-runner.sh
+  - ./scripts/sonar-runner.sh
 script:
-    - ./scripts/build-index.sh
+  - ./scripts/build-index.sh
+before-deploy:
+  - "/tmp/sonar-runner/sonar-runner-2.4/bin/sonar-runner -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=http://sonar.gadevs.ga/ -Dsonar.projectKey=ga.hellfish:hydroid -Dsonar.projectName=Hydroid -Dsonar.projectVersion=0.1 -Dsonar.sources=. -Dsonar.exclusions="
 deploy:
   - provider: s3
     region: ap-southeast-2
