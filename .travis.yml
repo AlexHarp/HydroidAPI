@@ -6,10 +6,9 @@ jdk:
 before-script:
   - chmod +x ./scripts/sonar-runner.sh
   - ./scripts/sonar-runner.sh
+  - "/tmp/sonar-runner/sonar-runner-2.4/bin/sonar-runner -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=http://sonar.gadevs.ga/ -Dsonar.projectKey=ga.hellfish:hydroid -Dsonar.projectName=Hydroid -Dsonar.projectVersion=0.1 -Dsonar.sources=. -Dsonar.exclusions="
 script:
   - ./scripts/build-index.sh
-before-deploy:
-  - "/tmp/sonar-runner/sonar-runner-2.4/bin/sonar-runner -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=http://sonar.gadevs.ga/ -Dsonar.projectKey=ga.hellfish:hydroid -Dsonar.projectName=Hydroid -Dsonar.projectVersion=0.1 -Dsonar.sources=. -Dsonar.exclusions="
 deploy:
   - provider: s3
     region: ap-southeast-2
