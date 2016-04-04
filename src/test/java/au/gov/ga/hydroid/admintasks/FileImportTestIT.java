@@ -1,7 +1,7 @@
 package au.gov.ga.hydroid.admintasks;
 
 import au.gov.ga.hydroid.HydroidApplication;
-import org.apache.http.HttpEntity;
+import au.gov.ga.hydroid.utils.HydroidException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -43,11 +43,11 @@ public class FileImportTestIT {
                      System.out.print("File '" + filePath.toFile().getName() + "' succeeded.");
                }
             } catch (Exception e) {
-               e.printStackTrace();
+               throw new HydroidException(e);
             }
          });
       } catch (Exception e) {
-         e.printStackTrace();
+         throw new HydroidException(e);
       }
    }
 
@@ -62,7 +62,7 @@ public class FileImportTestIT {
       httppost.setEntity(builder.build());
       System.out.println("executing request " + httppost.getRequestLine());
       HttpResponse response = httpClient.execute(httppost);
-      HttpEntity resEntity = response.getEntity();
+      response.getEntity();
 
       return response.getStatusLine().getStatusCode();
    }

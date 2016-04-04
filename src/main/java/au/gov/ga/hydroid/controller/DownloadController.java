@@ -11,7 +11,6 @@ import org.jboss.resteasy.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +26,7 @@ import java.util.zip.ZipOutputStream;
 @RequestMapping("/download")
 public class DownloadController {
 
-   private Logger logger = LoggerFactory.getLogger(getClass());
+   private static Logger logger = LoggerFactory.getLogger(DownloadController.class);
 
    @Autowired
    private HydroidConfiguration configuration;
@@ -60,8 +59,6 @@ public class DownloadController {
          out.flush();
          out.close();
 
-      } catch (EmptyResultDataAccessException e) {
-         au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_NOT_FOUND);
       } catch (Exception e) {
          logger.error("download - Exception: ", e);
          au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -82,22 +79,20 @@ public class DownloadController {
          ZipOutputStream zipOut  = new ZipOutputStream(new FileOutputStream(zipFile));
          byte[] buffer = new byte[1024];
          for (String urn : urnArray) {
-            InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn);
-            if (fileContent != null) {
-               try {
-                  zipOut.putNextEntry(new ZipEntry(urn + ".rdf"));
+            try (InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn)) {
 
-                  int length;
-                  while ((length = fileContent.read(buffer)) > 0) {
-                     zipOut.write(buffer, 0, length);
-                  }
+               zipOut.putNextEntry(new ZipEntry(urn + ".rdf"));
 
-                  zipOut.closeEntry();
-                  fileContent.close();
-
-               } catch (Exception e) {
-                  logger.error("downloadBundle - Exception: ", e);
+               int length;
+               while ((length = fileContent.read(buffer)) > 0) {
+                  zipOut.write(buffer, 0, length);
                }
+
+               zipOut.closeEntry();
+               fileContent.close();
+
+            } catch (Exception e) {
+               logger.error("downloadBundle - Exception: ", e);
             }
          }
          zipOut.close();
@@ -152,8 +147,6 @@ public class DownloadController {
          out.flush();
          out.close();
 
-      } catch (EmptyResultDataAccessException e) {
-         au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_NOT_FOUND);
       } catch (Exception e) {
          logger.error("downloadImage - Exception: ", e);
          au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

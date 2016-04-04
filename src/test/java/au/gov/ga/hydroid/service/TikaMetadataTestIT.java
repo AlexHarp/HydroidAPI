@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.HydroidApplication;
+import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.tika.metadata.Metadata;
@@ -47,7 +48,7 @@ public class TikaMetadataTestIT {
    }
 
    @Test
-   public void testECatMetadata() {
+   public void testECatMetadata(){
       try {
          String url = "http://www.ga.gov.au/metadata-gateway/metadata/record/gcat_a05f7892-8d5d-7506-e044-00144fdd4fa6/xml";
          Metadata metadata = new Metadata();
@@ -56,7 +57,7 @@ public class TikaMetadataTestIT {
          Assert.assertEquals("Author", "Brodie, R.S.; Kilgour, B.; Jacobson, G.; Lau, J.E.", metadata.get("Author"));
          Assert.assertNotNull("Creation-Date", DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
       } catch (Exception e) {
-         Assert.fail(e.getMessage());
+         throw new HydroidException(e);
       }
    }
 

@@ -12,7 +12,6 @@ import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.ContentType;
@@ -41,7 +40,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    private static final Logger logger = LoggerFactory.getLogger(EnhancerServiceImpl.class);
 
-   private static final String[] VALID_PREDICATES = {"extracted-from", "entity-reference", "entity-label", "selection-context"};
+   private static final List<String> VALID_PREDICATES = Arrays.asList("extracted-from", "entity-reference", "entity-label", "selection-context");
    private static final String GA_PUBLIC_VOCABS = "GAPublicVocabsSandbox";
 
    @Autowired
@@ -68,6 +67,20 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private ApplicationContext applicationContext;
 
+   // Add a new subject to the GA Vocab Subjects list
+   private void addGAVocabSubject(Map<String,String> gaVocabSubjects, String subject, String objectValue) {
+      if (objectValue.contains(GA_PUBLIC_VOCABS) && gaVocabSubjects.get(subject) == null) {
+         gaVocabSubjects.put(subject, objectValue);
+      }
+   }
+
+   // add new value if not there yet
+   private void addMultiValuedField(List<String> multiValuedField, String objectValue) {
+      if (!multiValuedField.contains(objectValue)) {
+         multiValuedField.add(objectValue);
+      }
+   }
+
    private Properties generateSolrDocument(List<Statement> rdfDocument, DocumentDTO document) {
       List<String> concepts = new ArrayList<>();
       List<String> labels = new ArrayList<>();
@@ -75,8 +88,8 @@ public class EnhancerServiceImpl implements EnhancerService {
       Properties properties = new Properties();
       StringBuilder documentUrl = new StringBuilder();
       Map<String,String> gaVocabSubjects = new HashMap<>();
-      for (Statement statement : rdfDocument) {
 
+      for (Statement statement : rdfDocument) {
          String subject = statement.getSubject().getLocalName().toLowerCase();
          String predicate = statement.getPredicate().getLocalName().toLowerCase();
          String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
@@ -87,35 +100,26 @@ public class EnhancerServiceImpl implements EnhancerService {
             continue;
          }
 
-         // Check if the predicate is included in the list we are after
-         if (ArrayUtils.indexOf(VALID_PREDICATES, predicate) >= 0) {
+         // Discard if the predicate is not included in the list we are after
+         if (!VALID_PREDICATES.contains(predicate)) {
+            continue;
+         }
 
-            if (predicate.equalsIgnoreCase("extracted-from") && properties.getProperty("about") == null) {
-               properties.put("about", objectValue);
-            } else if (predicate.equalsIgnoreCase("entity-reference")) {
+         if (predicate.equalsIgnoreCase("extracted-from") && properties.getProperty("about") == null) {
+            properties.put("about", objectValue);
 
-               // Add a new subject to the GA Vocab Subjects list
-               if (objectValue.contains(GA_PUBLIC_VOCABS) && gaVocabSubjects.get(subject) == null) {
-                  gaVocabSubjects.put(subject, objectValue);
-               }
+         } else if ("entity-reference".equalsIgnoreCase(predicate)) {
+            addGAVocabSubject(gaVocabSubjects, subject, objectValue);
+            addMultiValuedField(concepts, objectValue);
 
-               // add new concept if not there yet
-               if (!concepts.contains(objectValue)) {
-                  concepts.add(objectValue);
-               }
-            } else if (predicate.equalsIgnoreCase("entity-label")) {
-               // add new label if not there yet
-               if (!labels.contains(objectValue)) {
-                  labels.add(objectValue);
-               }
-            } else if (predicate.equalsIgnoreCase("selection-context")) {
-               // add new selection-context if not there yet
-               if (!selectionContexts.contains(objectValue)) {
-                  selectionContexts.add(objectValue);
-               }
-            } else {
-               properties.put(predicate, objectValue);
-            }
+         } else if ("entity-label".equalsIgnoreCase(predicate)) {
+            addMultiValuedField(labels, objectValue);
+
+         } else if ("selection-context".equalsIgnoreCase(predicate)) {
+            addMultiValuedField(selectionContexts, objectValue);
+
+         } else {
+            properties.put(predicate, objectValue);
          }
       }
 
@@ -172,12 +176,28 @@ public class EnhancerServiceImpl implements EnhancerService {
       return objectSummary.getKey().substring(objectSummary.getKey().lastIndexOf("/") + 1);
    }
 
+   private String getImageThumb(BufferedImage image, String title, String urn) {
+      try {
+         BufferedImage resized = Scalr.resize(image, 200);
+         ByteArrayOutputStream os = new ByteArrayOutputStream();
+         ImageIO.write(resized,"png", os);
+         InputStream byteArrayInputStream = new ByteArrayInputStream(os.toByteArray());
+         s3Client.storeFile(
+               configuration.getS3OutputBucket(),
+               configuration.getS3EnhancerOutputImages() + urn + "_thumb",
+               byteArrayInputStream,
+               "image/png");
+         return configuration.getS3OutputUrl() + "/images/" + urn + "_thumb";
+      } catch (Exception e) {
+         logger.error("Failed to resize image '" + title + "'.", e);
+         return null;
+      }
+   }
+
    @Override
    public boolean enhance(DocumentDTO document) {
 
       String urn = null;
-      Properties properties = null;
-      boolean enhancementSucceed = false;
 
       try {
 
@@ -190,74 +210,63 @@ public class EnhancerServiceImpl implements EnhancerService {
 
          // Parse enhancedText into an rdf document
          List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
-         if (rdfDocument != null) {
-            // Generate dictionary with properties we are interested in
-            properties = generateSolrDocument(rdfDocument, document);
-            urn = properties.getProperty("about");
-            // Content has been tagged with our vocabularies
-            if (!properties.isEmpty()) {
-
-               // Store full enhanced doc (rdf) in S3
-               s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
-                     enhancedText, ContentType.APPLICATION_XML.getMimeType());
-
-               // Also store original image in S3
-               if (document.docType.equals(DocumentType.IMAGE.name())) {
-                  logger.info("enhance - saving image in S3 and its metadata in the database");
-                  s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.title,
-                          configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
-                  saveOrUpdateImageMetadata(document.origin, document.content);
-                  logger.info("enhance - original image content and metadata saved");
-                  InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.title);
-                  BufferedImage image = ImageIO.read(origImage);
-
-                  try {
-                     BufferedImage resized = Scalr.resize(image,200);
-                     ByteArrayOutputStream os = new ByteArrayOutputStream();
-                     ImageIO.write(resized,"png", os);
-                     InputStream byteArrayInputStream = new ByteArrayInputStream(os.toByteArray());
-                     s3Client.storeFile(
-                             configuration.getS3OutputBucket(),
-                             configuration.getS3EnhancerOutputImages() + urn + "_thumb",
-                             byteArrayInputStream,
-                             "image/png");
-                     properties.put("imgThumb",configuration.getS3OutputUrl() + "/images/" + urn + "_thumb");
-                  } catch (Exception e) {
-                     logger.error("Failed to resize image '" + document.title + "'.",e);
-                  }
-               }
-
-               // Add enhanced document to Solr
-               logger.info("enhance - about to add document to solr");
-               solrClient.addDocument(configuration.getSolrCollection(), properties);
-               logger.info("enhance - document added to solr");
-
-               // Store full document in DB
-               logger.info("enhance - saving document in the database");
-               saveOrUpdateDocument(document, urn, EnhancementStatus.SUCCESS, null);
-               logger.info("enhance - document saved in the database");
-
-               // Store full enhanced doc (rdf) in Jena
-               logger.info("enhance - about to store RDF in Jena");
-               jenaService.storeRdfDefault(enhancedText, "");
-               logger.info("enhance - RDF stored in Jena");
-
-               enhancementSucceed = true;
-
-            } else {
-               logger.info("enhance - saving document in the database");
-               saveOrUpdateDocument(document, urn, EnhancementStatus.FAILURE,
-                     "No matches were found in the vocabularies used by the chain: " + configuration.getStanbolChain());
-               logger.info("enhance - document saved in the database");
-
-               // Also store original image metadata
-               if (document.docType.equals(DocumentType.IMAGE.name())) {
-                  logger.info("enhance - saving image metadata in the database");
-                  saveOrUpdateImageMetadata(document.origin, document.content);
-                  logger.info("enhance - image metadata saved");
-               }
-            }
+         if (rdfDocument == null) {
+            return false;
          }
+
+         // Generate dictionary with properties we are interested in
+         Properties properties = generateSolrDocument(rdfDocument, document);
+         urn = properties.getProperty("about");
+
+         // Content has NOT been tagged with our vocabularies
+         if (properties.isEmpty()) {
+            logger.info("enhance - saving document in the database");
+            saveOrUpdateDocument(document, urn, EnhancementStatus.FAILURE,
+                  "No matches were found in the vocabularies used by the chain: " + configuration.getStanbolChain());
+            logger.info("enhance - document saved in the database");
+
+            // Also store original image metadata
+            if (document.docType.equals(DocumentType.IMAGE.name())) {
+               logger.info("enhance - saving image metadata in the database");
+               saveOrUpdateImageMetadata(document.origin, document.content);
+               logger.info("enhance - image metadata saved");
+            }
+
+            return false;
+         }
+
+         // Store full enhanced doc (rdf) in S3
+         s3Client.storeFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
+               enhancedText, ContentType.APPLICATION_XML.getMimeType());
+
+         // Also store original image in S3
+         if (document.docType.equals(DocumentType.IMAGE.name())) {
+            logger.info("enhance - saving image in S3 and its metadata in the database");
+            s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.title,
+                    configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
+            saveOrUpdateImageMetadata(document.origin, document.content);
+            logger.info("enhance - original image content and metadata saved");
+            InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.title);
+            BufferedImage image = ImageIO.read(origImage);
+            properties.put("imgThumb", getImageThumb(image, document.title, urn));
+         }
+
+         // Add enhanced document to Solr
+         logger.info("enhance - about to add document to solr");
+         solrClient.addDocument(configuration.getSolrCollection(), properties);
+         logger.info("enhance - document added to solr");
+
+         // Store full document in DB
+         logger.info("enhance - saving document in the database");
+         saveOrUpdateDocument(document, urn, EnhancementStatus.SUCCESS, null);
+         logger.info("enhance - document saved in the database");
+
+         // Store full enhanced doc (rdf) in Jena
+         logger.info("enhance - about to store RDF in Jena");
+         jenaService.storeRdfDefault(enhancedText, "");
+         logger.info("enhance - RDF stored in Jena");
+
+         return true;
 
       } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
@@ -276,8 +285,6 @@ public class EnhancerServiceImpl implements EnhancerService {
          }
          throw new HydroidException(e);
       }
-
-      return enhancementSucceed;
    }
 
    private void saveOrUpdateDocument(DocumentDTO documentDTO, String urn, EnhancementStatus status, String statusReason) {
@@ -307,20 +314,22 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    private List<S3ObjectSummary> getDocumentsForEnhancement(List<S3ObjectSummary> input) {
-      List<S3ObjectSummary> output = new ArrayList();
-      if (!input.isEmpty()) {
-         String origin;
-         Document document;
-         for (S3ObjectSummary object : input) {
-            // Ignore folders
-            if (!object.getKey().endsWith("/")) {
-               origin = object.getBucketName() + ":" + object.getKey();
-               document = documentService.findByOrigin(origin);
-               // Document was not enhanced or previous enhancement failed
-               if (document == null || (document.getStatus() == EnhancementStatus.FAILURE)) {
-                  output.add(object);
-               }
-            }
+      List<S3ObjectSummary> output = new ArrayList<>();
+      if (input.isEmpty()) {
+         return output;
+      }
+      String origin;
+      Document document;
+      for (S3ObjectSummary object : input) {
+         // Ignore folders
+         if (object.getKey().endsWith("/")) {
+            continue;
+         }
+         origin = object.getBucketName() + ":" + object.getKey();
+         document = documentService.findByOrigin(origin);
+         // Document was not enhanced or previous enhancement failed
+         if (document == null || (document.getStatus() == EnhancementStatus.FAILURE)) {
+            output.add(object);
          }
       }
       return output;
@@ -359,7 +368,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          try {
             enhance(document);
          } catch (Exception e) {
-            logger.error("enhanceCollection - error processing file key: " + object.getKey());
+            logger.error("enhanceCollection - error processing file key: " + object.getKey(), e);
          }
       }
    }
@@ -403,7 +412,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          try {
             enhance(document);
          } catch (Exception e) {
-            logger.error("enhancePendingDocuments - error processing URL: " + dbDocument.getOrigin());
+            logger.error("enhancePendingDocuments - error processing URL: " + dbDocument.getOrigin(), e);
          }
       }
    }
@@ -426,36 +435,36 @@ public class EnhancerServiceImpl implements EnhancerService {
 
    @Override
    public void enhanceImages() {
-      //String title;
-      //String origin;
       DocumentDTO document;
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
       List<S3ObjectSummary> objectsForEnhancement = getDocumentsForEnhancement(s3Client.listObjects(configuration.getS3Bucket(), key));
       logger.info("enhanceImages - there are " + objectsForEnhancement.size() + " images to be enhanced");
       for (S3ObjectSummary s3ObjectSummary : objectsForEnhancement) {
+
          // Ignore folders
-         if (!s3ObjectSummary.getKey().endsWith("/")) {
+         if (s3ObjectSummary.getKey().endsWith("/")) {
+            continue;
+         }
 
-            document = new DocumentDTO();
-            document.docType = DocumentType.IMAGE.name();
-            document.title = getFileNameFromS3ObjectSummary(s3ObjectSummary);
-            document.origin = configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey();
+         document = new DocumentDTO();
+         document.docType = DocumentType.IMAGE.name();
+         document.title = getFileNameFromS3ObjectSummary(s3ObjectSummary);
+         document.origin = configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey();
 
-            // The cached imaged metadata will be used for enhancement (if exists)
-            document.content = documentService.readImageMetadata(document.origin);
+         // The cached imaged metadata will be used for enhancement (if exists)
+         document.content = documentService.readImageMetadata(document.origin);
 
-            // The image metadata will be extracted and used for enhancement
-            if (document.content == null) {
-               s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
-               document.content = document.title + "\n" + getImageMetadataAsString(s3FileContent);
-            }
+         // The image metadata will be extracted and used for enhancement
+         if (document.content == null) {
+            s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
+            document.content = document.title + "\n" + getImageMetadataAsString(s3FileContent);
+         }
 
-            try {
-               enhance(document);
-            } catch (Exception e) {
-               logger.error("enhanceImages - error processing file key: " + s3ObjectSummary.getKey());
-            }
+         try {
+            enhance(document);
+         } catch (Exception e) {
+            logger.error("enhanceImages - error processing file key: " + s3ObjectSummary.getKey());
          }
       }
    }
