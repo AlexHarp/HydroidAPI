@@ -4,9 +4,9 @@ import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.service.EnhancerService;
+import au.gov.ga.hydroid.utils.HydroidException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.pdfbox.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,7 +61,7 @@ public class EnhancerControllerTest {    private MockMvc mockMvc;
                      .content(json))
                .andExpect(status().isOk());
       } catch (Exception e) {
-         Assert.fail(e.getMessage());
+         throw new HydroidException(e);
       }
    }
 
@@ -76,7 +76,7 @@ public class EnhancerControllerTest {    private MockMvc mockMvc;
          this.mockMvc.perform(fileUpload("/enhancer/file").file(firstFile).param("name", "mypdf.pdf"))
                .andExpect(status().isOk());
       } catch (Exception e) {
-         Assert.fail(e.getMessage());
+         throw new HydroidException(e);
       }
    }
 
@@ -89,7 +89,7 @@ public class EnhancerControllerTest {    private MockMvc mockMvc;
                      .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk());
       } catch (Exception e) {
-         Assert.fail(e.getMessage());
+         throw new HydroidException(e);
       }
    }
 

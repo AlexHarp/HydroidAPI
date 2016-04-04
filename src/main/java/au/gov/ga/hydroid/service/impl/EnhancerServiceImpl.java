@@ -280,9 +280,8 @@ public class EnhancerServiceImpl implements EnhancerService {
          }
 
          // if there was any error in the process we remove the documents stored under the URN if created
-         if (urn != null) {
-            rollbackEnhancement(urn);
-         }
+         rollbackEnhancement(urn);
+
          throw new HydroidException(e);
       }
    }
@@ -470,6 +469,10 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    private void rollbackEnhancement(String urn) {
+      if (urn == null) {
+         return;
+      }
+
       // Delete document from S3
       s3Client.deleteFile(configuration.getS3Bucket(), configuration.getS3EnhancerOutput() + urn);
 
