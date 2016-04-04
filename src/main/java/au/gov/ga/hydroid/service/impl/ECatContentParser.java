@@ -2,19 +2,18 @@ package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.service.UrlContentParser;
 import au.gov.ga.hydroid.utils.HydroidException;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import java.util.Date;
-import java.util.Properties;
 
 /**
  * Created by u24529 on 31/03/2016.
@@ -22,14 +21,13 @@ import java.util.Properties;
 @Service("eCatParser")
 public class ECatContentParser implements UrlContentParser {
 
-   private static final String[] VALID_PARENTS = {"citation", "CI_Citation", "date", "CI_DATE", "citedResponsibleParty", "CI_ResponsibleParty"};
-   private static final String[] VALID_NODES = {"abstract", "title", "date", "individualName"};
-   private static final Properties LABELS = new Properties();
-
-   static {
-      LABELS.setProperty("dateStamp", "Creation-Date");
-      LABELS.setProperty("individualName", "Author");
-   }
+   private static final String DATE_XPATH_EXPRESSION = "/GetRecordByIdResponse/MD_Metadata/dateStamp/Date";
+   private static final String TITLE_XPATH_EXPRESSION = "/GetRecordByIdResponse/MD_Metadata/identificationInfo/" +
+         "MD_DataIdentification/citation/CI_Citation/title/CharacterString";
+   private static final String AUTHOR_XPATH_EXPRESSION = "/GetRecordByIdResponse/MD_Metadata/identificationInfo/" +
+         "MD_DataIdentification/citation/CI_Citation/citedResponsibleParty/CI_ResponsibleParty/individualName/CharacterString";
+   private static final String ABSTRACT_XPATH_EXPRESSION = "/GetRecordByIdResponse/MD_Metadata/identificationInfo/" +
+         "MD_DataIdentification/abstract/CharacterString";
 
    @Override
    public String parseUrl(String url, Metadata metadata) {
@@ -37,63 +35,47 @@ public class ECatContentParser implements UrlContentParser {
       return metadata.get("abstract");
    }
 
-   private String getLabel(String value) {
-      String label = LABELS.getProperty(value);
-      if (label == null) {
-         label = value;
+   private void setMetadata(Metadata metadata, String name, String value) {
+      if (value == null || value.isEmpty()) {
+         return;
       }
-      return label;
-   }
-
-   private String removeLineBreak(String value) {
-      String tempValue = value.replace("\n", "");
-      return StringUtils.trimLeadingWhitespace(tempValue).trim();
-   }
-
-   private void setMetadata(Metadata metadata, Node node) {
-      String metadataName = getLabel(node.getNodeName());
-      String metadataValue = metadata.get(metadataName);
+      String metadataValue = metadata.get(name);
       if (metadataValue == null) {
-         metadataValue = removeLineBreak(node.getTextContent());
+         metadataValue = value;
       } else {
-         metadataValue = metadataValue + ", " + removeLineBreak(node.getTextContent());
+         metadataValue = metadataValue + "; " + value;
       }
-      metadata.set(metadataName, metadataValue);
-   }
-
-   private void getChildren(Node node, Metadata metadata) {
-      Node localNode = node;
-      NodeList children = localNode.getChildNodes();
-      if (children != null) {
-         for (int i = 0; i < children.getLength(); i++) {
-            localNode = children.item(i);
-            if (ArrayUtils.contains(VALID_NODES, localNode.getNodeName())) {
-               setMetadata(metadata, localNode);
-            }
-            if (ArrayUtils.contains(VALID_PARENTS, localNode.getNodeName())) {
-               getChildren(localNode, metadata);
-            }
-         }
-      }
+      metadata.set(name, metadataValue);
    }
 
    private void parserXml(String url, Metadata metadata)  {
       try {
-         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-         Document doc = dBuilder.parse(url);
-         doc.getDocumentElement().normalize();
-         NodeList nodeList = doc.getElementsByTagName("MD_DataIdentification");
-         if (nodeList != null) {
-            Node node = nodeList.item(0);
-            getChildren(node, metadata);
+         String nodeValue;
+         XPath xPath =  XPathFactory.newInstance().newXPath();
+         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+         DocumentBuilder builder = factory.newDocumentBuilder();
+         Document document = builder.parse(url);
+
+         nodeValue = xPath.compile(DATE_XPATH_EXPRESSION).evaluate(document);
+         if (nodeValue != null && !nodeValue.isEmpty()) {
+            Date dateStamp = DateUtils.parseDate(nodeValue, new String[]{"yyyy-MM-dd"});
+            setMetadata(metadata, "Creation-Date", DateUtils.formatDate(dateStamp, "yyyy-MM-dd'T'HH:mm:ss'Z'"));
          }
-         nodeList = doc.getElementsByTagName("dateStamp");
+
+         nodeValue = xPath.compile(TITLE_XPATH_EXPRESSION).evaluate(document);
+         setMetadata(metadata, "title", nodeValue);
+
+         nodeValue = xPath.compile(ABSTRACT_XPATH_EXPRESSION).evaluate(document);
+         setMetadata(metadata, "abstract", nodeValue);
+
+         NodeList nodeList = (NodeList) xPath.compile(AUTHOR_XPATH_EXPRESSION).evaluate(document, XPathConstants.NODESET);
          if (nodeList != null) {
-            Node node = nodeList.item(0);
-            Date dateStamp = DateUtils.parseDate(removeLineBreak(node.getTextContent()), new String[]{"yyyy-MM-dd"});
-            metadata.set(getLabel(node.getNodeName()), DateUtils.formatDate(dateStamp, "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+            for (int i = 0; i < nodeList.getLength(); i++) {
+               nodeValue = nodeList.item(i).getTextContent();
+               setMetadata(metadata, "Author", nodeValue);
+            }
          }
+
       } catch (Exception e) {
          throw new HydroidException(e);
       }

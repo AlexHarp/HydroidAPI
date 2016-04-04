@@ -53,7 +53,7 @@ public class TikaMetadataTestIT {
          Metadata metadata = new Metadata();
          urlContentParser.parseUrl(url, metadata);
          Assert.assertEquals("Title", "Hydrogeology Map of Australia (G.Jacobson and JE.Lau Hydrogeology Map)", metadata.get("title"));
-         Assert.assertEquals("Author", "Brodie, R.S., Kilgour, B., Jacobson, G., Lau, J.E.", metadata.get("Author"));
+         Assert.assertEquals("Author", "Brodie, R.S.; Kilgour, B.; Jacobson, G.; Lau, J.E.", metadata.get("Author"));
          Assert.assertNotNull("Creation-Date", DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
       } catch (Exception e) {
          Assert.fail(e.getMessage());
