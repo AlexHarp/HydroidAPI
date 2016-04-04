@@ -38,4 +38,4 @@ before_install:
 install:
   - ./scripts/build.sh
 after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+  - mvn cobertura:cobertura coveralls:report
