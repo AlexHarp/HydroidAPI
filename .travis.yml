@@ -37,3 +37,5 @@ before_install:
   - chmod a+x ./scripts/build-index.sh
 install:
   - ./scripts/build.sh
+after_success:
+  - mvn clean cobertura:cobertura coveralls:report
