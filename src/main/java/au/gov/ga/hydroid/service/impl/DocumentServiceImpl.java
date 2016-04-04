@@ -2,6 +2,7 @@ package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentRowMapper;
+import au.gov.ga.hydroid.model.EnhancementStatus;
 import au.gov.ga.hydroid.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -46,6 +47,11 @@ public class DocumentServiceImpl implements DocumentService {
    }
 
    @Override
+   public List<Document> findByStatus(EnhancementStatus status) {
+      return jdbcTemplate.query("SELECT * FROM documents where status = ?", new String[]{status.name()}, new DocumentRowMapper());
+   }
+
+   @Override
    public void create(Document document) {
       String sql = new StringBuilder("insert into documents (origin, urn, title, type, status, ")
             .append("status_reason, process_date) values (?, ?, ?, ?, ?, ?, timezone('UTC', now()))").toString();
@@ -60,8 +66,8 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void update(Document document) {
-      String sql = "update documents set urn = ?, status = ?, status_reason = ?, process_date = timezone('UTC', now()) where id = ?";
-      jdbcTemplate.update(sql, document.getUrn(), document.getStatus().name(), document.getStatusReason(), document.getId());
+      String sql = "update documents set title = ?, urn = ?, status = ?, status_reason = ?, process_date = timezone('UTC', now()) where id = ?";
+      jdbcTemplate.update(sql, document.getTitle(), document.getUrn(), document.getStatus().name(), document.getStatusReason(), document.getId());
    }
 
    @Override

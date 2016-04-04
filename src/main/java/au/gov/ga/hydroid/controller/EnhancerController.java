@@ -46,21 +46,11 @@ public class EnhancerController {
    private ApplicationContext context;
 
    private boolean validateDocType(String docType) {
-      if (docType == null || docType.isEmpty()) {
+      try {
+         DocumentType.valueOf(docType);
          return true;
-      }
-      DocumentType enumDocType = DocumentType.valueOf(docType);
-      switch (enumDocType) {
-         case DOCUMENT:
-            return true;
-         case DATASET:
-            return true;
-         case MODEL:
-            return true;
-         case IMAGE:
-            return true;
-         default:
-            return false;
+      } catch (Exception e) {
+         return false;
       }
    }
 
@@ -80,7 +70,7 @@ public class EnhancerController {
 
          String errorMessage = validateDocument(document);
          if (errorMessage != null) {
-            return new ResponseEntity<ServiceResponse>(new ServiceResponse(errorMessage),
+            return new ResponseEntity<>(new ServiceResponse(errorMessage),
                   HttpStatus.BAD_REQUEST);
 
          }
@@ -89,13 +79,13 @@ public class EnhancerController {
          document.dateCreated = new Date();
          enhancerService.enhance(document);
 
-      } catch (Throwable e) {
+      } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
-         return new ResponseEntity<ServiceResponse>(new ServiceResponse("There has been an error enhancing your document, please try again later.",
+         return new ResponseEntity<>(new ServiceResponse("There has been an error enhancing your document, please try again later.",
                e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
-      return new ResponseEntity<ServiceResponse>(new ServiceResponse("Your document has been enhanced successfully."),
+      return new ResponseEntity<>(new ServiceResponse("Your document has been enhanced successfully."),
             HttpStatus.OK);
    }
 
@@ -114,21 +104,20 @@ public class EnhancerController {
             document.docType = DocumentType.DOCUMENT.name();
             document.author = metadata.get("author") == null ? metadata.get("Author") : metadata.get("author");
             document.title = metadata.get("title") == null ? name : metadata.get("title");
-            document.origin = new StringBuilder(configuration.getS3Bucket()).append(":").append(configuration.getS3EnhancerInput())
-                  .append(DocumentType.DOCUMENT.name().toLowerCase()).append("s/").append(name).toString();
+            document.origin = configuration.getS3Bucket() + ":" + configuration.getS3EnhancerInput() + DocumentType.DOCUMENT.name().toLowerCase() + "s/" + name;
             document.dateCreated = metadata.get("Creation-Date") == null ? null :
                   DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"});
 
             enhancerService.enhance(document);
-         } catch (Throwable e) {
+         } catch (Exception e) {
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed extracting/indexing text from file");
          }
       } else {
-         return new ResponseEntity<ServiceResponse>(
+         return new ResponseEntity<>(
                new ServiceResponse("You failed to upload " + name + " because the file was empty."), HttpStatus.OK);
       }
 
-      return new ResponseEntity<ServiceResponse>(new ServiceResponse("Your document has been enhanced successfully."),
+      return new ResponseEntity<>(new ServiceResponse("Your document has been enhanced successfully."),
             HttpStatus.OK);
    }
 
@@ -147,7 +136,7 @@ public class EnhancerController {
             if (jobs != null && !jobs.isEmpty()) {
                for (JobExecutionContext job : jobs) {
                   if (job.getJobDetail().getJobClass().equals(EnhancerJob.class)) {
-                     return new ResponseEntity<ServiceResponse>(new ServiceResponse("The enhancement process is currently in progress, try again later."),
+                     return new ResponseEntity<>(new ServiceResponse("The enhancement process is currently in progress, try again later."),
                            HttpStatus.OK);
                   }
                }
@@ -160,11 +149,11 @@ public class EnhancerController {
             }
          }
 
-      } catch (Throwable e) {
-         logger.error("enhanceS3 - Throwable: ", e);
+      } catch (Exception e) {
+         logger.error("enhanceS3 - Exception: ", e);
       }
 
-      return new ResponseEntity<ServiceResponse>(new ServiceResponse("The enhancement process has started successfully."),
+      return new ResponseEntity<>(new ServiceResponse("The enhancement process has started successfully."),
             HttpStatus.OK);
 
    }

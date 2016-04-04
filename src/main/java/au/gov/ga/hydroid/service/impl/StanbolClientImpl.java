@@ -65,11 +65,6 @@ public class StanbolClientImpl implements StanbolClient {
             case SUCCESSFUL: {
                logger.debug("enhance - content has been successfully enhanced");
                result = response.readEntity(String.class);
-
-               // todo remove this when Hydroid Dev is available
-               //FileInputStream fis = new FileInputStream("c:\\Users\\u24529\\Downloads\\sample1.rdf");
-               //rdfParser.parse(fis, "");
-
                break;
             }
             default: {

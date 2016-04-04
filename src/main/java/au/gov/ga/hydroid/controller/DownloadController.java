@@ -62,7 +62,7 @@ public class DownloadController {
 
       } catch (EmptyResultDataAccessException e) {
          au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_NOT_FOUND);
-      } catch (Throwable e) {
+      } catch (Exception e) {
          logger.error("download - Exception: ", e);
          au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
@@ -95,7 +95,7 @@ public class DownloadController {
                   zipOut.closeEntry();
                   fileContent.close();
 
-               } catch (Throwable e) {
+               } catch (Exception e) {
                   logger.error("downloadBundle - Exception: ", e);
                }
             }
@@ -116,7 +116,7 @@ public class DownloadController {
          zipIn.close();
          zipFile.delete();
 
-      } catch (Throwable e) {
+      } catch (Exception e) {
          logger.error("downloadBundle - Exception: ", e);
          au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
@@ -154,7 +154,7 @@ public class DownloadController {
 
       } catch (EmptyResultDataAccessException e) {
          au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_NOT_FOUND);
-      } catch (Throwable e) {
+      } catch (Exception e) {
          logger.error("downloadImage - Exception: ", e);
          au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }

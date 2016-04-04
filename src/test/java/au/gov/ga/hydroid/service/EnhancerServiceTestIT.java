@@ -77,25 +77,4 @@ public class EnhancerServiceTestIT {
       Assert.assertFalse(enhancerService.enhance(document));
    }
 
-   @Test
-   public void testPDFMetadata() {
-      String origin = "/testfiles/36_4_1175-1197_Buss_and_Clote.pdf";
-      Metadata metadata = new Metadata();
-      IOUtils.parseFile(this.getClass().getResourceAsStream(origin), metadata);
-      Assert.assertTrue(metadata.size() > 0);
-      Assert.assertEquals("Title", "Solving the Fisher-Wright and Coalescence Problems with a Discrete Markov Chain Analysis", metadata.get("title"));
-      Assert.assertNotNull("Creation-Date", DateUtils.parseDate(metadata.get("Creation-Date"), new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
-   }
-
-   @Test
-   public void testWordMetadata() {
-      String origin = "/testfiles/whale.docx";
-      Metadata metadata = new Metadata();
-      IOUtils.parseFile(this.getClass().getResourceAsStream(origin), metadata);
-      Assert.assertTrue(metadata.size() > 0);
-      Assert.assertEquals("Title", "Whale text from Wikipedia", metadata.get("title"));
-      Assert.assertEquals("Author", "Carneiro Elton", metadata.get("Author"));
-      Assert.assertNotNull("Creation-Date", DateUtils.parseDate(metadata.get("Creation-Date"), new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
-   }
-
 }

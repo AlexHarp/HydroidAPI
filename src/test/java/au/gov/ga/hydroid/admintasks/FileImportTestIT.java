@@ -1,7 +1,6 @@
 package au.gov.ga.hydroid.admintasks;
 
 import au.gov.ga.hydroid.HydroidApplication;
-import au.gov.ga.hydroid.HydroidConfiguration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -15,7 +14,6 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -23,33 +21,32 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
 @IntegrationTest
 public class FileImportTestIT {
 
-   @Autowired
-   private HydroidConfiguration configuration;
-
    @Test
    public void testParseFile() {
-      try {
-         Files.walk(Paths.get("C:\\Data\\hydroid\\testing\\Articles\\Articles")).forEach(filePath -> {
+      try (Stream<Path> fileStream = Files.walk(Paths.get("C:\\Data\\hydroid\\testing\\Articles\\Articles"))) {
+         fileStream.forEach(filePath -> {
             try {
                if (Files.isRegularFile(filePath) && (Files.size(filePath) < (1024 * 1024))) {
-                  Integer repsponse = postFile("http://hydroid-dev-web-lb-1763223935.ap-southeast-2.elb.amazonaws.com/api/index-file", filePath.toFile());
-                  if (repsponse != 200)
-                     System.out.print("File '" + filePath.toFile().getName() + "' failed with " + repsponse.toString());
+                  Integer response = postFile("http://hydroid-dev-web-lb-1763223935.ap-southeast-2.elb.amazonaws.com/api/index-file", filePath.toFile());
+                  if (response != 200)
+                     System.out.print("File '" + filePath.toFile().getName() + "' failed with " + response.toString());
                   else
                      System.out.print("File '" + filePath.toFile().getName() + "' succeeded.");
                }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          });
-      } catch (Throwable e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
