@@ -13,7 +13,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -37,12 +39,16 @@ public class EnhancerControllerTest {    private MockMvc mockMvc;
    @Mock
    EnhancerService enhancerService;
 
+   @Mock
+   ApplicationContext context;
+
    @Before
    public void setup() {
       MockitoAnnotations.initMocks(this);
       EnhancerController enhancerController = new EnhancerController();
       ReflectionTestUtils.setField(enhancerController, "enhancerService", this.enhancerService);
       ReflectionTestUtils.setField(enhancerController, "configuration", this.configuration);
+      ReflectionTestUtils.setField(enhancerController, "context", this.context);
       mockMvc = MockMvcBuilders.standaloneSetup(enhancerController).build();
    }
 
