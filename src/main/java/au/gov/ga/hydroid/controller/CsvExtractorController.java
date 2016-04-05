@@ -31,9 +31,12 @@ public class CsvExtractorController {
       if (!file.isEmpty()) {
          try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
+            String[] fields;
             while ((line = br.readLine()) != null) {
-               String url = line.split(",")[0];
-               savePendingDocument(url);
+               fields = line.split(",");
+               String url = fields[0];
+               String parserName = (fields.length > 1 ? fields[1] : null);
+               savePendingDocument(url, parserName);
             }
          } catch (Exception e) {
             logger.error("Failed to get URL from CSV: " + name, e);
@@ -47,13 +50,14 @@ public class CsvExtractorController {
               HttpStatus.OK);
    }
 
-   private void savePendingDocument(String url) {
+   private void savePendingDocument(String url, String parserName) {
       if (documentService.findByOrigin(url) == null) {
          Document document = new Document();
          document.setOrigin(url);
          document.setTitle(url);
          document.setType(DocumentType.DOCUMENT);
          document.setStatus(EnhancementStatus.PENDING);
+         document.setParserName(parserName);
          documentService.create(document);
       }
    }
