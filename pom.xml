@@ -250,8 +250,30 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.0.1</version>
+            </plugin>
         </plugins>
 
     </build>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.host.url>https://sonar.gadevs.ga/</sonar.host.url>
+                <sonar.projectKey>ga.hellfish:hydroid</sonar.projectKey>
+                <sonar.projectName>Hydroid</sonar.projectName>
+                <sonar.projectVersion>0.1</sonar.projectVersion>
+                <sonar.sources>src</sonar.sources>
+                <sonar.login>${SONAR_LOGIN}</sonar.login>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
