@@ -239,6 +239,23 @@
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>3.0.1</version>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.6.201602180812</version>
+                <configuration>
+                    <destFile>${sonar.jacoco.reportPath}</destFile>
+                    <append>true</append>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
     </build>
@@ -255,7 +272,11 @@
                 <sonar.projectName>Hydroid</sonar.projectName>
                 <sonar.projectVersion>0.1</sonar.projectVersion>
                 <sonar.sources>src/main</sonar.sources>
+                <sonar.language>java</sonar.language>
                 <sonar.login>${SONAR_LOGIN}</sonar.login>
+                <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+                <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+                <sonar.jacoco.reportPath>${basedir}/target/coverage-reports/jacoco-unit.exec</sonar.jacoco.reportPath>
             </properties>
         </profile>
     </profiles>
