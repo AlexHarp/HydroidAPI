@@ -16,6 +16,7 @@ public class Document {
    private EnhancementStatus status;
    private String statusReason;
    private Date processDate;
+   private String parserName;
 
    public long getId() {
       return id;
@@ -79,6 +80,14 @@ public class Document {
 
    public void setProcessDate(Date processDate) {
       this.processDate = processDate;
+   }
+
+   public String getParserName() {
+      return parserName;
+   }
+
+   public void setParserName(String parserName) {
+      this.parserName = parserName;
    }
 
 }

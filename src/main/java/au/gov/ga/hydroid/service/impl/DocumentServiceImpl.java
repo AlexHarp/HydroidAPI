@@ -57,10 +57,10 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void create(Document document) {
-      String sql = new StringBuilder("insert into documents (origin, urn, title, type, status, ")
-            .append("status_reason, process_date) values (?, ?, ?, ?, ?, ?, timezone('UTC', now()))").toString();
+      String sql = "insert into documents (origin, urn, title, type, status, "
+            + "status_reason, process_date, parser_name) values (?, ?, ?, ?, ?, ?, timezone('UTC', now())), ?";
       jdbcTemplate.update(sql, document.getOrigin(), document.getUrn(), document.getTitle(), document.getType().name(),
-            document.getStatus().name(), document.getStatusReason());
+            document.getStatus().name(), document.getStatusReason(), document.getParserName());
    }
 
    @Override
