@@ -6,6 +6,7 @@ import au.gov.ga.hydroid.dto.ServiceResponse;
 import au.gov.ga.hydroid.job.EnhancerJob;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.EnhancerService;
+import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.tika.metadata.Metadata;
@@ -50,6 +51,7 @@ public class EnhancerController {
          DocumentType.valueOf(docType);
          return true;
       } catch (Exception e) {
+         logger.debug("validateDocType - docType is not valid");
          return false;
       }
    }
@@ -110,6 +112,7 @@ public class EnhancerController {
 
             enhancerService.enhance(document);
          } catch (Exception e) {
+            logger.warn("enhanceFile - Exception: ", e);
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed extracting/indexing text from file");
          }
       } else {
@@ -121,36 +124,46 @@ public class EnhancerController {
             HttpStatus.OK);
    }
 
-   @RequestMapping(value = "/s3", method = {RequestMethod.GET, RequestMethod.POST})
-   public @ResponseBody ResponseEntity<ServiceResponse> enhanceS3() {
+   private boolean checkAndTriggerJob(SchedulerFactoryBean schedulerFactoryBean) throws HydroidException {
+
+      if (schedulerFactoryBean == null) {
+         return false;
+      }
 
       try {
+         Scheduler scheduler = schedulerFactoryBean.getScheduler();
 
-         SchedulerFactoryBean schedulerFactoryBean = context.getBean(SchedulerFactoryBean.class);
-
-         if (schedulerFactoryBean != null) {
-            Scheduler scheduler = schedulerFactoryBean.getScheduler();
-
-            // Check if any jobs are currently running
-            List<JobExecutionContext> jobs = schedulerFactoryBean.getScheduler().getCurrentlyExecutingJobs();
-            if (jobs != null && !jobs.isEmpty()) {
-               for (JobExecutionContext job : jobs) {
-                  if (job.getJobDetail().getJobClass().equals(EnhancerJob.class)) {
-                     return new ResponseEntity<>(new ServiceResponse("The enhancement process is currently in progress, try again later."),
-                           HttpStatus.OK);
-                  }
+         // Check if any jobs are currently running
+         List<JobExecutionContext> jobs = schedulerFactoryBean.getScheduler().getCurrentlyExecutingJobs();
+         if (jobs != null && !jobs.isEmpty()) {
+            for (JobExecutionContext job : jobs) {
+               if (job.getJobDetail().getJobClass().equals(EnhancerJob.class)) {
+                  return true;
                }
+            }
             // if not trigger job manually
-            } else {
-               JobDetail jobDetail = (JobDetail) context.getBean("enhancerJobDetail");
-               if (jobDetail != null) {
-                  scheduler.triggerJob(jobDetail.getKey());
-               }
+         } else {
+            JobDetail jobDetail = (JobDetail) context.getBean("enhancerJobDetail");
+            if (jobDetail != null) {
+               scheduler.triggerJob(jobDetail.getKey());
             }
          }
 
       } catch (Exception e) {
-         logger.error("enhanceS3 - Exception: ", e);
+         logger.error("checkAndTriggerJob - Exception: ", e);
+         throw new HydroidException(e);
+      }
+
+      return false;
+   }
+
+   @RequestMapping(value = "/s3", method = {RequestMethod.GET, RequestMethod.POST})
+   public @ResponseBody ResponseEntity<ServiceResponse> enhanceS3() {
+
+      SchedulerFactoryBean schedulerFactoryBean = context.getBean(SchedulerFactoryBean.class);
+      if (checkAndTriggerJob(schedulerFactoryBean)) {
+         return new ResponseEntity<>(new ServiceResponse("The enhancement process is currently in progress, try again later."),
+               HttpStatus.OK);
       }
 
       return new ResponseEntity<>(new ServiceResponse("The enhancement process has started successfully."),

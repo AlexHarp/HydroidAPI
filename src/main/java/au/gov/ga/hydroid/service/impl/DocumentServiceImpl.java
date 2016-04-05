@@ -4,6 +4,8 @@ import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentRowMapper;
 import au.gov.ga.hydroid.model.EnhancementStatus;
 import au.gov.ga.hydroid.service.DocumentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +18,8 @@ import java.util.List;
  */
 @Service
 public class DocumentServiceImpl implements DocumentService {
+
+   private static Logger logger = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
    @Autowired
    private JdbcTemplate jdbcTemplate;
@@ -31,7 +35,7 @@ public class DocumentServiceImpl implements DocumentService {
          return (Document) jdbcTemplate.queryForObject("SELECT * FROM documents where urn = ?",
                new String[]{urn}, new DocumentRowMapper());
       } catch (IncorrectResultSizeDataAccessException e) {
-         // document was not found
+         logger.debug("findByUrn - IncorrectResultSizeDataAccessException: ", e);
          return null;
       }
    }
@@ -41,7 +45,7 @@ public class DocumentServiceImpl implements DocumentService {
          return (Document) jdbcTemplate.queryForObject("SELECT * FROM documents where origin = ?",
                new String[]{origin}, new DocumentRowMapper());
       } catch (IncorrectResultSizeDataAccessException e) {
-         // document was not found
+         logger.debug("findByOrigin - IncorrectResultSizeDataAccessException: ", e);
          return null;
       }
    }
@@ -87,7 +91,7 @@ public class DocumentServiceImpl implements DocumentService {
          return jdbcTemplate.queryForObject("SELECT metadata FROM image_metadata where origin = ?",
                new String[] {origin}, String.class);
       } catch (IncorrectResultSizeDataAccessException e) {
-         // image metadata was not found
+         logger.debug("readImageMetadata - IncorrectResultSizeDataAccessException: ", e);
          return null;
       }
    }
