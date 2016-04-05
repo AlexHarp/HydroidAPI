@@ -254,7 +254,7 @@
                 <sonar.projectKey>ga.hellfish:hydroid</sonar.projectKey>
                 <sonar.projectName>Hydroid</sonar.projectName>
                 <sonar.projectVersion>0.1</sonar.projectVersion>
-                <sonar.sources>src</sonar.sources>
+                <sonar.sources>src/main</sonar.sources>
                 <sonar.login>${SONAR_LOGIN}</sonar.login>
             </properties>
         </profile>
