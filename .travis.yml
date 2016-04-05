@@ -1,12 +1,9 @@
 language: java
 jdk:
   - oraclejdk8
-before_script:
-  - chmod +x ./scripts/sonar-runner.sh
-  - ./scripts/sonar-runner.sh
 script:
   - ./scripts/build-index.sh
-  - "/tmp/sonar-runner/sonar-runner-2.4/bin/sonar-runner -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=https://sonar.gadevs.ga/ -Dsonar.projectKey=ga.hellfish:hydroid -Dsonar.projectName=Hydroid -Dsonar.projectVersion=0.1 -Dsonar.sources=src"
+  - mvn clean verify sonar:sonar
 deploy:
   - provider: s3
     region: ap-southeast-2
@@ -38,5 +35,3 @@ before_install:
   - sed -i 's/__HYDROID_POSTGRES_PWD__/'"$HYDROID_POSTGRES_PWD"'/g' ./src/main/resources/application.properties
 install:
   - mvn clean package
-after_success:
-  - mvn cobertura:cobertura coveralls:report

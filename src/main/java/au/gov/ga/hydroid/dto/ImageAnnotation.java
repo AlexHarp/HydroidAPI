@@ -1,5 +1,7 @@
 package au.gov.ga.hydroid.dto;
 
+import java.math.BigDecimal;
+
 /**
  * Created by u24529 on 16/03/2016.
  */
@@ -37,7 +39,7 @@ public class ImageAnnotation {
    @Override
    public int hashCode() {
       int result = description != null ? description.hashCode() : 0;
-      result = 31 * result + (score != +0.0f ? Float.floatToIntBits(score) : 0);
+      result = 31 * result + (!BigDecimal.valueOf(score).equals(BigDecimal.ZERO) ? Float.floatToIntBits(score) : 0);
       return result;
    }
 

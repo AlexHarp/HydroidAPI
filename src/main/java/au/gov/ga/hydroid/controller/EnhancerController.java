@@ -51,16 +51,16 @@ public class EnhancerController {
          DocumentType.valueOf(docType);
          return true;
       } catch (Exception e) {
-         logger.debug("validateDocType - docType is not valid");
+         logger.debug("validateDocType - Exception: ", e);
          return false;
       }
    }
 
    private String validateDocument(DocumentDTO document) {
-      if (document == null || document.content == null || document.docType == null) {
+      if (document == null || document.getContent() == null || document.getDocType() == null) {
          return "Please enter the text/content and document type for enhancement.";
       }
-      if (!validateDocType(document.docType)) {
+      if (!validateDocType(document.getDocType())) {
          return "Document.type is invalid, it must be one of DOCUMENT, DATASET OR MODEL.";
       }
       return null;
@@ -77,8 +77,8 @@ public class EnhancerController {
 
          }
 
-         document.origin = "Manual Enhancement/UI";
-         document.dateCreated = new Date();
+         document.setOrigin("Manual Enhancement/UI");
+         document.setDateCreated(new Date());
          enhancerService.enhance(document);
 
       } catch (Exception e) {
@@ -102,13 +102,13 @@ public class EnhancerController {
 
             Metadata metadata = new Metadata();
             DocumentDTO document = new DocumentDTO();
-            document.content = IOUtils.parseFile(byteArrayInputStream, metadata);
-            document.docType = DocumentType.DOCUMENT.name();
-            document.author = metadata.get("author") == null ? metadata.get("Author") : metadata.get("author");
-            document.title = metadata.get("title") == null ? name : metadata.get("title");
-            document.origin = configuration.getS3Bucket() + ":" + configuration.getS3EnhancerInput() + DocumentType.DOCUMENT.name().toLowerCase() + "s/" + name;
-            document.dateCreated = metadata.get("Creation-Date") == null ? null :
-                  DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"});
+            document.setContent(IOUtils.parseFile(byteArrayInputStream, metadata));
+            document.setDocType(DocumentType.DOCUMENT.name());
+            document.setAuthor(metadata.get("author") == null ? metadata.get("Author") : metadata.get("author"));
+            document.setTitle(metadata.get("title") == null ? name : metadata.get("title"));
+            document.setOrigin(configuration.getS3Bucket() + ":" + configuration.getS3EnhancerInput() + DocumentType.DOCUMENT.name().toLowerCase() + "s/" + name);
+            document.setDateCreated(metadata.get("Creation-Date") == null ? null :
+                  DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
 
             enhancerService.enhance(document);
          } catch (Exception e) {

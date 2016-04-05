@@ -23,8 +23,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class TikaMetadataTestIT {
 
    @Autowired
+   @Qualifier("tikaParser")
+   private UrlContentParser tikaParser;
+
+   @Autowired
    @Qualifier("eCatParser")
-   private UrlContentParser urlContentParser;
+   private UrlContentParser eCatParser;
 
    @Test
    public void testPDFMetadata() {
@@ -48,11 +52,25 @@ public class TikaMetadataTestIT {
    }
 
    @Test
-   public void testECatMetadata(){
+   public void testTikaParser(){
+      try {
+         String url = "http://www.ga.gov.au/metadata-gateway/metadata/record/gcat_a05f7892-8d5d-7506-e044-00144fdd4fa6";
+         Metadata metadata = new Metadata();
+         tikaParser.parseUrl(url, metadata);
+         Assert.assertEquals("Title",
+               "Geoscience Australia Metadata for Hydrogeology Map of Australia (G.Jacobson and JE.Lau Hydrogeology Map)",
+               metadata.get("title"));
+      } catch (Exception e) {
+         throw new HydroidException(e);
+      }
+   }
+
+   @Test
+   public void testECatParser(){
       try {
          String url = "http://www.ga.gov.au/metadata-gateway/metadata/record/gcat_a05f7892-8d5d-7506-e044-00144fdd4fa6/xml";
          Metadata metadata = new Metadata();
-         urlContentParser.parseUrl(url, metadata);
+         eCatParser.parseUrl(url, metadata);
          Assert.assertEquals("Title", "Hydrogeology Map of Australia (G.Jacobson and JE.Lau Hydrogeology Map)", metadata.get("title"));
          Assert.assertEquals("Author", "Brodie, R.S.; Kilgour, B.; Jacobson, G.; Lau, J.E.", metadata.get("Author"));
          Assert.assertNotNull("Creation-Date", DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"}));

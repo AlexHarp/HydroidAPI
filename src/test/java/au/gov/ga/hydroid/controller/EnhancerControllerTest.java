@@ -56,8 +56,8 @@ public class EnhancerControllerTest {    private MockMvc mockMvc;
    public void testEnhance() {
       try {
          DocumentDTO request = new DocumentDTO();
-         request.content = "foo";
-         request.title = "bar";
+         request.setContent("foo");
+         request.setTitle("bar");
          ObjectMapper mapper = new ObjectMapper();
          String json = mapper.writeValueAsString(request);
          this.mockMvc.perform(
