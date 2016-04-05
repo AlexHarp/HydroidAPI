@@ -38,7 +38,7 @@ public class GoogleVisionImageService implements ImageService {
    private HydroidConfiguration configuration;
 
    private float round(float value, int newScale) {
-      BigDecimal bd = new BigDecimal(value);
+      BigDecimal bd = BigDecimal.valueOf(value);
       bd = bd.setScale(newScale, BigDecimal.ROUND_HALF_UP);
       return bd.floatValue();
    }
@@ -71,9 +71,7 @@ public class GoogleVisionImageService implements ImageService {
 
             Image base64EncodedImage = new Image();
 
-            byte[] bytes = new byte[0];
-            bytes = IOUtils.toByteArray(is);
-
+            byte[] bytes = IOUtils.toByteArray(is);
             base64EncodedImage.encodeContent(bytes);
             annotateImageRequest.setImage(base64EncodedImage);
 

@@ -463,7 +463,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          try {
             enhance(document);
          } catch (Exception e) {
-            logger.error("enhanceImages - error processing file key: " + s3ObjectSummary.getKey());
+            logger.error("enhanceImages - error processing file key: " + s3ObjectSummary.getKey(), e);
          }
       }
    }
