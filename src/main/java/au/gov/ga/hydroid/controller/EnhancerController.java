@@ -51,7 +51,7 @@ public class EnhancerController {
          DocumentType.valueOf(docType);
          return true;
       } catch (Exception e) {
-         logger.debug("validateDocType - docType is not valid");
+         logger.debug("validateDocType - Exception: ", e);
          return false;
       }
    }
