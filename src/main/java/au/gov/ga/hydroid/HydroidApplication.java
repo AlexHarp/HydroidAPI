@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.io.DefaultResourceLoader;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -25,6 +26,26 @@ public class HydroidApplication {
    // load the configuration properties manually.
    private static void loadApplicationProperties(String[] args) {
       try {
+
+         Map<String,String> envs = System.getenv();
+         if (envs != null) {
+            logger.debug("");
+            logger.debug("Environment Vars");
+            envs.keySet().forEach(key ->
+               logger.debug(key + ": " + System.getenv(key))
+            );
+            logger.debug("");
+         }
+
+         Properties props = System.getProperties();
+         if (props != null) {
+            logger.debug("-----------------------");
+            logger.debug("Properties.............");
+            props.keySet().forEach(key ->
+               logger.debug(key + ": " + System.getProperty(String.valueOf(key)))
+            );
+         }
+
          // Fallback to application.properties if the env var is not defined
          String configFilePath = "classpath:/application.properties";
          String configFilePathOverride = System.getenv("hydroid.spring.config.location");
