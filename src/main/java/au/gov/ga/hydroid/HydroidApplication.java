@@ -29,20 +29,20 @@ public class HydroidApplication {
 
          Map<String,String> envs = System.getenv();
          if (envs != null) {
-            logger.debug("");
-            logger.debug("Environment Vars");
+            System.out.println("");
+            System.out.println("Environment Vars");
             envs.keySet().forEach(key ->
-               logger.debug(key + ": " + System.getenv(key))
+               System.out.println(key + ": " + System.getenv(key))
             );
-            logger.debug("");
+            System.out.println("");
          }
 
          Properties props = System.getProperties();
          if (props != null) {
-            logger.debug("-----------------------");
-            logger.debug("Properties.............");
+            System.out.println("-----------------------");
+            System.out.println("Properties.............");
             props.keySet().forEach(key ->
-               logger.debug(key + ": " + System.getProperty(String.valueOf(key)))
+               System.out.println(key + ": " + System.getProperty(String.valueOf(key)))
             );
          }
 
