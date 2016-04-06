@@ -13,3 +13,5 @@ buildNumber.properties
 src/test/resources/testfiles/google_vision/
 
 google-vision.json
+
+local-application.properties

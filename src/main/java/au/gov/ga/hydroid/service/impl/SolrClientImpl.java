@@ -65,4 +65,15 @@ public class SolrClientImpl implements SolrClient {
       }
    }
 
+   @Override
+   public void deleteAll(String collectionName) {
+      SolrServer server = new HttpSolrServer(configuration.getSolrUrl() + collectionName);
+      try {
+         server.deleteByQuery("*:*");
+         server.commit();
+      } catch (Exception e) {
+         throw new HydroidException(e);
+      }
+   }
+
 }
