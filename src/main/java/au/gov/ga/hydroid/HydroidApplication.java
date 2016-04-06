@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.io.DefaultResourceLoader;
 
 import java.io.InputStream;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -26,30 +25,17 @@ public class HydroidApplication {
    // load the configuration properties manually.
    private static void loadApplicationProperties(String[] args) {
       try {
-
-         Map<String,String> envs = System.getenv();
-         if (envs != null) {
-            System.out.println("");
-            System.out.println("Environment Vars");
-            envs.keySet().forEach(key ->
-               System.out.println(key + ": " + System.getenv(key))
-            );
-            System.out.println("");
-         }
-
-         Properties props = System.getProperties();
-         if (props != null) {
-            System.out.println("-----------------------");
-            System.out.println("Properties.............");
-            props.keySet().forEach(key ->
-               System.out.println(key + ": " + System.getProperty(String.valueOf(key)))
-            );
-         }
-
-         // Fallback to application.properties if the env var is not defined
+         // Default application.properties
          String configFilePath = "classpath:/application.properties";
-         String configFilePathOverride = System.getenv("hydroid.spring.config.location");
-         configFilePath = configFilePathOverride == null ? configFilePath : configFilePathOverride;
+         if (args != null) {
+            for (String arg : args) {
+               // Custom application.properties passed as command line argument
+               if (arg.contains("spring.config.location")) {
+                  configFilePath = arg.substring(arg.indexOf("=") + 1);
+                  break;
+               }
+            }
+         }
          DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
          InputStream configInputStream = resourceLoader.getResource(configFilePath).getInputStream();
          applicationProperties.load(configInputStream);
