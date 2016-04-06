@@ -2,11 +2,9 @@ package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.service.DocumentService;
+import au.gov.ga.hydroid.service.JenaService;
+import au.gov.ga.hydroid.service.SolrClient;
 import au.gov.ga.hydroid.utils.HydroidException;
-import org.apache.jena.query.DatasetAccessor;
-import org.apache.jena.query.DatasetAccessorFactory;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/reset")
 public class ClearAllController {
 
-   private Logger logger = LoggerFactory.getLogger(getClass());
+   private static final Logger logger = LoggerFactory.getLogger(ClearAllController.class);
 
    @Autowired
    private HydroidConfiguration configuration;
+
+   @Autowired
+   private SolrClient solrClient;
+
+   @Autowired
+   private JenaService jenaService;
 
    @Autowired
    private DocumentService documentService;
@@ -35,14 +39,10 @@ public class ClearAllController {
    String resetAll() {
       try {
          logger.debug("Deleting from SOLR");
-         SolrServer server = new HttpSolrServer(configuration.getSolrUrl() + "hydroid");
-         server.deleteByQuery("*:*");
-         server.commit();
+         solrClient.deleteAll(configuration.getSolrCollection());
          logger.debug("Deleting from SOLR - SUCCESS");
          logger.debug("Deleting from Jena");
-         String serviceURI = configuration.getFusekiUrl();
-         DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
-         accessor.deleteDefault();
+         jenaService.deleteRdfDefault();
          logger.debug("Deleting from Jena - SUCCESS");
          logger.debug("Deleting from Postgres");
          documentService.clearAll();

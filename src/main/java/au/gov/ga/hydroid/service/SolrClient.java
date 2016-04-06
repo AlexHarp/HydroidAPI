@@ -9,5 +9,6 @@ public interface SolrClient {
 
    public void addDocument(String collectionName, Properties properties);
    public void deleteDocument(String collectionName, String id);
+   public void deleteAll(String collectionName);
 
 }
