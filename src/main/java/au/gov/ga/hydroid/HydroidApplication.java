@@ -25,9 +25,9 @@ public class HydroidApplication {
    // load the configuration properties manually.
    private static void loadApplicationProperties(String[] args) {
       try {
-         // Default application.properties
+         // Fallback to application.properties if the env var is not defined
          String configFilePath = "classpath:/application.properties";
-         String configFilePathOverride = System.getProperties().getProperty("hydroid.spring.config.location",null);
+         String configFilePathOverride = System.getenv("hydroid.spring.config.location");
          configFilePath = configFilePathOverride == null ? configFilePath : configFilePathOverride;
          DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
          InputStream configInputStream = resourceLoader.getResource(configFilePath).getInputStream();
