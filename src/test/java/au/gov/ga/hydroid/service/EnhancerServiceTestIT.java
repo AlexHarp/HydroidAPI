@@ -36,7 +36,7 @@ public class EnhancerServiceTestIT {
       Metadata metadata = new Metadata();
       DocumentDTO document = new DocumentDTO();
       document.setDocType(DocumentType.DOCUMENT.name());
-      document.setContent(IOUtils.parseFile(this.getClass().getResourceAsStream(origin)));
+      document.setContent(IOUtils.parseStream(this.getClass().getResourceAsStream(origin)));
       document.setTitle(metadata.get("title"));
       document.setAuthor(metadata.get("author") == null ? metadata.get("Author") : metadata.get("author"));
       document.setDateCreated(DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"}));

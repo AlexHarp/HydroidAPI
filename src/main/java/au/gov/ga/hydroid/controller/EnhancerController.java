@@ -102,7 +102,7 @@ public class EnhancerController {
 
             Metadata metadata = new Metadata();
             DocumentDTO document = new DocumentDTO();
-            document.setContent(IOUtils.parseFile(byteArrayInputStream, metadata));
+            document.setContent(IOUtils.parseStream(byteArrayInputStream, metadata));
             document.setDocType(DocumentType.DOCUMENT.name());
             document.setAuthor(metadata.get("author") == null ? metadata.get("Author") : metadata.get("author"));
             document.setTitle(metadata.get("title") == null ? name : metadata.get("title"));

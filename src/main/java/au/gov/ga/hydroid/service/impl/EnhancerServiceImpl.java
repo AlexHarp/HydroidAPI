@@ -17,6 +17,7 @@ import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.jena.rdf.model.*;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AbstractParser;
 import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -361,7 +362,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
          metadata = new Metadata();
          document = new DocumentDTO();
-         document.setContent(IOUtils.parseFile(s3FileContent, metadata));
+         document.setContent(IOUtils.parseStream(s3FileContent, metadata));
          document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
          copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
 
@@ -386,21 +387,24 @@ public class EnhancerServiceImpl implements EnhancerService {
    private void enhancePendingDocuments() {
       Metadata metadata;
       DocumentDTO document;
-      UrlContentParser urlContentParser;
 
       List<Document> documents = documentService.findByStatus(EnhancementStatus.PENDING);
       logger.info("enhancePendingDocuments - there are " + documents.size() + " pending documents to be enhanced");
       for (Document dbDocument : documents) {
 
-         if (dbDocument.getParserName() != null) {
-            urlContentParser = (UrlContentParser) applicationContext.getBean(dbDocument.getParserName());
-         } else {
-            urlContentParser = (UrlContentParser) applicationContext.getBean("tikaParser");
-         }
-
          metadata = new Metadata();
          document = new DocumentDTO();
-         document.setContent(urlContentParser.parseUrl(dbDocument.getOrigin(), metadata));
+         InputStream inputStream = IOUtils.getUrlContent(dbDocument.getOrigin());
+
+         // User custom parser
+         if (dbDocument.getParserName() != null) {
+            AbstractParser parser = (AbstractParser) applicationContext.getBean(dbDocument.getParserName());
+            document.setContent(IOUtils.parseStream(inputStream, metadata, parser));
+         // Use default parser
+         } else {
+            document.setContent(IOUtils.parseStream(inputStream, metadata));
+         }
+
          document.setOrigin(dbDocument.getOrigin());
          copyMetadataToDocument(metadata, document, dbDocument.getOrigin());
 

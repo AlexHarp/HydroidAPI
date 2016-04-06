@@ -285,8 +285,8 @@
             <properties>
                 <sonar.host.url>https://sonar.gadevs.ga/</sonar.host.url>
                 <sonar.projectKey>ga.hellfish:hydroid</sonar.projectKey>
-                <sonar.projectName>${artifactId}</sonar.projectName>
-                <sonar.projectVersion>${version}</sonar.projectVersion>
+                <sonar.projectName>${project.artifactId}</sonar.projectName>
+                <sonar.projectVersion>${project.version}</sonar.projectVersion>
                 <sonar.sources>src/main</sonar.sources>
                 <sonar.language>java</sonar.language>
                 <sonar.login>${SONAR_LOGIN}</sonar.login>

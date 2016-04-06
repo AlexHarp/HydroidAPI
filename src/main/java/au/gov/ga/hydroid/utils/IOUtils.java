@@ -2,7 +2,9 @@ package au.gov.ga.hydroid.utils;
 
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.sax.BodyContentHandler;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.WriteOutContentHandler;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
@@ -34,18 +36,22 @@ public class IOUtils {
       return output;
    }
 
-   public static String parseFile(InputStream stream) {
-      return parseFile(stream, new Metadata());
+   public static String parseStream(InputStream stream) {
+      return parseStream(stream, new Metadata());
    }
 
-   public static String parseFile(InputStream stream, Metadata metadata) {
+   public static String parseStream(InputStream stream, Metadata metadata) {
+      return parseStream(stream, metadata, new AutoDetectParser());
+   }
+
+   public static String parseStream(InputStream stream, Metadata metadata, Parser parser) {
       if (metadata == null) {
-         throw new HydroidException("parseFile - the metadata parameter cannot be null");
+         throw new HydroidException("parseStream - the metadata parameter cannot be null");
       }
-      AutoDetectParser parser = new AutoDetectParser();
-      BodyContentHandler handler = new BodyContentHandler(-1);
+      WriteOutContentHandler handler = new WriteOutContentHandler(-1);
+      ParseContext context = new ParseContext();
       try {
-         parser.parse(stream, handler, metadata);
+         parser.parse(stream, handler, metadata, context);
       } catch (Exception e) {
          throw new HydroidException(e);
       }
