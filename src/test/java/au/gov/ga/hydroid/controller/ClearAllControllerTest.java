@@ -2,13 +2,14 @@ package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
-import au.gov.ga.hydroid.mock.CustomMockDocumentService;
-import au.gov.ga.hydroid.mock.CustomMockJenaService;
-import au.gov.ga.hydroid.mock.CustomMockSolrClient;
+import au.gov.ga.hydroid.service.DocumentService;
+import au.gov.ga.hydroid.service.JenaService;
+import au.gov.ga.hydroid.service.SolrClient;
 import au.gov.ga.hydroid.utils.HydroidException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -28,19 +29,28 @@ public class ClearAllControllerTest {
 
    private MockMvc mockMvc;
 
+   private ClearAllController clearAllController;
+
    @Autowired
    private HydroidConfiguration configuration;
 
-   private ClearAllController clearAllController;
+   @Mock
+   private SolrClient solrClient;
+
+   @Mock
+   private JenaService jenaService;
+
+   @Mock
+   private DocumentService documentService;
 
    @Before
    public void setup() {
       MockitoAnnotations.initMocks(this);
       clearAllController = new ClearAllController();
-      ReflectionTestUtils.setField(clearAllController, "configuration", this.configuration);
-      ReflectionTestUtils.setField(clearAllController, "solrClient", new CustomMockSolrClient());
-      ReflectionTestUtils.setField(clearAllController, "jenaService", new CustomMockJenaService());
-      ReflectionTestUtils.setField(clearAllController, "documentService", new CustomMockDocumentService());
+      ReflectionTestUtils.setField(clearAllController, "configuration", configuration);
+      ReflectionTestUtils.setField(clearAllController, "solrClient", solrClient);
+      ReflectionTestUtils.setField(clearAllController, "jenaService", jenaService);
+      ReflectionTestUtils.setField(clearAllController, "documentService", documentService);
       mockMvc = MockMvcBuilders.standaloneSetup(clearAllController).build();
    }
 
