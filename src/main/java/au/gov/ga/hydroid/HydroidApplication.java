@@ -27,15 +27,8 @@ public class HydroidApplication {
       try {
          // Default application.properties
          String configFilePath = "classpath:/application.properties";
-         if (args != null) {
-            for (String arg : args) {
-               // Custom application.properties passed as command line argument
-               if (arg.contains("spring.config.location")) {
-                  configFilePath = arg.substring(arg.indexOf("=") + 1);
-                  break;
-               }
-            }
-         }
+         String configFilePathOverride = System.getProperties().getProperty("hydroid.spring.config.location",null);
+         configFilePath = configFilePathOverride == null ? configFilePath : configFilePathOverride;
          DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
          InputStream configInputStream = resourceLoader.getResource(configFilePath).getInputStream();
          applicationProperties.load(configInputStream);
