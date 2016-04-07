@@ -24,6 +24,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
+import java.sql.ResultSet;
+
 /**
  * Created by u24529 on 7/04/2016.
  */

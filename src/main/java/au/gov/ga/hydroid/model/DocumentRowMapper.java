@@ -17,8 +17,8 @@ public class DocumentRowMapper implements RowMapper {
     * @param resultSet result set
     * @param rowNum row number
     * @return the mapped Document object
-    * @throws SQLException
     */
+   @Override
    public Object mapRow(ResultSet resultSet, int rowNum) {
       Document document = new Document();
       try {

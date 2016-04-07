@@ -127,11 +127,12 @@ public class EnhancerController {
    private boolean isThereAnyJobRunning(SchedulerFactoryBean schedulerFactoryBean) {
       try {
          List<JobExecutionContext> jobs = schedulerFactoryBean.getScheduler().getCurrentlyExecutingJobs();
-         if (jobs != null && !jobs.isEmpty()) {
-            for (JobExecutionContext job : jobs) {
-               if (job.getJobDetail().getJobClass().equals(EnhancerJob.class)) {
-                  return true;
-               }
+         if (jobs == null || jobs.isEmpty()){
+            return false;
+         }
+         for (JobExecutionContext job : jobs) {
+            if (job.getJobDetail().getJobClass().equals(EnhancerJob.class)) {
+               return true;
             }
          }
       } catch (Exception e) {
@@ -140,12 +141,7 @@ public class EnhancerController {
       return false;
    }
 
-   private boolean checkAndTriggerJob(SchedulerFactoryBean schedulerFactoryBean) {
-
-      if (isThereAnyJobRunning(schedulerFactoryBean)) {
-         return true;
-      }
-
+   private boolean triggerJob(SchedulerFactoryBean schedulerFactoryBean) {
       try {
          // Trigger job manually
          JobDetail jobDetail = (JobDetail) context.getBean("enhancerJobDetail");
@@ -156,7 +152,6 @@ public class EnhancerController {
       } catch (Exception e) {
          throw new HydroidException(e);
       }
-
       return false;
    }
 
@@ -164,11 +159,17 @@ public class EnhancerController {
    public @ResponseBody ResponseEntity<ServiceResponse> enhanceS3() {
 
       SchedulerFactoryBean schedulerFactoryBean = context.getBean(SchedulerFactoryBean.class);
-      if (schedulerFactoryBean != null && checkAndTriggerJob(schedulerFactoryBean)) {
+      if (schedulerFactoryBean == null) {
+         return new ResponseEntity<>(new ServiceResponse("The enhancement process is currently disabled, try again later."),
+               HttpStatus.OK);
+      }
+
+      if (isThereAnyJobRunning(schedulerFactoryBean)) {
          return new ResponseEntity<>(new ServiceResponse("The enhancement process is currently in progress, try again later."),
                HttpStatus.OK);
       }
 
+      triggerJob(schedulerFactoryBean);
       return new ResponseEntity<>(new ServiceResponse("The enhancement process has started successfully."),
             HttpStatus.OK);
 
