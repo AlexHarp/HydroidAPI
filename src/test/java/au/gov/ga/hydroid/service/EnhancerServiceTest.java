@@ -7,6 +7,7 @@ import au.gov.ga.hydroid.mock.CustomMockJenaService;
 import au.gov.ga.hydroid.mock.CustomMockStanbolClient;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.impl.EnhancerServiceImpl;
+import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.tika.metadata.Metadata;
@@ -59,7 +60,11 @@ public class EnhancerServiceTest {
       // Create a new instance of configuration and copy values from the auto wired
       // one to prevent temporary changes to its properties to affect the result of
       // other tests
-      configuration = new HydroidConfiguration();
+      try {
+         configuration = wiredConfiguration.getClass().newInstance();
+      } catch (Exception e) {
+         throw new HydroidException(e);
+      }
       ReflectionUtils.shallowCopyFieldState(wiredConfiguration, configuration);
       ReflectionTestUtils.setField(enhancerService, "configuration", configuration);
       ReflectionTestUtils.setField(enhancerService, "stanbolClient", new CustomMockStanbolClient());
