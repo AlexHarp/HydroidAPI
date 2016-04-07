@@ -3,7 +3,6 @@ jdk:
   - oraclejdk8
 script:
   - ./scripts/build-index.sh
-  - mvn clean verify sonar:sonar
 deploy:
   - provider: s3
     region: ap-southeast-2
@@ -35,3 +34,5 @@ before_install:
   - sed -i 's/__HYDROID_POSTGRES_PWD__/'"$HYDROID_POSTGRES_PWD"'/g' ./src/main/resources/application.properties
 install:
   - mvn clean package
+after_deploy:
+  - mvn clean verify sonar:sonar
