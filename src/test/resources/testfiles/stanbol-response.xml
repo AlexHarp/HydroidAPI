@@ -1,0 +1,392 @@
+<rdf:RDF
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:j.0="http://purl.org/dc/terms/"
+        xmlns:j.1="http://stanbol.apache.org/ontology/entityhub/entityhub#"
+        xmlns:j.2="http://fise.iks-project.eu/ontology/" >
+    <rdf:Description rdf:about="urn:enhancement-d65cecb7-007b-d589-49ef-aba193f9c39d">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1020</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">hale shark (Rh</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1015</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.226Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-b84e6a0e-849d-76ba-e3d4-da971e09ff52">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.9999955804448919</j.2:confidence>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:52.933Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.langdetect.LanguageDetectionEnhancementEngine</j.0:creator>
+        <j.0:language>en</j.0:language>
+        <j.0:type rdf:resource="http://purl.org/dc/terms/LinguisticSystem"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-ab4372b8-ac74-e357-0fd3-e65c53aaa4a1">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1134</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">Sharks</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Sharks are found in all seas and are common to depths of 2,000 metres (6,600 ft).</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1128</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.235Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-fb0f91c3-4205-a43c-6031-7c1144df0521">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:entity-label xml:lang="en">sharks</j.2:entity-label>
+        <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/204"/>
+        <j.2:entity-type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:relation rdf:resource="urn:enhancement-4b4aac22-30e3-5165-45bf-c42d7be22765"/>
+        <j.0:relation rdf:resource="urn:enhancement-4f3ecd18-1546-a2de-c74a-cc675cc627bd"/>
+        <j.0:relation rdf:resource="urn:enhancement-551f152e-c6ce-d6ad-6e8b-674c1bdae2e5"/>
+        <j.0:relation rdf:resource="urn:enhancement-56b93617-6df8-68c6-c27e-89a278443cb4"/>
+        <j.0:relation rdf:resource="urn:enhancement-6739ccd8-3c58-8bdf-33c5-5fff52c8a36d"/>
+        <j.0:relation rdf:resource="urn:enhancement-a85f8c05-3847-162c-f050-4bfb42e3504f"/>
+        <j.0:relation rdf:resource="urn:enhancement-aef7b0db-70b8-29ba-b607-5120fdbe6978"/>
+        <j.0:relation rdf:resource="urn:enhancement-d65cecb7-007b-d589-49ef-aba193f9c39d"/>
+        <j.0:relation rdf:resource="urn:enhancement-dc20597f-5515-e9fd-8e30-4ba5279f0de2"/>
+        <j.0:relation rdf:resource="urn:enhancement-ed2f7d31-e075-3d3e-1521-d57b2e365afa"/>
+        <j.1:site>GA</j.1:site>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-39089c25-0259-d3bc-bb32-5e0ced577862">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1411</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">Sharks</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">.[2] Sharks hav</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1405</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.235Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-4f5ddcc2-a748-762f-4855-118e6d51b956">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">6</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">Sharks</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Sharks are a group of fish characterized by a cartilaginous skeleton, five to seven gill slits on the sides of the head, and pectoral fins that are not fused to the head.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.235Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-1b7d3064-4a5a-0cec-687c-bb2150fb2daf">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">574</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">sharks</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Under this broader definition, the earliest known sharks date back to more than 420 million years ago.[1]</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">568</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.236Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-09e56056-6176-16ed-42b8-72c94a032f9e">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:entity-label xml:lang="en">sharks</j.2:entity-label>
+        <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/170"/>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.236Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:relation rdf:resource="urn:enhancement-057882b2-4214-1767-d4c0-dde770261bb3"/>
+        <j.0:relation rdf:resource="urn:enhancement-0ef2b697-97a3-1c37-8257-9061a5fec5b0"/>
+        <j.0:relation rdf:resource="urn:enhancement-1b7d3064-4a5a-0cec-687c-bb2150fb2daf"/>
+        <j.0:relation rdf:resource="urn:enhancement-878f1aa4-3a43-48e5-d628-67804605fb68"/>
+        <j.1:site>GA</j.1:site>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-551f152e-c6ce-d6ad-6e8b-674c1bdae2e5">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1656</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Well-known species such as the great white shark, tiger shark, blue shark, mako shark, and the hammerhead shark are apex predators—organisms at the top of their underwater food chain.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1651</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-878f1aa4-3a43-48e5-d628-67804605fb68">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">825</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">sharks</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Since then, sharks have diversified into over 500 species.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">819</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.236Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-0ef2b697-97a3-1c37-8257-9061a5fec5b0">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">675</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">sharks</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Acanthodians are often referred to as "spiny sharks"; though they are not part of Chondrichthyes proper, they are a paraphyletic assemblage leading to cartilaginous fish as a whole.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">669</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.236Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-ed2f7d31-e075-3d3e-1521-d57b2e365afa">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">307</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">erm "shark" ha</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">302</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.226Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-b9314e96-ef78-2a52-e694-8c59310652ff">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:entity-label xml:lang="en">rays</j.2:entity-label>
+        <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/205"/>
+        <j.2:entity-type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.236Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:relation rdf:resource="urn:enhancement-45571f71-9761-4eb1-16f3-0ba838bdfacd"/>
+        <j.1:site>GA</j.1:site>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-56b93617-6df8-68c6-c27e-89a278443cb4">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1336</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">iver shark, wh</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1331</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-9898350e-bce8-4507-45f3-ab5d91d404d9">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1014</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">whale</j.2:selected-text>
+        <j.2:selection-context xml:lang="en"> the whale sha</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1009</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-377316e9-2c95-6296-1156-cdc4b6585d08">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:entity-label xml:lang="en">whales</j.2:entity-label>
+        <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/206"/>
+        <j.2:entity-type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:relation rdf:resource="urn:enhancement-9898350e-bce8-4507-45f3-ab5d91d404d9"/>
+        <j.1:site>GA</j.1:site>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-45571f71-9761-4eb1-16f3-0ba838bdfacd">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">281</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">rays</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Modern sharks are classified within the clade Selachimorpha (or Selachii) and are the sister group to the rays.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">277</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.236Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-a85f8c05-3847-162c-f050-4bfb42e3504f">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1680</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Well-known species such as the great white shark, tiger shark, blue shark, mako shark, and the hammerhead shark are apex predators—organisms at the top of their underwater food chain.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1675</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-e93d3af5-49f5-cf64-d006-47c2f1ac75b2">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:entity-label xml:lang="en">sharks</j.2:entity-label>
+        <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/204"/>
+        <j.2:entity-type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.236Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:relation rdf:resource="urn:enhancement-057882b2-4214-1767-d4c0-dde770261bb3"/>
+        <j.0:relation rdf:resource="urn:enhancement-0ef2b697-97a3-1c37-8257-9061a5fec5b0"/>
+        <j.0:relation rdf:resource="urn:enhancement-1b7d3064-4a5a-0cec-687c-bb2150fb2daf"/>
+        <j.0:relation rdf:resource="urn:enhancement-878f1aa4-3a43-48e5-d628-67804605fb68"/>
+        <j.1:site>GA</j.1:site>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-81488313-5ff7-9830-747a-e202d1ec496e">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:entity-label xml:lang="en">sharks</j.2:entity-label>
+        <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/170"/>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:relation rdf:resource="urn:enhancement-4b4aac22-30e3-5165-45bf-c42d7be22765"/>
+        <j.0:relation rdf:resource="urn:enhancement-4f3ecd18-1546-a2de-c74a-cc675cc627bd"/>
+        <j.0:relation rdf:resource="urn:enhancement-551f152e-c6ce-d6ad-6e8b-674c1bdae2e5"/>
+        <j.0:relation rdf:resource="urn:enhancement-56b93617-6df8-68c6-c27e-89a278443cb4"/>
+        <j.0:relation rdf:resource="urn:enhancement-6739ccd8-3c58-8bdf-33c5-5fff52c8a36d"/>
+        <j.0:relation rdf:resource="urn:enhancement-a85f8c05-3847-162c-f050-4bfb42e3504f"/>
+        <j.0:relation rdf:resource="urn:enhancement-aef7b0db-70b8-29ba-b607-5120fdbe6978"/>
+        <j.0:relation rdf:resource="urn:enhancement-d65cecb7-007b-d589-49ef-aba193f9c39d"/>
+        <j.0:relation rdf:resource="urn:enhancement-dc20597f-5515-e9fd-8e30-4ba5279f0de2"/>
+        <j.0:relation rdf:resource="urn:enhancement-ed2f7d31-e075-3d3e-1521-d57b2e365afa"/>
+        <j.1:site>GA</j.1:site>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-dc20597f-5515-e9fd-8e30-4ba5279f0de2">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1643</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Well-known species such as the great white shark, tiger shark, blue shark, mako shark, and the hammerhead shark are apex predators—organisms at the top of their underwater food chain.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1638</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-6739ccd8-3c58-8bdf-33c5-5fff52c8a36d">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1316</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">bull shark and</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1311</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-057882b2-4214-1767-d4c0-dde770261bb3">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">184</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">sharks</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Modern sharks are classified within the clade Selachimorpha (or Selachii) and are the sister group to the rays.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">178</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.235Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-aef7b0db-70b8-29ba-b607-5120fdbe6978">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1706</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Well-known species such as the great white shark, tiger shark, blue shark, mako shark, and the hammerhead shark are apex predators—organisms at the top of their underwater food chain.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1701</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-fe63bc3f-ec4b-f62b-0172-f5ad1e9bab59">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:entity-label xml:lang="en">sharks</j.2:entity-label>
+        <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/170"/>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.235Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:relation rdf:resource="urn:enhancement-39089c25-0259-d3bc-bb32-5e0ced577862"/>
+        <j.0:relation rdf:resource="urn:enhancement-4f5ddcc2-a748-762f-4855-118e6d51b956"/>
+        <j.0:relation rdf:resource="urn:enhancement-ab4372b8-ac74-e357-0fd3-e65c53aaa4a1"/>
+        <j.1:site>GA</j.1:site>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-b023c31c-cec6-2a65-b028-71d738b524fd">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</j.2:confidence>
+        <j.2:entity-label xml:lang="en">sharks</j.2:entity-label>
+        <j.2:entity-reference rdf:resource="https://editor.vocabs.ands.org.au/GAPublicVocabsSandbox/204"/>
+        <j.2:entity-type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.235Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:relation rdf:resource="urn:enhancement-39089c25-0259-d3bc-bb32-5e0ced577862"/>
+        <j.0:relation rdf:resource="urn:enhancement-4f5ddcc2-a748-762f-4855-118e6d51b956"/>
+        <j.0:relation rdf:resource="urn:enhancement-ab4372b8-ac74-e357-0fd3-e65c53aaa4a1"/>
+        <j.1:site>GA</j.1:site>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/EntityAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-4b4aac22-30e3-5165-45bf-c42d7be22765">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1789</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Many shark populations are threatened by human activities.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1784</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:enhancement-4f3ecd18-1546-a2de-c74a-cc675cc627bd">
+        <j.2:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.6944444113307533</j.2:confidence>
+        <j.2:end rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1668</j.2:end>
+        <j.2:extracted-from rdf:resource="urn:content-item-sha1-88c0fd7f3679ba90b1e1eba89ba3197c7a26af09"/>
+        <j.2:selected-text xml:lang="en">shark</j.2:selected-text>
+        <j.2:selection-context xml:lang="en">Well-known species such as the great white shark, tiger shark, blue shark, mako shark, and the hammerhead shark are apex predators—organisms at the top of their underwater food chain.</j.2:selection-context>
+        <j.2:start rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1663</j.2:start>
+        <j.0:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2016-04-07T00:47:53.227Z</j.0:created>
+        <j.0:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">org.apache.stanbol.enhancer.engines.entitylinking.engine.EntityLinkingEngine</j.0:creator>
+        <j.0:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/Enhancement"/>
+        <rdf:type rdf:resource="http://fise.iks-project.eu/ontology/TextAnnotation"/>
+    </rdf:Description>
+</rdf:RDF>
