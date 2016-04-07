@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
@@ -27,6 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.io.InputStream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -94,6 +94,45 @@ public class EnhancerControllerTest {    private MockMvc mockMvc;
                      .contentType(MediaType.APPLICATION_JSON)
                      .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk());
+      } catch (Exception e) {
+         throw new HydroidException(e);
+      }
+   }
+
+   @Test
+   public void testEnhanceInvalidDocument() {
+      try {
+         DocumentDTO document = new DocumentDTO();
+         ObjectMapper mapper = new ObjectMapper();
+         String json = mapper.writeValueAsString(document);
+         this.mockMvc.perform(
+               MockMvcRequestBuilders.post("/enhancer")
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .accept(MediaType.APPLICATION_JSON)
+                     .content(json))
+               .andExpect(status().isBadRequest())
+               .andExpect(content().string("{\"message\":\"Please enter the text/content and document type for enhancement.\",\"exception\":null}"));
+      } catch (Exception e) {
+         throw new HydroidException(e);
+      }
+   }
+
+   @Test
+   public void testEnhanceWrongDocType() {
+      try {
+         DocumentDTO document = new DocumentDTO();
+         document.setContent("foo");
+         document.setTitle("bar");
+         document.setDocType("WrongType");
+         ObjectMapper mapper = new ObjectMapper();
+         String json = mapper.writeValueAsString(document);
+         this.mockMvc.perform(
+               MockMvcRequestBuilders.post("/enhancer")
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .accept(MediaType.APPLICATION_JSON)
+                     .content(json))
+               .andExpect(status().isBadRequest())
+               .andExpect(content().string("{\"message\":\"Document.type is invalid, it must be one of DOCUMENT, DATASET OR MODEL.\",\"exception\":null}"));
       } catch (Exception e) {
          throw new HydroidException(e);
       }
