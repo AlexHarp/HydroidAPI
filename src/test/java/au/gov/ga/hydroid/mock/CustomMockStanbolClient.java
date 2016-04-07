@@ -3,15 +3,20 @@ package au.gov.ga.hydroid.mock;
 import au.gov.ga.hydroid.service.StanbolClient;
 import au.gov.ga.hydroid.service.impl.StanbolClientImpl;
 import au.gov.ga.hydroid.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.ws.rs.core.MediaType;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
  * Created by u24529 on 22/02/2016.
  */
 public class CustomMockStanbolClient implements StanbolClient {
+
+   private static final Logger logger = LoggerFactory.getLogger(CustomMockStanbolClient.class);
 
    private static final String DEFAULT_CHAIN_RESPONSE = "<rdf:RDF\n" +
          "    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" +
@@ -32,7 +37,12 @@ public class CustomMockStanbolClient implements StanbolClient {
    @Override
    public String enhance(String chainName, String content, MediaType outputFormat) {
       if ("hydroid".equals(chainName)) {
-         return new String(IOUtils.fromInputStreamToByteArray(getClass().getResourceAsStream("/testfiles/stanbol-response.xml")));
+         try (InputStream inputStream = getClass().getResourceAsStream("/testfiles/stanbol-response.xml")) {
+            return new String(IOUtils.fromInputStreamToByteArray(inputStream));
+         } catch (Exception e) {
+            logger.error("enhance - Exception: ", e);
+            return "";
+         }
       } else {
          return DEFAULT_CHAIN_RESPONSE;
       }
