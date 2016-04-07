@@ -21,6 +21,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Created by u24529 on 7/04/2016.
@@ -30,7 +31,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class EnhancerServiceTest {
 
    @Autowired
-   private HydroidConfiguration configuration;
+   private HydroidConfiguration wiredConfiguration;
 
    @Autowired
    private ApplicationContext applicationContext;
@@ -49,10 +50,17 @@ public class EnhancerServiceTest {
 
    private EnhancerService enhancerService;
 
+   private HydroidConfiguration configuration;
+
    @Before
    public void setup() {
       MockitoAnnotations.initMocks(this);
       enhancerService = new EnhancerServiceImpl();
+      // Create a new instance of configuration and copy values from the auto wired
+      // one to prevent temporary changes to its properties to affect the result of
+      // other tests
+      configuration = new HydroidConfiguration();
+      ReflectionUtils.shallowCopyFieldState(wiredConfiguration, configuration);
       ReflectionTestUtils.setField(enhancerService, "configuration", configuration);
       ReflectionTestUtils.setField(enhancerService, "stanbolClient", new CustomMockStanbolClient());
       ReflectionTestUtils.setField(enhancerService, "solrClient", solrClient);
