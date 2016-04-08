@@ -26,10 +26,6 @@ public class ImageServiceImpl implements ImageService {
          "Keywords", "meta:author", "meta:keyword", "subject", "Subject", "title",
          "Windows XP Comment", "Windows XP Keywords", "Windows XP Subject", "Windows XP Title");
 
-   private void setMetadata(ImageMetadata imageMetadata) {
-
-   }
-
    @Override
    public ImageMetadata getImageMetadata(InputStream is) {
       ImageMetadata imageMetadata = new ImageMetadata();
@@ -55,7 +51,7 @@ public class ImageServiceImpl implements ImageService {
             }
             String propertyValue = metadata.get(propertyName);
             // If propertyValue has multiple values, break it down into multiple lines
-            if (propertyValue.indexOf(";") >= 0) {
+            if (propertyValue.contains(";")) {
                propertyValue = propertyValue.replaceAll(";", "\n");
             }
             ImageAnnotation imageLabel = new ImageAnnotation(propertyValue, 1);

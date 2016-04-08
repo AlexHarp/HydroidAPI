@@ -40,6 +40,7 @@ public class DocumentServiceImpl implements DocumentService {
       }
    }
 
+   @Override
    public Document findByOrigin(String origin) {
       try {
          return (Document) jdbcTemplate.queryForObject("SELECT * FROM documents where origin = ?",

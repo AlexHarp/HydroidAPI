@@ -33,6 +33,7 @@ public class RestClientImpl implements RestClient {
       }
    }
 
+   @Override
    public Response get(URI uri, MediaType acceptType) {
       WebTarget target = builder.build().target(uri);
       Builder httpRequest = target.request();
@@ -42,6 +43,7 @@ public class RestClientImpl implements RestClient {
       return httpRequest.get();
    }
 
+   @Override
    public Response post(URI uri, Entity<?> entity, MediaType acceptType) {
       WebTarget target = builder.build().target(uri);
       Builder httpRequest = target.request();
@@ -50,4 +52,5 @@ public class RestClientImpl implements RestClient {
       }
       return httpRequest.post(entity);
    }
+
 }

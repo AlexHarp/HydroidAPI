@@ -1,9 +1,10 @@
-package au.gov.ga.hydroid.service;
+package au.gov.ga.hydroid.integration;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.model.DocumentType;
+import au.gov.ga.hydroid.service.EnhancerService;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.tika.metadata.Metadata;
