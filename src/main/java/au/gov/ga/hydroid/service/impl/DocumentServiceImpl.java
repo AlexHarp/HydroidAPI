@@ -11,9 +11,10 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * Created by u24529 on 4/02/2016.
@@ -25,6 +26,13 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Autowired
    private JdbcTemplate jdbcTemplate;
+
+   private Date getUTCDateTime() {
+      Calendar utcDateTime = Calendar.getInstance();
+      ZonedDateTime localDateTime = ZonedDateTime.now();
+      utcDateTime.add(Calendar.SECOND, localDateTime.getOffset().getTotalSeconds() * (-1));
+      return utcDateTime.getTime();
+   }
 
    @Override
    public List<Document> findAll() {
@@ -60,11 +68,10 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void create(Document document) {
-      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       String sql = "insert into documents (origin, urn, title, type, status, "
             + "status_reason, process_date, parser_name) values (?, ?, ?, ?, ?, ?, ?, ?)";
       jdbcTemplate.update(sql, document.getOrigin(), document.getUrn(), document.getTitle(), document.getType().name(),
-            document.getStatus().name(), document.getStatusReason(), calendar.getTime(), document.getParserName());
+            document.getStatus().name(), document.getStatusReason(), getUTCDateTime(), document.getParserName());
    }
 
    @Override
@@ -74,10 +81,9 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void update(Document document) {
-      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       String sql = "update documents set title = ?, urn = ?, status = ?, status_reason = ?, process_date = ? where id = ?";
       jdbcTemplate.update(sql, document.getTitle(), document.getUrn(), document.getStatus().name(),
-            document.getStatusReason(), calendar.getTime(), document.getId());
+            document.getStatusReason(), getUTCDateTime(), document.getId());
    }
 
    @Override
