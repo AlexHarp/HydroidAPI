@@ -7,11 +7,11 @@ import javax.ws.rs.core.MediaType;
  */
 public class StanbolMediaTypes {
 
-   private StanbolMediaTypes() {
-   }
-
    public static final MediaType RDFN3 = new MediaType("text", "rdf+n3");
    public static final MediaType RDFXML = new MediaType("application", "rdf+xml");
    public static final MediaType TURTLE = new MediaType("text", "turtle");
+
+   private StanbolMediaTypes() {
+   }
 
 }

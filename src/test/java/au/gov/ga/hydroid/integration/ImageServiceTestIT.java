@@ -1,4 +1,4 @@
-package au.gov.ga.hydroid.service;
+package au.gov.ga.hydroid.integration;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.dto.ImageAnnotation;

@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +45,12 @@ public class CustomMockS3Client implements S3Client {
 
    @Override
    public List<S3ObjectSummary> listObjects(String bucketName, String key) {
-      return null;
+      List<S3ObjectSummary> objects = new ArrayList<>();
+      S3ObjectSummary object = new S3ObjectSummary();
+      object.setBucketName("hydroid");
+      object.setKey("file-test.txt");
+      objects.add(object);
+      return objects;
    }
 
    @Override

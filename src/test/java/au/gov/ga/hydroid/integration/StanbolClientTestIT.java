@@ -1,4 +1,4 @@
-package au.gov.ga.hydroid.service;
+package au.gov.ga.hydroid.integration;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.service.StanbolClient;
@@ -32,7 +32,8 @@ public class StanbolClientTestIT {
 
    @Test
    public void testFindAllPredicates() {
-      Properties allPredicates = stanbolClient.findAllPredicates("default", "Bob Barley is cool", StanbolMediaTypes.RDFXML);
+      String enhancedText = stanbolClient.enhance("default", "Bob Barley is cool", StanbolMediaTypes.RDFXML);
+      Properties allPredicates = stanbolClient.findAllPredicates(enhancedText);
       Enumeration<String> predicateNames = (Enumeration<String>) allPredicates.propertyNames();
       while (predicateNames.hasMoreElements()) {
          String predicate = predicateNames.nextElement();
