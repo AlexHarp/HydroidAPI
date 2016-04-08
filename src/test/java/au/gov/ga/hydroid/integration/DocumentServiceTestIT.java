@@ -51,8 +51,8 @@ public class DocumentServiceTestIT {
 
    @Test
    public void testFindByUrn() {
-      Document document = documentService.findByUrn("urn:content-item-sha1-978b8d13b31cdb4b36534682b99d9614bfcb510f");
-      Assert.assertNotNull(document);
+      Document document = documentService.findByUrn("invalid:urn");
+      Assert.assertNull(document);
    }
 
    @Test
