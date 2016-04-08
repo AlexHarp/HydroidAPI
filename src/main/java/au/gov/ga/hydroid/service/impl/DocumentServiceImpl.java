@@ -11,7 +11,9 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Created by u24529 on 4/02/2016.
@@ -57,10 +59,11 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void create(Document document) {
+      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       String sql = "insert into documents (origin, urn, title, type, status, "
-            + "status_reason, process_date, parser_name) values (?, ?, ?, ?, ?, ?, timezone('UTC', now()), ?)";
+            + "status_reason, process_date, parser_name) values (?, ?, ?, ?, ?, ?, ?, ?)";
       jdbcTemplate.update(sql, document.getOrigin(), document.getUrn(), document.getTitle(), document.getType().name(),
-            document.getStatus().name(), document.getStatusReason(), document.getParserName());
+            document.getStatus().name(), document.getStatusReason(), calendar.getTime(), document.getParserName());
    }
 
    @Override
@@ -70,8 +73,10 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void update(Document document) {
-      String sql = "update documents set title = ?, urn = ?, status = ?, status_reason = ?, process_date = timezone('UTC', now()) where id = ?";
-      jdbcTemplate.update(sql, document.getTitle(), document.getUrn(), document.getStatus().name(), document.getStatusReason(), document.getId());
+      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+      String sql = "update documents set title = ?, urn = ?, status = ?, status_reason = ?, process_date = ? where id = ?";
+      jdbcTemplate.update(sql, document.getTitle(), document.getUrn(), document.getStatus().name(),
+            document.getStatusReason(), calendar.getTime(), document.getId());
    }
 
    @Override
