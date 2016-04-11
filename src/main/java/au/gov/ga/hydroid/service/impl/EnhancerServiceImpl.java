@@ -56,7 +56,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private JenaService jenaService;
 
-   @Autowired @Qualifier("S3ClientImpl")
+   @Autowired @Qualifier("s3ClientImpl")
    private S3Client s3Client;
 
    @Autowired
