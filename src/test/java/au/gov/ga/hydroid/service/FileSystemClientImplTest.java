@@ -64,6 +64,7 @@ public class FileSystemClientImplTest {
 
    @Test
    public void testCopyObject() throws Exception {
+      fsClient.deleteFile("test1","test1.txt");
       fsClient.storeFile("test","test.txt","Hello","text/plain");
       fsClient.copyObject("test","test.txt","test1","test1.txt");
       InputStream is = fsClient.getFile("test1","test1.txt");
