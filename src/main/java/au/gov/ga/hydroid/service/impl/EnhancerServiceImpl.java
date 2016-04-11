@@ -82,6 +82,12 @@ public class EnhancerServiceImpl implements EnhancerService {
       }
    }
 
+   private void addStatementToRDF(List<Statement> rdfDocument, Resource subject, String propertyName, String value) {
+      Property property = ResourceFactory.createProperty(propertyName);
+      RDFNode object = ResourceFactory.createPlainLiteral(value);
+      rdfDocument.add(ResourceFactory.createStatement(subject, property, object));
+   }
+
    private Properties generateSolrDocument(List<Statement> rdfDocument, DocumentDTO document) {
       List<String> concepts = new ArrayList<>();
       List<String> labels = new ArrayList<>();
@@ -106,7 +112,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             continue;
          }
 
-         if (predicate.equalsIgnoreCase("extracted-from") && properties.getProperty("about") == null) {
+         if ("extracted-from".equalsIgnoreCase(predicate) && !properties.containsKey("about")) {
             properties.put("about", objectValue);
 
          } else if ("entity-reference".equalsIgnoreCase(predicate)) {
@@ -129,25 +135,17 @@ public class EnhancerServiceImpl implements EnhancerService {
             .append(document.getDocType().equals(DocumentType.IMAGE.name()) ? "/images/" : "/rdfs/")
             .append(properties.getProperty("about"));
 
-      // Add property:type to rdf (DOCUMENT, DATASET, MODEL or IMAGE)
       Resource subject = ResourceFactory.createResource(properties.getProperty("about"));
-      Property property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_type");
-      RDFNode object = ResourceFactory.createPlainLiteral(document.getDocType());
-      Statement statement = ResourceFactory.createStatement(subject, property, object);
-      rdfDocument.add(statement);
+
+      // Add property:type to rdf (DOCUMENT, DATASET, MODEL or IMAGE)
+      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_type", document.getDocType());
 
       // Add property:label to the rdf (the document title)
-      property = ResourceFactory.createProperty("https://www.w3.org/TR/rdf-schema/#ch_label");
-      object = ResourceFactory.createPlainLiteral(document.getTitle());
-      statement = ResourceFactory.createStatement(subject, property, object);
-      rdfDocument.add(statement);
+      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_label", document.getTitle());
 
       // Added property:image to the RDF document
       if (document.getDocType().equals(DocumentType.IMAGE.name())) {
-         property = ResourceFactory.createProperty("http://purl.org/dc/dcmitype/Image");
-         object = ResourceFactory.createProperty(documentUrl.toString());
-         statement = ResourceFactory.createStatement(subject, property, object);
-         rdfDocument.add(statement);
+         addStatementToRDF(rdfDocument, subject, "http://purl.org/dc/dcmitype/Image", documentUrl.toString());
       }
 
       properties.put("content", document.getContent());

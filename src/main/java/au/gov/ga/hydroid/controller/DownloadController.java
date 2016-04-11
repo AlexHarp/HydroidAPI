@@ -67,6 +67,29 @@ public class DownloadController {
       return null;
    }
 
+   private int addFilesToBundle(String[] urnArray, ZipOutputStream zipOut) {
+      int filesAdded = 0;
+
+      for (String urn : urnArray) {
+         int length;
+         byte[] buffer = new byte[1024];
+         try (InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(),
+               configuration.getS3EnhancerOutput() + urn)) {
+            zipOut.putNextEntry(new ZipEntry(urn + ".rdf"));
+            while ((length = fileContent.read(buffer)) > 0) {
+               zipOut.write(buffer, 0, length);
+            }
+            zipOut.closeEntry();
+            fileContent.close();
+            filesAdded ++;
+         } catch (Exception e) {
+            logger.error("addFilesToBundle - Exception: ", e);
+         }
+      }
+
+      return filesAdded;
+   }
+
    @RequestMapping(value = "/bundle/{urnList}", method = {RequestMethod.GET})
    public @ResponseBody String downloadBundle(@PathVariable String urnList, HttpServletResponse response) {
 
@@ -77,25 +100,13 @@ public class DownloadController {
          // Generate full zip with all <urn>.rdf files
          File zipFile = File.createTempFile(outputFileName, null);
          ZipOutputStream zipOut  = new ZipOutputStream(new FileOutputStream(zipFile));
-         byte[] buffer = new byte[1024];
-         for (String urn : urnArray) {
-            try (InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn)) {
-
-               zipOut.putNextEntry(new ZipEntry(urn + ".rdf"));
-
-               int length;
-               while ((length = fileContent.read(buffer)) > 0) {
-                  zipOut.write(buffer, 0, length);
-               }
-
-               zipOut.closeEntry();
-               fileContent.close();
-
-            } catch (Exception e) {
-               logger.error("downloadBundle - Exception: ", e);
-            }
-         }
+         int filesAdded = addFilesToBundle(urnArray, zipOut);
          zipOut.close();
+
+         if (filesAdded == 0) {
+            au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_OK);
+            return "No files were found or bundled for download.";
+         }
 
          // Write full zip file to output stream
          response.setHeader("Content-Disposition", "attachment; filename=\"" + outputFileName + "\"");
