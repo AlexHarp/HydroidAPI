@@ -15,13 +15,24 @@ import java.util.Collections;
 import java.util.List;
 
 public class FileSystemClientImpl implements S3Client {
+
+   public FileSystemClientImpl(Path basePath) {
+      this.basePath = basePath;
+   }
+
+   private Path basePath;
+
    @Override
    public String getAccountOwner() {
       return null;
    }
 
+   private File _getFile(String bucketName,String key) {
+      return new File(basePath.toAbsolutePath() + bucketName + "/" + key);
+   }
+
    private void ensureDirectoriesExist(String bucketName, String key) {
-      File file = new File(bucketName + "/" + key);
+      File file = _getFile(bucketName,key);
       Path parentDir = file.toPath().getParent();
       if (!Files.exists(parentDir)) {
          try {
@@ -36,7 +47,7 @@ public class FileSystemClientImpl implements S3Client {
    public InputStream getFile(String bucketName, String key) {
       InputStream result = null;
       try {
-         result = FileUtils.openInputStream(new File(bucketName + "/" + key));
+         result = FileUtils.openInputStream(_getFile(bucketName,key));
       } catch (IOException e) {
          e.printStackTrace();
          try {
@@ -53,7 +64,7 @@ public class FileSystemClientImpl implements S3Client {
       byte[] result = null;
       InputStream is = null;
       try {
-         is = FileUtils.openInputStream(new File(bucketName + "/" + key));
+         is = FileUtils.openInputStream(_getFile(bucketName,key));
          result = IOUtils.toByteArray(is);
       } catch (IOException e) {
          e.printStackTrace();
@@ -73,7 +84,7 @@ public class FileSystemClientImpl implements S3Client {
    public void storeFile(String bucketName, String key, String content, String contentType) {
       try {
          ensureDirectoriesExist(bucketName,key);
-         Files.write(new File(bucketName + "/" + key).toPath(), Collections.singletonList(content), Charset.forName("UTF-8"));
+         Files.write(_getFile(bucketName,key).toPath(), Collections.singletonList(content), Charset.forName("UTF-8"));
       } catch (IOException e) {
          e.printStackTrace();
       }
@@ -83,7 +94,7 @@ public class FileSystemClientImpl implements S3Client {
    public void storeFile(String bucketName, String key, InputStream content, String contentType) {
       try {
          ensureDirectoriesExist(bucketName,key);
-         Files.write(new File(bucketName + "/" + key).toPath(), IOUtils.toByteArray(content));
+         Files.write(_getFile(bucketName,key).toPath(), IOUtils.toByteArray(content));
       } catch (IOException e) {
          e.printStackTrace();
       }
@@ -92,7 +103,7 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public void deleteFile(String bucketName, String key) {
       try {
-         Files.delete(new File(bucketName + "/" + key).toPath());
+         Files.delete(_getFile(bucketName,key).toPath());
       } catch (IOException e) {
          e.printStackTrace();
       }
@@ -101,12 +112,12 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public List<DataObjectSummary> listObjects(String bucketName, String key) {
       List<DataObjectSummary> result = new ArrayList<>();
-      File fileRoot = new File(bucketName + "/" + key);
+      File fileRoot =_getFile(bucketName,key);
       if(fileRoot.listFiles() == null) {
          return result;
       }
       for(File file : fileRoot.listFiles()) {
-        String addKey = file.getPath().replaceFirst(bucketName,"").replaceAll("\\\\","/");
+        String addKey = file.getPath().toString().replace(this.basePath.toString(),"").replaceFirst(bucketName,"").replaceAll("\\\\","/");
          result.add(new DataObjectSummaryImpl(bucketName,addKey));
       }
       return result;
@@ -116,7 +127,7 @@ public class FileSystemClientImpl implements S3Client {
    public void copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey) {
       try {
          ensureDirectoriesExist(destinationBucketName,destinationKey);
-         Files.copy(new File(sourceBucketName + "/" + sourceKey).toPath(),new File(destinationBucketName + "/" + destinationKey).toPath());
+         Files.copy(_getFile(sourceBucketName,sourceKey).toPath(),_getFile(destinationBucketName,destinationKey).toPath());
       } catch (IOException e) {
          e.printStackTrace();
       }
