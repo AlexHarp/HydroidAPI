@@ -1,7 +1,4 @@
 package au.gov.ga.hydroid.service;
-
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-
 import java.io.InputStream;
 import java.util.List;
 
@@ -16,7 +13,7 @@ public interface S3Client {
    public void storeFile(String bucketName, String key, String content, String contentType);
    public void storeFile(String bucketName, String key, InputStream content, String contentType);
    public void deleteFile(String bucketName, String key);
-   public List<S3ObjectSummary> listObjects(String bucketName, String key);
+   public List<DataObjectSummary> listObjects(String bucketName, String key);
    public void copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey);
 
 }
