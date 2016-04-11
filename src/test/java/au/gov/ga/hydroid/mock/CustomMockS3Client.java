@@ -1,6 +1,8 @@
 package au.gov.ga.hydroid.mock;
 
+import au.gov.ga.hydroid.service.DataObjectSummary;
 import au.gov.ga.hydroid.service.S3Client;
+import au.gov.ga.hydroid.service.impl.DataObjectSummaryImpl;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import java.io.ByteArrayInputStream;
@@ -44,12 +46,12 @@ public class CustomMockS3Client implements S3Client {
    }
 
    @Override
-   public List<S3ObjectSummary> listObjects(String bucketName, String key) {
-      List<S3ObjectSummary> objects = new ArrayList<>();
+   public List<DataObjectSummary> listObjects(String bucketName, String key) {
+      List<DataObjectSummary> objects = new ArrayList<>();
       S3ObjectSummary object = new S3ObjectSummary();
       object.setBucketName("hydroid");
       object.setKey("file-test.txt");
-      objects.add(object);
+      objects.add(new DataObjectSummaryImpl(object));
       return objects;
    }
 

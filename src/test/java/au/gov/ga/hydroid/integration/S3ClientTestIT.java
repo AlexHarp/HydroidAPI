@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid.integration;
 
 import au.gov.ga.hydroid.HydroidApplication;
+import au.gov.ga.hydroid.service.DataObjectSummary;
 import au.gov.ga.hydroid.service.S3Client;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.http.entity.ContentType;
@@ -42,17 +43,17 @@ public class S3ClientTestIT {
 
    @Test
    public void testListObjects() {
-      List<S3ObjectSummary> objects = s3Client.listObjects("hydroid", "enhancer/input/");
+      List<DataObjectSummary> objects = s3Client.listObjects("hydroid", "enhancer/input/");
       Assert.assertNotNull(objects);
       Assert.assertEquals("enhancer/input/", objects.get(0).getKey());
-      for (S3ObjectSummary objectSummary : objects) {
-         System.out.println(objectSummary.getKey() + ": " + objectSummary.getStorageClass());
+      for (DataObjectSummary objectSummary : objects) {
+         System.out.println(objectSummary.getKey() + ": " + objectSummary.getBucketName());
       }
    }
 
    @Test
    public void testListObjectsWithWrongKey() {
-      List<S3ObjectSummary> objects = s3Client.listObjects("hydroid", "wrong/key");
+      List<DataObjectSummary> objects = s3Client.listObjects("hydroid", "wrong/key");
       Assert.assertNotNull(objects);
       Assert.assertTrue(objects.isEmpty());
    }
