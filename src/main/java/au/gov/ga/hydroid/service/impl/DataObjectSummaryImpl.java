@@ -13,6 +13,11 @@ public class DataObjectSummaryImpl implements DataObjectSummary {
       bucketName = s3ObjectSummary.getBucketName();
    }
 
+   public DataObjectSummaryImpl(String bucketName,String key) {
+      this.key = key;
+      this.bucketName = bucketName;
+   }
+
    private String key;
    private String bucketName;
 
