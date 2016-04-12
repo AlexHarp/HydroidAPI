@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Service("fileSystemClientImpl")
+@Service("s3FileSystem")
 public class FileSystemClientImpl implements S3Client {
 
    public FileSystemClientImpl() {
