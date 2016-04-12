@@ -5,6 +5,7 @@ import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.service.impl.DataObjectSummaryImpl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +19,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Service("fileSystemClientImpl")
 public class FileSystemClientImpl implements S3Client {
+
+   public FileSystemClientImpl() {
+      this.basePath = FileSystems.getDefault().getPath(System.getProperties().getProperty("s3.use.file.system.path"));
+   }
 
    public FileSystemClientImpl(Path basePath) {
       this.basePath = basePath;

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,8 @@ public class DownloadController {
    @Autowired
    private DocumentService documentService;
 
-   @Autowired @Qualifier("s3ClientImpl")
+   @Autowired
+   @Value("#{systemProperties['s3.use.file.system'] != null ? s3FileSystem : s3ClientImpl}")
    private S3Client s3Client;
 
    @RequestMapping(value = "/single/{urn}", method = {RequestMethod.GET})

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -56,7 +57,8 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private JenaService jenaService;
 
-   @Autowired @Qualifier("s3ClientImpl")
+   @Autowired
+   @Value("#{systemProperties['s3.use.file.system'] != null ? s3FileSystem : s3ClientImpl}")
    private S3Client s3Client;
 
    @Autowired
