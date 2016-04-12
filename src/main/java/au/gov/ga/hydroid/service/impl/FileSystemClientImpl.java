@@ -122,7 +122,7 @@ public class FileSystemClientImpl implements S3Client {
          return result;
       }
       for(File file : fileRoot.listFiles()) {
-         String addKey = file.getPath().toString().replace(this.basePath.toAbsolutePath().toString(),"").replaceFirst(bucketName,"").replaceAll("\\\\","/");
+         String addKey = file.getPath().toString().replace(this.basePath.toAbsolutePath().toString() + File.separator,"").replaceFirst(bucketName,"").replaceAll("\\\\","/");
          result.add(new DataObjectSummaryImpl(bucketName,addKey));
       }
       return result;
