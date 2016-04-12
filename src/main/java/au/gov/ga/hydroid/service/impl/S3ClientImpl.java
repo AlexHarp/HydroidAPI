@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.service.DataObjectSummary;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.IOUtils;
 import com.amazonaws.ClientConfiguration;
@@ -26,6 +27,8 @@ import java.util.List;
 public class S3ClientImpl implements S3Client {
 
    private static final Logger logger = LoggerFactory.getLogger(S3ClientImpl.class);
+
+
 
    @Autowired
    private HydroidConfiguration configuration;
@@ -102,8 +105,8 @@ public class S3ClientImpl implements S3Client {
    }
 
    @Override
-   public List<S3ObjectSummary> listObjects(String bucketName, String key) {
-      List<S3ObjectSummary> objects = new ArrayList();
+   public List<DataObjectSummary> listObjects(String bucketName, String key) {
+      List<DataObjectSummary> objects = new ArrayList();
 
       AmazonS3 s3 = getAmazonS3();
 
@@ -111,7 +114,7 @@ public class S3ClientImpl implements S3Client {
 
       do {
          for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-            objects.add(objectSummary);
+            objects.add(new DataObjectSummaryImpl(objectSummary));
          }
          if (!objectListing.isTruncated()) {
             break;

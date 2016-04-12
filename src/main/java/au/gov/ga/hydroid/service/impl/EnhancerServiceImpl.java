@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +58,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    private JenaService jenaService;
 
    @Autowired
+   @Value("#{systemProperties['s3.use.file.system'] != null ? s3FileSystem : s3ClientImpl}")
    private S3Client s3Client;
 
    @Autowired
@@ -171,7 +173,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       return properties;
    }
 
-   private String getFileNameFromS3ObjectSummary(S3ObjectSummary objectSummary) {
+   private String getFileNameFromS3ObjectSummary(DataObjectSummary objectSummary) {
       return objectSummary.getKey().substring(objectSummary.getKey().lastIndexOf("/") + 1);
    }
 
@@ -311,14 +313,14 @@ public class EnhancerServiceImpl implements EnhancerService {
       }
    }
 
-   private List<S3ObjectSummary> getDocumentsForEnhancement(List<S3ObjectSummary> input) {
-      List<S3ObjectSummary> output = new ArrayList<>();
+   private List<DataObjectSummary> getDocumentsForEnhancement(List<DataObjectSummary> input) {
+      List<DataObjectSummary> output = new ArrayList<>();
       if (input.isEmpty()) {
          return output;
       }
       String origin;
       Document document;
-      for (S3ObjectSummary object : input) {
+      for (DataObjectSummary object : input) {
          // Ignore folders
          if (object.getKey().endsWith("/")) {
             continue;
@@ -351,10 +353,10 @@ public class EnhancerServiceImpl implements EnhancerService {
       DocumentDTO document;
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + documentType.name().toLowerCase() + "s";
-      List<S3ObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
+      List<DataObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
       objects = getDocumentsForEnhancement(objects);
       logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
-      for (S3ObjectSummary object : objects) {
+      for (DataObjectSummary object : objects) {
 
          s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
 
@@ -435,9 +437,9 @@ public class EnhancerServiceImpl implements EnhancerService {
       DocumentDTO document;
       InputStream s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
-      List<S3ObjectSummary> objectsForEnhancement = getDocumentsForEnhancement(s3Client.listObjects(configuration.getS3Bucket(), key));
+      List<DataObjectSummary> objectsForEnhancement = getDocumentsForEnhancement(s3Client.listObjects(configuration.getS3Bucket(), key));
       logger.info("enhanceImages - there are " + objectsForEnhancement.size() + " images to be enhanced");
-      for (S3ObjectSummary s3ObjectSummary : objectsForEnhancement) {
+      for (DataObjectSummary s3ObjectSummary : objectsForEnhancement) {
 
          // Ignore folders
          if (s3ObjectSummary.getKey().endsWith("/")) {
