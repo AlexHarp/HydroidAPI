@@ -23,11 +23,11 @@ import java.util.List;
 public class FileSystemClientImpl implements S3Client {
 
    public FileSystemClientImpl() {
-      this.basePath = FileSystems.getDefault().getPath(System.getProperties().getProperty("s3.use.file.system.path"));
-   }
-
-   public FileSystemClientImpl(Path basePath) {
-      this.basePath = basePath;
+      String customPath = System.getProperties().getProperty("s3.use.file.system.path");
+      if(customPath == null || customPath.isEmpty()) {
+         customPath = System.getProperty("java.io.tmpdir");
+      }
+      this.basePath = FileSystems.getDefault().getPath(customPath);
    }
 
    private Path basePath;

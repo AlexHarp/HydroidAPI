@@ -14,11 +14,8 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class FileSystemClientImplTest {
-   String property = "java.io.tmpdir";
-
    // Get the temporary directory and print it.
-   String tempDir = System.getProperty(property);
-   FileSystemClientImpl fsClient = new FileSystemClientImpl(new File(tempDir).toPath());
+   FileSystemClientImpl fsClient = new FileSystemClientImpl();
    @Test
    public void testGetAccountOwner() throws Exception {
       String accountOwner = fsClient.getAccountOwner();
