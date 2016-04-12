@@ -5,6 +5,8 @@ import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.service.impl.DataObjectSummaryImpl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -21,6 +23,8 @@ import java.util.List;
 
 @Service("s3FileSystem")
 public class FileSystemClientImpl implements S3Client {
+
+   private static final Logger logger = LoggerFactory.getLogger(FileSystemClientImpl.class);
 
    public FileSystemClientImpl() {
       String customPath = System.getProperties().getProperty("s3.use.file.system.path");
@@ -127,6 +131,7 @@ public class FileSystemClientImpl implements S3Client {
    public List<DataObjectSummary> listObjects(String bucketName, String key) {
       List<DataObjectSummary> result = new ArrayList<>();
       File fileRoot =_getFile(bucketName,key);
+      logger.debug("Listing files in:" + fileRoot.getAbsolutePath());
       if(fileRoot.listFiles() == null) {
          return result;
       }
