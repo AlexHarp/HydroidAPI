@@ -61,8 +61,11 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public InputStream getFile(String bucketName, String key) {
       InputStream result = null;
+      logger.debug("Trying to get file :" + _getFile(bucketName,key).toPath().toAbsolutePath().toString());
       try {
-         result = FileUtils.openInputStream(_getFile(bucketName,key));
+         if(Files.exists(_getFile(bucketName,key).toPath().toAbsolutePath())) {
+            result = FileUtils.openInputStream(_getFile(bucketName,key));
+         }
       } catch (IOException e) {
          e.printStackTrace();
          try {
@@ -79,8 +82,10 @@ public class FileSystemClientImpl implements S3Client {
       byte[] result = null;
       InputStream is = null;
       try {
-         is = FileUtils.openInputStream(_getFile(bucketName,key));
-         result = IOUtils.toByteArray(is);
+         if(Files.exists(_getFile(bucketName,key).toPath().toAbsolutePath())) {
+            is = FileUtils.openInputStream(_getFile(bucketName, key));
+            result = IOUtils.toByteArray(is);
+         }
       } catch (IOException e) {
          e.printStackTrace();
       }
