@@ -10,5 +10,6 @@ import java.io.InputStream;
 public interface ImageService {
 
    public ImageMetadata getImageMetadata(InputStream is);
+   public ImageMetadata describeImage(InputStream is);
 
 }

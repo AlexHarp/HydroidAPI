@@ -111,6 +111,11 @@ public class GoogleVisionImageService implements ImageService {
       }
    }
 
+   @Override
+   public ImageMetadata describeImage(InputStream is) {
+      return null;
+   }
+
    static HttpTransport newProxyTransport(HydroidConfiguration configuration) throws GeneralSecurityException, IOException {
       NetHttpTransport.Builder builder = new NetHttpTransport.Builder();
       builder.trustCertificates(GoogleUtils.getCertificateTrustStore());
