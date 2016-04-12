@@ -108,7 +108,10 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public void deleteFile(String bucketName, String key) {
       try {
-         Files.delete(_getFile(bucketName,key).toPath());
+         Path file = _getFile(bucketName,key).toPath();
+         if(Files.exists(file)) {
+            Files.delete(file);
+         }
       } catch (IOException e) {
          e.printStackTrace();
       }
