@@ -40,7 +40,8 @@ public class HydroidApplication {
          InputStream configInputStream = resourceLoader.getResource(configFilePath).getInputStream();
          applicationProperties.load(configInputStream);
          applicationProperties.list(System.out);
-
+         System.setProperty("s3.use.file.system", applicationProperties.getProperty("s3.use.file.system"));
+         System.setProperty("s3.use.file.system.path", applicationProperties.getProperty("s3.use.file.system.path"));
       } catch (Exception e) {
          logger.warn("loadApplicationProperties - Exception: ", e);
       }
