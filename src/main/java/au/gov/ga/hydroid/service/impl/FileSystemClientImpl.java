@@ -31,7 +31,7 @@ public class FileSystemClientImpl implements S3Client {
    }
 
    private File _getFile(String bucketName,String key) {
-      return new File(basePath.toAbsolutePath() + bucketName + "/" + key);
+      return new File(basePath.toAbsolutePath() + "/" + bucketName + "/" + key);
    }
 
    private void ensureDirectoriesExist(String bucketName, String key) {
