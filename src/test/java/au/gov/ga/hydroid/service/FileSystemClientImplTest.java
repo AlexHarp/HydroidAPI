@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid.service;
 
-import au.gov.ga.hydroid.utils.IOUtils;
+import au.gov.ga.hydroid.service.impl.FileSystemClientImpl;
+import  au.gov.ga.hydroid.utils.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
