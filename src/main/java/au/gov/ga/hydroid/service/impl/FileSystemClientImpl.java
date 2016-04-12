@@ -1,5 +1,7 @@
-package au.gov.ga.hydroid.service;
+package au.gov.ga.hydroid.service.impl;
 
+import au.gov.ga.hydroid.service.DataObjectSummary;
+import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.service.impl.DataObjectSummaryImpl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
