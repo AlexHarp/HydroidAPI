@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.CopyOption;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -31,7 +32,8 @@ public class FileSystemClientImpl implements S3Client {
    }
 
    private File _getFile(String bucketName,String key) {
-      return new File(basePath.toAbsolutePath() + "/" + bucketName + "/" + key);
+      Path p = FileSystems.getDefault().getPath(basePath.toString(),bucketName,key);
+      return new File(p.toString());
    }
 
    private void ensureDirectoriesExist(String bucketName, String key) {
@@ -120,7 +122,7 @@ public class FileSystemClientImpl implements S3Client {
          return result;
       }
       for(File file : fileRoot.listFiles()) {
-         String addKey = file.getPath().toString().replace(this.basePath.toString(),"").replaceFirst(bucketName,"").replaceAll("\\\\","/");
+         String addKey = file.getPath().toString().replace(this.basePath.toAbsolutePath().toString(),"").replaceFirst(bucketName,"").replaceAll("\\\\","/");
          result.add(new DataObjectSummaryImpl(bucketName,addKey));
       }
       return result;
