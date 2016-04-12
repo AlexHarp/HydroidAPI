@@ -40,9 +40,12 @@ public class HydroidApplication {
          InputStream configInputStream = resourceLoader.getResource(configFilePath).getInputStream();
          applicationProperties.load(configInputStream);
          String useFs = applicationProperties.getProperty("s3.use.file.system",null);
+         logger.debug("s3.use.file.system config is: " + useFs);
          if(useFs != null && !useFs.isEmpty()) {
+            logger.debug("Found custom s3 config");
             System.setProperty("s3.use.file.system",useFs);
             String path = applicationProperties.getProperty("s3.use.file.system.path","");
+            logger.debug("Custom s3 config path is" + path);
             System.setProperty("s3.use.file.system.path",path);
          }
 
