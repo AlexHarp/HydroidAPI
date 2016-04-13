@@ -59,12 +59,13 @@ public class GoogleVisionTestIT {
       Assert.assertNotNull("GOOGLE_APPLICATION_CREDENTIALS", System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
       try (Stream<Path> fileStream = Files.walk(Paths.get("src/test/resources/testfiles/google_vision"))) {
          fileStream.forEach(filePath -> {
-            if (Files.isRegularFile(filePath)) {
+            if (Files.isRegularFile(filePath) &&
+                  (filePath.toString().toLowerCase().endsWith("jpg") || filePath.toString().toLowerCase().endsWith("png"))) {
                try (InputStream is = new FileInputStream(filePath.toFile())) {
                   ImageMetadata result = googleVisionImageService.getImageMetadata(is);
                   saveTextFile(filePath.getFileName().toString(), result.getImageLabels());
-               } catch (IOException e) {
-                  logger.error("testGoogleVisionApiBatch - IOException1: ", e);
+               } catch (Exception e) {
+                  logger.error("testGoogleVisionApiBatch - Exception: ", e);
                }
             }
          });

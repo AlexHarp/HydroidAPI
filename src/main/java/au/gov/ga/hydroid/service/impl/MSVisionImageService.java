@@ -22,6 +22,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -64,6 +65,7 @@ public class MSVisionImageService implements ImageService {
    @Override
    public ImageMetadata getImageMetadata(InputStream is) {
 
+      final ImageMetadata imageMetadata = new ImageMetadata();
       HttpClient httpclient = HttpClients.createDefault();
 
       try {
@@ -73,27 +75,24 @@ public class MSVisionImageService implements ImageService {
 
          InputStreamEntity reqEntity = new InputStreamEntity(is);
          request.setEntity(reqEntity);
-
          HttpResponse response = httpclient.execute(request);
-         HttpEntity entity = response.getEntity();
 
-         if (entity != null) {
+         if (response.getStatusLine().getStatusCode() == HttpStatus.OK.value()) {
+            HttpEntity entity = response.getEntity();
             Gson gson = new Gson();
             Type jsonObjectType = new TypeToken<Map<String, Object>>(){}.getType();
             String responseData = EntityUtils.toString(entity);
             Map<String, Object> jsonObject = gson.fromJson(responseData, jsonObjectType);
             if (jsonObject != null) {
-               final ImageMetadata imageMetadata = new ImageMetadata();
                List<LinkedTreeMap<String,Object>> tags = (List<LinkedTreeMap<String,Object>>) jsonObject.get("tags");
                tags.forEach((tag) -> {
                   imageMetadata.getImageLabels().add(
                      new ImageAnnotation((String) tag.get("name"), round(((Double) tag.get("confidence")).floatValue(), 2)));
                });
-               return imageMetadata;
             }
          }
 
-         return null;
+         return imageMetadata;
 
       } catch (Exception e) {
          throw new HydroidException(e);
@@ -103,6 +102,8 @@ public class MSVisionImageService implements ImageService {
    @SuppressWarnings("unchecked")
    @Override
    public ImageMetadata describeImage(InputStream is) {
+
+      final ImageMetadata imageMetadata = new ImageMetadata();
       HttpClient httpclient = HttpClients.createDefault();
 
       try {
@@ -112,17 +113,15 @@ public class MSVisionImageService implements ImageService {
 
          InputStreamEntity reqEntity = new InputStreamEntity(is);
          request.setEntity(reqEntity);
-
          HttpResponse response = httpclient.execute(request);
-         HttpEntity entity = response.getEntity();
 
-         if (entity != null) {
+         if (response.getStatusLine().getStatusCode() == HttpStatus.OK.value()) {
+            HttpEntity entity = response.getEntity();
             Gson gson = new Gson();
             Type jsonObjectType = new TypeToken<Map<String, Object>>(){}.getType();
             String responseData = EntityUtils.toString(entity);
             Map<String, Object> jsonObject = gson.fromJson(responseData, jsonObjectType);
             if (jsonObject != null) {
-               final ImageMetadata imageMetadata = new ImageMetadata();
 
                LinkedTreeMap<String,Object> description = (LinkedTreeMap) jsonObject.get("description");
 
@@ -138,12 +137,10 @@ public class MSVisionImageService implements ImageService {
                   imageMetadata.getImageLabels().add(
                         new ImageAnnotation((String) caption.get("text"), round(((Double) caption.get("confidence")).floatValue(), 2)));
                });
-
-               return imageMetadata;
             }
          }
 
-         return null;
+         return imageMetadata;
 
       } catch (Exception e) {
          throw new HydroidException(e);
