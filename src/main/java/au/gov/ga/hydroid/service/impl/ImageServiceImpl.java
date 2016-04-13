@@ -68,4 +68,9 @@ public class ImageServiceImpl implements ImageService {
       return imageMetadata;
    }
 
+   @Override
+   public ImageMetadata describeImage(InputStream is) {
+      return null;
+   }
+
 }

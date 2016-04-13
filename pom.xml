@@ -278,7 +278,12 @@
                 <sonar.projectKey>ga.hellfish:hydroid</sonar.projectKey>
                 <sonar.projectName>${project.artifactId}</sonar.projectName>
                 <sonar.projectVersion>${project.version}</sonar.projectVersion>
+                <sonar.language>java</sonar.language>
                 <sonar.sources>src/main</sonar.sources>
+                <sonar.exclusions>
+                    **/JenaServiceImpl.java,
+                    **/S3ClientImpl.java
+                </sonar.exclusions>
                 <sonar.language>java</sonar.language>
                 <sonar.login>${SONAR_LOGIN}</sonar.login>
                 <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>

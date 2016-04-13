@@ -8,10 +8,16 @@ import java.util.List;
  */
 public class ImageMetadata {
 
+   private List<String> tags;
    private List<ImageAnnotation> imageLabels;
 
    public ImageMetadata() {
+      tags = new ArrayList<>();
       imageLabels = new ArrayList<>();
+   }
+
+   public List<String> getTags() {
+      return tags;
    }
 
    public List<ImageAnnotation> getImageLabels() {
