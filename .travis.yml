@@ -35,4 +35,4 @@ before_install:
 install:
   - mvn clean package
 after_deploy:
-  - mvn clean verify sonar:sonar
+  - mvn sonar:sonar
