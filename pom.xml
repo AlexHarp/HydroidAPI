@@ -280,9 +280,15 @@
                 <sonar.projectVersion>${project.version}</sonar.projectVersion>
                 <sonar.language>java</sonar.language>
                 <sonar.sources>src/main</sonar.sources>
+                <sonar.test>src/test</sonar.test>
                 <sonar.exclusions>
+                    **/GoogleVisionImageService.java,
                     **/JenaServiceImpl.java,
-                    **/S3ClientImpl.java
+                    **/MSVisionImageService.java,
+                    **/RestClientImpl.java,
+                    **/S3ClientImpl.java,
+                    **/SolrClientImpl.java,
+                    **/StanbolClientImpl.java
                 </sonar.exclusions>
                 <sonar.language>java</sonar.language>
                 <sonar.login>${SONAR_LOGIN}</sonar.login>

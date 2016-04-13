@@ -8,9 +8,6 @@ public class ServiceResponse {
    private String message;
    private String exception;
 
-   public ServiceResponse() {
-   }
-
    public ServiceResponse(String message) {
       this.message = message;
    }

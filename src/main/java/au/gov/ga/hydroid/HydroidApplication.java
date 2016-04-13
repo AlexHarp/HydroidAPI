@@ -20,22 +20,28 @@ public class HydroidApplication {
    private static Logger logger = LoggerFactory.getLogger(HydroidApplication.class);
    private static Properties applicationProperties = new Properties();
 
+   private static String getConfigFilePath(String[] args) {
+      // Default application.properties
+      String configFilePath = "classpath:/application.properties";
+      if (args == null) {
+         return configFilePath;
+      }
+      for (String arg : args) {
+         // Custom application.properties passed as command line argument
+         if (arg.contains("spring.config.location")) {
+            configFilePath = arg.substring(arg.indexOf("=") + 1);
+            break;
+         }
+      }
+      return configFilePath;
+   }
+
    // Environment and property settings are only loaded after
    // the application.run method is called. This method will
    // load the configuration properties manually.
    private static void loadApplicationProperties(String[] args) {
       try {
-         // Default application.properties
-         String configFilePath = "classpath:/application.properties";
-         if (args != null) {
-            for (String arg : args) {
-               // Custom application.properties passed as command line argument
-               if (arg.contains("spring.config.location")) {
-                  configFilePath = arg.substring(arg.indexOf("=") + 1);
-                  break;
-               }
-            }
-         }
+         String configFilePath = getConfigFilePath(args);
          DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
          InputStream configInputStream = resourceLoader.getResource(configFilePath).getInputStream();
          applicationProperties.load(configInputStream);

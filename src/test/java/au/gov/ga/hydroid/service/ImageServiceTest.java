@@ -1,4 +1,4 @@
-package au.gov.ga.hydroid.integration;
+package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.dto.ImageAnnotation;
@@ -20,7 +20,7 @@ import java.io.InputStream;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
 @IntegrationTest
-public class ImageServiceTestIT {
+public class ImageServiceTest {
 
    @Autowired
    private ImageServiceImpl imageService;

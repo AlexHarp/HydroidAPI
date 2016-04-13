@@ -1,7 +1,9 @@
 package au.gov.ga.hydroid.service;
 
+import au.gov.ga.hydroid.service.impl.DataObjectSummaryImpl;
 import au.gov.ga.hydroid.service.impl.FileSystemClientImpl;
 import au.gov.ga.hydroid.utils.IOUtils;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -70,5 +72,15 @@ public class FileSystemClientImplTest {
       Assert.assertEquals("Hello", result.trim());
       is.close();
    }
-   
+
+   @Test
+   public void testDataObjectSummary() {
+      S3ObjectSummary s3ObjectSummary = new S3ObjectSummary();
+      s3ObjectSummary.setBucketName("myBucket");
+      s3ObjectSummary.setKey("myKey");
+      DataObjectSummary dataObjectSummary = new DataObjectSummaryImpl(s3ObjectSummary);
+      Assert.assertEquals("myBucket", dataObjectSummary.getBucketName());
+      Assert.assertEquals("myKey", dataObjectSummary.getKey());
+   }
+
 }

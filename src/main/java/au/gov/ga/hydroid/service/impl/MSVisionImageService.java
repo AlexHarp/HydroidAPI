@@ -19,8 +19,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -36,7 +34,6 @@ import java.util.Map;
 @Service
 public class MSVisionImageService implements ImageService {
 
-   private static final Logger logger = LoggerFactory.getLogger(MSVisionImageService.class);
    private static final String MS_VISION_IMAGE_API_URL = "https://api.projectoxford.ai/vision/v1.0/";
 
    @Autowired

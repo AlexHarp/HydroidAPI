@@ -1,4 +1,4 @@
-package au.gov.ga.hydroid.integration;
+package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.parser.ECatParser;
@@ -22,7 +22,7 @@ import java.io.InputStream;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
 @IntegrationTest
-public class TikaMetadataTestIT {
+public class TikaMetadataTest {
 
    @Test
    public void testPDFMetadata() {
@@ -48,9 +48,8 @@ public class TikaMetadataTestIT {
    @Test
    public void testTikaDefaultParser(){
       try {
-         String url = "http://www.ga.gov.au/metadata-gateway/metadata/record/gcat_a05f7892-8d5d-7506-e044-00144fdd4fa6";
          Metadata metadata = new Metadata();
-         InputStream inputStream = IOUtils.getUrlContent(url);
+         InputStream inputStream = this.getClass().getResourceAsStream("/testfiles/gcat_a05f7892-8d5d-7506-e044-00144fdd4fa6.html");
          IOUtils.parseStream(inputStream, metadata);
          Assert.assertEquals("Title",
                "Geoscience Australia Metadata for Hydrogeology Map of Australia (G.Jacobson and JE.Lau Hydrogeology Map)",
@@ -63,9 +62,8 @@ public class TikaMetadataTestIT {
    @Test
    public void testECatParser(){
       try {
-         String url = "http://www.ga.gov.au/metadata-gateway/metadata/record/gcat_a05f7892-8d5d-7506-e044-00144fdd4fa6/xml";
          Metadata metadata = new Metadata();
-         InputStream inputStream = IOUtils.getUrlContent(url);
+         InputStream inputStream = this.getClass().getResourceAsStream("/testfiles/gcat_a05f7892-8d5d-7506-e044-00144fdd4fa6.xml");
          Parser eCatParser = new ECatParser();
          IOUtils.parseStream(inputStream, metadata, eCatParser);
          Assert.assertEquals("Title", "Hydrogeology Map of Australia (G.Jacobson and JE.Lau Hydrogeology Map)", metadata.get("title"));
