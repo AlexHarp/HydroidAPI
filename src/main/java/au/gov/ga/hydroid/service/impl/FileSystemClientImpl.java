@@ -38,7 +38,7 @@ public class FileSystemClientImpl implements S3Client {
    }
 
    private File doGetFile(String bucketName, String key) {
-      Path p = FileSystems.getDefault().getPath(basePath.toString(),bucketName,key);
+      Path p = FileSystems.getDefault().getPath(basePath.toString(), bucketName, key);
       return new File(p.toString());
    }
 
@@ -57,8 +57,11 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public InputStream getFile(String bucketName, String key) {
       InputStream result = null;
+      logger.debug("Trying to get file :" + doGetFile(bucketName, key).toPath().toAbsolutePath().toString());
       try {
-         result = FileUtils.openInputStream(doGetFile(bucketName, key));
+         if (Files.exists(doGetFile(bucketName, key).toPath().toAbsolutePath())) {
+            result = FileUtils.openInputStream(doGetFile(bucketName, key));
+         }
       } catch (IOException e) {
          logger.debug("ensureDirectoriesExist - IOException: ", e);
       }
@@ -68,10 +71,12 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public byte[] getFileAsByteArray(String bucketName, String key) {
       byte[] result = null;
-      try (InputStream is = FileUtils.openInputStream(doGetFile(bucketName, key))) {
-         result = IOUtils.toByteArray(is);
-      } catch (IOException e) {
-         logger.debug("getFileAsByteArray - IOException: ", e);
+      if (Files.exists(doGetFile(bucketName, key).toPath().toAbsolutePath())) {
+         try (InputStream is = FileUtils.openInputStream(doGetFile(bucketName, key))) {
+            result = IOUtils.toByteArray(is);
+         } catch (IOException e) {
+            logger.debug("getFileAsByteArray - IOException: ", e);
+         }
       }
       return result;
    }
@@ -79,7 +84,7 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public void storeFile(String bucketName, String key, String content, String contentType) {
       try {
-         ensureDirectoriesExist(bucketName,key);
+         ensureDirectoriesExist(bucketName, key);
          Files.write(doGetFile(bucketName, key).toPath(), Collections.singletonList(content), Charset.forName("UTF-8"));
       } catch (IOException e) {
          logger.debug("storeFile - IOException: ", e);
@@ -89,7 +94,7 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public void storeFile(String bucketName, String key, InputStream content, String contentType) {
       try {
-         ensureDirectoriesExist(bucketName,key);
+         ensureDirectoriesExist(bucketName, key);
          Files.write(doGetFile(bucketName, key).toPath(), IOUtils.toByteArray(content));
       } catch (IOException e) {
          logger.debug("storeFile - IOException: ", e);
@@ -100,7 +105,7 @@ public class FileSystemClientImpl implements S3Client {
    public void deleteFile(String bucketName, String key) {
       try {
          Path file = doGetFile(bucketName, key).toPath();
-         if(Files.exists(file)) {
+         if (Files.exists(file)) {
             Files.delete(file);
          }
       } catch (IOException e) {
@@ -112,12 +117,13 @@ public class FileSystemClientImpl implements S3Client {
    public List<DataObjectSummary> listObjects(String bucketName, String key) {
       List<DataObjectSummary> result = new ArrayList<>();
       File fileRoot = doGetFile(bucketName, key);
+      logger.debug("Listing files in:" + fileRoot.getAbsolutePath());
       if (fileRoot.listFiles() == null) {
          return result;
       }
       for (File file : fileRoot.listFiles()) {
-         String addKey = file.getPath().replace(this.basePath.toAbsolutePath().toString() + File.separator,"").replaceFirst(bucketName,"").replaceAll("\\\\","/");
-         result.add(new DataObjectSummaryImpl(bucketName,addKey));
+         String addKey = file.getPath().replace(this.basePath.toAbsolutePath().toString() + File.separator, "").replaceFirst(bucketName, "").replaceAll("\\\\", "/");
+         result.add(new DataObjectSummaryImpl(bucketName, addKey));
       }
       return result;
    }
@@ -125,7 +131,7 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public void copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey) {
       try {
-         ensureDirectoriesExist(destinationBucketName,destinationKey);
+         ensureDirectoriesExist(destinationBucketName, destinationKey);
          Files.copy(doGetFile(sourceBucketName, sourceKey).toPath(), doGetFile(destinationBucketName, destinationKey).toPath());
       } catch (IOException e) {
          logger.debug("copyObject - IOException: ", e);
