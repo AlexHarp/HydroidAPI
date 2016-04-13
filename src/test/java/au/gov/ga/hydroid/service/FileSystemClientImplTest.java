@@ -2,6 +2,7 @@ package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.service.impl.FileSystemClientImpl;
 import  au.gov.ga.hydroid.utils.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
