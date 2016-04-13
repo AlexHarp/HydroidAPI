@@ -31,7 +31,7 @@ public class FileSystemClientImpl implements S3Client {
       if(customPath == null || customPath.isEmpty()) {
          customPath = System.getProperty("java.io.tmpdir");
       }
-      this.basePath = FileSystems.getDefault().getPath(customPath);
+      this.basePath = FileSystems.getDefault().getPath(customPath).toAbsolutePath();
    }
 
    private Path basePath;
@@ -61,10 +61,12 @@ public class FileSystemClientImpl implements S3Client {
    @Override
    public InputStream getFile(String bucketName, String key) {
       InputStream result = null;
-      logger.debug("Trying to get file :" + _getFile(bucketName,key).toPath().toAbsolutePath().toString());
+      Path fileToGet = _getFile(bucketName,key).toPath().toAbsolutePath();
+      logger.debug("Trying to get file :" + fileToGet.toString());
+      logger.debug("File exists : " + Files.exists(fileToGet));
       try {
-         if(Files.exists(_getFile(bucketName,key).toPath().toAbsolutePath())) {
-            result = FileUtils.openInputStream(_getFile(bucketName,key));
+         if(Files.exists(fileToGet)) {
+            result = FileUtils.openInputStream(fileToGet.toFile());
          }
       } catch (IOException e) {
          e.printStackTrace();
@@ -81,9 +83,12 @@ public class FileSystemClientImpl implements S3Client {
    public byte[] getFileAsByteArray(String bucketName, String key) {
       byte[] result = null;
       InputStream is = null;
+      Path fileToGet = _getFile(bucketName,key).toPath().toAbsolutePath();
+      logger.debug("Trying to get file :" + fileToGet.toString());
+      logger.debug("File exists : " + Files.exists(fileToGet));
       try {
-         if(Files.exists(_getFile(bucketName,key).toPath().toAbsolutePath())) {
-            is = FileUtils.openInputStream(_getFile(bucketName, key));
+         if(Files.exists(fileToGet)) {
+            is = FileUtils.openInputStream(fileToGet.toFile());
             result = IOUtils.toByteArray(is);
          }
       } catch (IOException e) {
