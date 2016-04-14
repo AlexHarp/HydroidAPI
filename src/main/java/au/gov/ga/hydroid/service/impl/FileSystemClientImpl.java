@@ -2,6 +2,7 @@ package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.service.DataObjectSummary;
 import au.gov.ga.hydroid.service.S3Client;
+import au.gov.ga.hydroid.utils.HydroidException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,8 +40,14 @@ public class FileSystemClientImpl implements S3Client {
    }
 
    private File doGetFile(String bucketName, String key) {
-      Path p = FileSystems.getDefault().getPath(basePath.toString(), bucketName, key);
-      return new File(p.toString());
+      FileSystem fileSystem = FileSystems.getDefault();
+      try {
+         Path p = fileSystem.getPath(basePath.toString(), bucketName, key);
+         fileSystem.close();
+         return new File(p.toString());
+      } catch (IOException e) {
+         throw new HydroidException(e);
+      }
    }
 
    private void ensureDirectoriesExist(String bucketName, String key) {
