@@ -51,7 +51,7 @@ public class DownloadControllerTest {
    public void testDownloadNotFound() {
       try {
          this.mockMvc.perform(
-               MockMvcRequestBuilders.get("/download/single/missing-urn")
+               MockMvcRequestBuilders.get("/download/rdfs/missing-urn")
                      .contentType(MediaType.APPLICATION_JSON)
                      .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isNotFound());
@@ -65,7 +65,7 @@ public class DownloadControllerTest {
       try {
          ReflectionTestUtils.setField(downloadController, "s3Client", new CustomMockS3Client());
          this.mockMvc.perform(
-               MockMvcRequestBuilders.get("/download/single/urn1")
+               MockMvcRequestBuilders.get("/download/rdfs/urn1")
                      .contentType(MediaType.APPLICATION_JSON)
                      .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk());
@@ -79,7 +79,7 @@ public class DownloadControllerTest {
       try {
          ReflectionTestUtils.setField(downloadController, "s3Client", null);
          this.mockMvc.perform(
-               MockMvcRequestBuilders.get("/download/single/urn1")
+               MockMvcRequestBuilders.get("/download/rdfs/urn1")
                      .contentType(MediaType.APPLICATION_JSON)
                      .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isInternalServerError());
@@ -122,7 +122,7 @@ public class DownloadControllerTest {
       try {
          ReflectionTestUtils.setField(downloadController, "s3Client", new CustomMockS3Client());
          this.mockMvc.perform(
-               MockMvcRequestBuilders.get("/download/image/urn1")
+               MockMvcRequestBuilders.get("/download/images/urn1")
                      .contentType(MediaType.APPLICATION_JSON)
                      .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk());
@@ -136,7 +136,7 @@ public class DownloadControllerTest {
       try {
          ReflectionTestUtils.setField(downloadController, "s3Client", null);
          this.mockMvc.perform(
-               MockMvcRequestBuilders.get("/download/image/urn1")
+               MockMvcRequestBuilders.get("/download/images/urn1")
                      .contentType(MediaType.APPLICATION_JSON)
                      .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isInternalServerError());

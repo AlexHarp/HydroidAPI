@@ -21,7 +21,6 @@ import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -63,7 +62,8 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private DocumentService documentService;
 
-   @Autowired @Qualifier("googleVisionImageService")
+   @Autowired
+   @Value("#{systemProperties['use.local.image.service'] != null ? localImageService : googleVisionImageService}")
    private ImageService imageService;
 
    @Autowired

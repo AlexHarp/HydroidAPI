@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by u24529 on 26/02/2016.
  */
-@Service
+@Service("localImageService")
 public class ImageServiceImpl implements ImageService {
 
    private static final List<String> VALID_PROPERTIES = Arrays.asList("Author", "creator", "dc:creator",

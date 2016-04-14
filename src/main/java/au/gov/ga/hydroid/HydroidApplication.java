@@ -36,6 +36,14 @@ public class HydroidApplication {
       return configFilePath;
    }
 
+   private static void setSystemProperties(String... keys) {
+      for (String key : keys) {
+         if (applicationProperties.getProperty(key, null) != null) {
+            System.setProperty(key, applicationProperties.getProperty(key));
+         }
+      }
+   }
+
    // Environment and property settings are only loaded after
    // the application.run method is called. This method will
    // load the configuration properties manually.
@@ -45,13 +53,7 @@ public class HydroidApplication {
          DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
          InputStream configInputStream = resourceLoader.getResource(configFilePath).getInputStream();
          applicationProperties.load(configInputStream);
-         applicationProperties.list(System.out);
-         String useFs = applicationProperties.getProperty("s3.use.file.system", null);
-         if (useFs != null) {
-            System.setProperty("s3.use.file.system", applicationProperties.getProperty("s3.use.file.system"));
-            System.setProperty("s3.use.file.system.path", applicationProperties.getProperty("s3.use.file.system.path"));
-         }
-
+         setSystemProperties("s3.use.file.system", "s3.use.file.system.path", "use.local.image.service");
       } catch (Exception e) {
          logger.warn("loadApplicationProperties - Exception: ", e);
       }
