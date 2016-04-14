@@ -11,7 +11,6 @@ import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.ContentType;
@@ -90,6 +89,18 @@ public class EnhancerServiceImpl implements EnhancerService {
       rdfDocument.add(ResourceFactory.createStatement(subject, property, object));
    }
 
+   private boolean isValidStatement(String subject, String predicate, String objectValue, Map<String,String> gaVocabSubjects) {
+      // Discard any statement where the subject is not related to the GAPublicVocabs
+      if (configuration.isStoreGAVocabsOnly() && (gaVocabSubjects.get(subject) == null) && !objectValue.contains(GA_PUBLIC_VOCABS)) {
+         return false;
+      }
+      // Discard if the predicate is not included in the list we are after
+      if (!VALID_PREDICATES.contains(predicate)) {
+         return false;
+      }
+      return true;
+   }
+
    private Properties generateSolrDocument(List<Statement> rdfDocument, DocumentDTO document) {
       List<String> concepts = new ArrayList<>();
       List<String> labels = new ArrayList<>();
@@ -104,13 +115,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
                : statement.getObject().asResource().getURI();
 
-         // Discard any statement where the subject is not related to the GAPublicVocabs
-         if (configuration.isStoreGAVocabsOnly() && (gaVocabSubjects.get(subject) == null) && !objectValue.contains(GA_PUBLIC_VOCABS)) {
-            continue;
-         }
-
-         // Discard if the predicate is not included in the list we are after
-         if (!VALID_PREDICATES.contains(predicate)) {
+         if (!isValidStatement(subject, predicate, objectValue, gaVocabSubjects)) {
             continue;
          }
 
