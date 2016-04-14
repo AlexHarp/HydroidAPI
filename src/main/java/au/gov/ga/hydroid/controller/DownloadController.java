@@ -42,7 +42,7 @@ public class DownloadController {
    @Value("#{systemProperties['s3.use.file.system'] != null ? s3FileSystem : s3ClientImpl}")
    private S3Client s3Client;
 
-   @RequestMapping(value = "/single/{urn}", method = {RequestMethod.GET})
+   @RequestMapping(value = "/rdfs/{urn}", method = {RequestMethod.GET})
    public @ResponseBody String downloadSingle(@PathVariable String urn, HttpServletResponse response) {
 
       try {
@@ -65,7 +65,7 @@ public class DownloadController {
          out.close();
 
       } catch (Exception e) {
-         logger.error("download - Exception: ", e);
+         logger.error("downloadSingle - Exception: ", e);
          au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
 
@@ -135,7 +135,7 @@ public class DownloadController {
       return null;
    }
 
-   @RequestMapping(value = "/image/{urn}", method = {RequestMethod.GET})
+   @RequestMapping(value = "/images/{urn}", method = {RequestMethod.GET})
    public @ResponseBody String downloadImage(@PathVariable String urn, HttpServletResponse response) {
 
       try {
