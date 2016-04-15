@@ -282,13 +282,17 @@
                 <sonar.sources>src/main</sonar.sources>
                 <sonar.test>src/test</sonar.test>
                 <sonar.exclusions>
+                    **/dto/*.java,
+                    **/job/*.java,
                     **/GoogleVisionImageService.java,
                     **/JenaServiceImpl.java,
                     **/MSVisionImageService.java,
                     **/RestClientImpl.java,
                     **/S3ClientImpl.java,
                     **/SolrClientImpl.java,
-                    **/StanbolClientImpl.java
+                    **/StanbolClientImpl.java,
+                    **/HydroidException.java,
+                    **/StanbolMediaTypes.java
                 </sonar.exclusions>
                 <sonar.language>java</sonar.language>
                 <sonar.login>${SONAR_LOGIN}</sonar.login>

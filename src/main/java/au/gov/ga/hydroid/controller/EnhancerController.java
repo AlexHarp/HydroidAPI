@@ -11,6 +11,7 @@ import org.apache.http.client.utils.DateUtils;
 import org.apache.tika.metadata.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -118,10 +119,19 @@ public class EnhancerController {
             HttpStatus.OK);
    }
 
+   private SchedulerFactory getSchedulerFactory() {
+      try {
+         return context.getBean(SchedulerFactory.class);
+      } catch (BeansException e) {
+         logger.debug("getSchedulerFactory - BeansException: ", e);
+         return null;
+      }
+   }
+
    @RequestMapping(value = "/s3", method = {RequestMethod.GET, RequestMethod.POST})
    public @ResponseBody ResponseEntity<ServiceResponse> enhanceS3() {
 
-      SchedulerFactory schedulerFactory = context.getBean(SchedulerFactory.class);
+      SchedulerFactory schedulerFactory = getSchedulerFactory();
       if (schedulerFactory == null) {
          return new ResponseEntity<>(new ServiceResponse("The enhancement process is currently disabled, try again later."),
                HttpStatus.OK);
