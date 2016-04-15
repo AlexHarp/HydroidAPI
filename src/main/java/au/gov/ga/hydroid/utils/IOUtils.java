@@ -8,7 +8,6 @@ import org.apache.tika.sax.WriteOutContentHandler;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -30,7 +29,7 @@ public class IOUtils {
             baos.write(buffer, 0, bytesRead);
          }
          output = baos.toByteArray();
-      } catch (IOException e) {
+      } catch (Exception e) {
          throw new HydroidException(e);
       }
       return output;

@@ -292,7 +292,10 @@
                     **/SolrClientImpl.java,
                     **/StanbolClientImpl.java,
                     **/HydroidException.java,
-                    **/StanbolMediaTypes.java
+                    **/StanbolMediaTypes.java,
+                    **/AutoWiringSpringBeanJobFactory.java,
+                    **/Scheduler*.java,
+                    **/HydroidApplication.java
                 </sonar.exclusions>
                 <sonar.language>java</sonar.language>
                 <sonar.login>${SONAR_LOGIN}</sonar.login>
