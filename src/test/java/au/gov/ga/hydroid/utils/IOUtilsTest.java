@@ -70,7 +70,11 @@ public class IOUtilsTest {
 
    @Test
    public void testGetUrlWrongAddress() {
-      Assert.assertNull(IOUtils.getUrlContent("http://wrong-test-url"));
+      try {
+         Assert.assertNull("Content: ", IOUtils.getUrlContent("http://wrong-test-url"));
+      } catch (HydroidException e) {
+         Assert.assertNotNull(e.getCause());
+      }
    }
 
    @Test
