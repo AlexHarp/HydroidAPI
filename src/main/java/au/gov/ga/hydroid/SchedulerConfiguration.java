@@ -15,9 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 
 import javax.sql.DataSource;
@@ -46,17 +44,9 @@ public class SchedulerConfiguration {
    }
 
    @Bean
-   public SchedulerFactoryBean schedulerFactoryBean(DataSource dataSource, JobFactory jobFactory,
-                                                    @Qualifier("enhancerJobTrigger") Trigger enhancerJobTrigger) throws IOException {
-      logger.debug("schedulerFactoryBean - started");
-      SchedulerFactoryBean factory = new SchedulerFactoryBean();
-      factory.setConfigLocation(new ClassPathResource("/quartz.properties"));
-      factory.setOverwriteExistingJobs(true);
-      factory.setDataSource(dataSource);
-      factory.setJobFactory(jobFactory);
-      factory.setTriggers(enhancerJobTrigger);
-      logger.debug("schedulerFactoryBean - finished");
-      return factory;
+   public SchedulerFactory schedulerFactory(DataSource dataSource, JobFactory jobFactory,
+                                            @Qualifier("enhancerJobTrigger") Trigger enhancerJobTrigger) throws IOException {
+      return new SchedulerFactory(applicationContext, dataSource, jobFactory, enhancerJobTrigger);
    }
 
    @Bean

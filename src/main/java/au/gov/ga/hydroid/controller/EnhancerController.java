@@ -1,32 +1,26 @@
 package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.SchedulerFactory;
 import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.dto.ServiceResponse;
-import au.gov.ga.hydroid.job.EnhancerJob;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.EnhancerService;
-import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.tika.metadata.Metadata;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -124,52 +118,21 @@ public class EnhancerController {
             HttpStatus.OK);
    }
 
-   private boolean isThereAnyJobRunning(SchedulerFactoryBean schedulerFactoryBean) {
-      try {
-         List<JobExecutionContext> jobs = schedulerFactoryBean.getScheduler().getCurrentlyExecutingJobs();
-         if (jobs == null || jobs.isEmpty()){
-            return false;
-         }
-         for (JobExecutionContext job : jobs) {
-            if (job.getJobDetail().getJobClass().equals(EnhancerJob.class)) {
-               return true;
-            }
-         }
-      } catch (Exception e) {
-         throw new HydroidException(e);
-      }
-      return false;
-   }
-
-   private boolean triggerJob(SchedulerFactoryBean schedulerFactoryBean) {
-      try {
-         // Trigger job manually
-         JobDetail jobDetail = (JobDetail) context.getBean("enhancerJobDetail");
-         if (jobDetail != null) {
-            Scheduler scheduler = schedulerFactoryBean.getScheduler();
-            scheduler.triggerJob(jobDetail.getKey());
-         }
-      } catch (Exception e) {
-         throw new HydroidException(e);
-      }
-      return false;
-   }
-
    @RequestMapping(value = "/s3", method = {RequestMethod.GET, RequestMethod.POST})
    public @ResponseBody ResponseEntity<ServiceResponse> enhanceS3() {
 
-      SchedulerFactoryBean schedulerFactoryBean = context.getBean(SchedulerFactoryBean.class);
-      if (schedulerFactoryBean == null) {
+      SchedulerFactory schedulerFactory = context.getBean(SchedulerFactory.class);
+      if (schedulerFactory == null) {
          return new ResponseEntity<>(new ServiceResponse("The enhancement process is currently disabled, try again later."),
                HttpStatus.OK);
       }
 
-      if (isThereAnyJobRunning(schedulerFactoryBean)) {
+      if (schedulerFactory.isThereAnyJobRunning()) {
          return new ResponseEntity<>(new ServiceResponse("The enhancement process is currently in progress, try again later."),
                HttpStatus.OK);
       }
 
-      triggerJob(schedulerFactoryBean);
+      schedulerFactory.triggerJob();
       return new ResponseEntity<>(new ServiceResponse("The enhancement process has started successfully."),
             HttpStatus.OK);
 
