@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -66,6 +65,12 @@ public class DocumentServiceTest {
       List<Document> documents = documentService.findByStatus(EnhancementStatus.SUCCESS);
       Assert.assertNotNull(documents);
       Assert.assertEquals("urn:test1", documents.get(0).getUrn());
+   }
+
+   @Test
+   @Transactional(readOnly = true)
+   public void testDeleteByUrn() {
+      documentService.deleteByUrn("urn:delete");
    }
 
    @Test
