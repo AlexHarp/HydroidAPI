@@ -38,7 +38,7 @@ public class FileSystemClientImpl implements S3Client {
    }
 
    private File doGetFile(String bucketName, String key) {
-      return basePath.resolve(bucketName).resolve(key).toFile();
+      return basePath.getFileSystem().getPath(basePath.toString(), bucketName, key).toFile();
    }
 
    private void ensureDirectoriesExist(String bucketName, String key) {
@@ -126,7 +126,7 @@ public class FileSystemClientImpl implements S3Client {
          return result;
       }
       for (File file : fileRoot.listFiles()) {
-         String addKey = file.getPath().replace(this.basePath.toAbsolutePath().toString() + File.separator, "").replaceFirst(bucketName, "").replaceAll("\\\\", "/");
+         String addKey = file.getPath().replace(this.basePath.toAbsolutePath().toString() + File.separator + bucketName, "").replaceAll("\\\\", "/");
          result.add(new DataObjectSummaryImpl(bucketName, addKey));
       }
       return result;

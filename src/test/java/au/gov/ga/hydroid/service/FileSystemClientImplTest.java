@@ -83,4 +83,15 @@ public class FileSystemClientImplTest {
       Assert.assertEquals("myKey", dataObjectSummary.getKey());
    }
 
+   @Test
+   public void testListObjectsAndGetFile() throws Exception {
+      fsClient.storeFile("test", "foo/test.txt", "Hello", "text/plain");
+      List<DataObjectSummary> dataObjs = fsClient.listObjects("test", "foo/");
+      Assert.assertEquals(1, dataObjs.size());
+      DataObjectSummary object = dataObjs.get(0);
+      Assert.assertEquals("test", object.getBucketName());
+      Assert.assertEquals("/foo/test.txt", object.getKey());
+      Assert.assertNotNull(fsClient.getFile(object.getBucketName(), object.getKey()));
+   }
+
 }
