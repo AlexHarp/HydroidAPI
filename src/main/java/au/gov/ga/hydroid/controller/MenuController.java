@@ -3,7 +3,9 @@ package au.gov.ga.hydroid.controller;
 import au.gov.ga.hydroid.dto.MenuDTO;
 import au.gov.ga.hydroid.service.JenaService;
 import au.gov.ga.hydroid.utils.IOUtils;
-import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/menu")
 public class MenuController {
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
    @Autowired
    private JenaService jenaService;
@@ -29,13 +32,19 @@ public class MenuController {
    @RequestMapping(value = "/hydroid", method = {RequestMethod.GET})
    public @ResponseBody ResponseEntity<List<MenuDTO>> enhance() {
 
-      List<MenuDTO> menu = new ArrayList<MenuDTO>();
+       MenuDTO menuItem;
+       List<MenuDTO> menu = new ArrayList<MenuDTO>();
 
-      InputStream inputStream = getClass().getResourceAsStream("/hydroid.rdf");
-      String rdfContent =  new String(IOUtils.fromInputStreamToByteArray(inputStream));
-      List<Statement> statements = jenaService.parseRdf(rdfContent, "");
+       InputStream inputStream = getClass().getResourceAsStream("/hydroid.rdf");
+       String rdfContent =  new String(IOUtils.fromInputStreamToByteArray(inputStream));
+       List<Statement> statements = jenaService.parseRdf(rdfContent, "");
 
-      // iterate over statements, etc...
+       for(Statement statement : statements) {
+           menuItem = new MenuDTO();
+           menuItem.setNodeURI(statement.getSubject().getURI());
+           menuItem.setNodeLabel(statement.getString());
+           menu.add(menuItem);
+       }
 
       return new ResponseEntity<>(menu, HttpStatus.OK);
    }
