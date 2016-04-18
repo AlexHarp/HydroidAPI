@@ -21,7 +21,6 @@ import java.io.InputStream;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
-@IntegrationTest
 public class TikaMetadataTest {
 
    @Test
