@@ -2,6 +2,7 @@ package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.dto.MenuDTO;
 import au.gov.ga.hydroid.service.JenaService;
+import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.jena.rdf.model.*;
 import org.slf4j.Logger;
@@ -35,18 +36,23 @@ public class MenuController {
        MenuDTO menuItem;
        List<MenuDTO> menu = new ArrayList<MenuDTO>();
 
-       InputStream inputStream = getClass().getResourceAsStream("/hydroid.rdf");
-       String rdfContent =  new String(IOUtils.fromInputStreamToByteArray(inputStream));
-       List<Statement> statements = jenaService.parseRdf(rdfContent, "");
+       try {
 
-       for(Statement statement : statements) {
-           menuItem = new MenuDTO();
-           menuItem.setNodeURI(statement.getSubject().getURI());
-           menuItem.setNodeLabel(statement.getString());
-           menu.add(menuItem);
+           InputStream inputStream = getClass().getResourceAsStream("/hydroid.rdf");
+           String rdfContent =  new String(IOUtils.fromInputStreamToByteArray(inputStream));
+           List<Statement> statements = jenaService.parseRdf(rdfContent, "");
+
+           for(Statement statement : statements) {
+               menuItem = new MenuDTO();
+               menuItem.setNodeURI(statement.getSubject().getURI());
+               menuItem.setNodeLabel(statement.getString());
+               menu.add(menuItem);
+           }
+
+       } catch (Exception e) {
+           throw new HydroidException(e);
        }
 
       return new ResponseEntity<>(menu, HttpStatus.OK);
    }
-
 }
