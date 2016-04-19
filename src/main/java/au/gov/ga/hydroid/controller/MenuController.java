@@ -5,6 +5,8 @@ import au.gov.ga.hydroid.service.JenaService;
 import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.vocabulary.RDFS;
+import org.apache.jena.vocabulary.VCARD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +46,12 @@ public class MenuController {
 
            for(Statement statement : statements) {
                menuItem = new MenuDTO();
-               menuItem.setNodeURI(statement.getSubject().getURI());
-               menuItem.setNodeLabel(statement.getString());
-               menu.add(menuItem);
+
+               if (statement.getPredicate().toString().toUpperCase().contains("LABEL")) {
+                   menuItem.setNodeURI(statement.getSubject().getURI());
+                   menuItem.setNodeLabel(statement.getString());
+                   menu.add(menuItem);
+               }
            }
 
        } catch (Exception e) {
