@@ -1,6 +1,8 @@
 package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.HydroidApplication;
+import au.gov.ga.hydroid.dto.ImageAnnotation;
+import au.gov.ga.hydroid.dto.ImageMetadata;
 import au.gov.ga.hydroid.service.impl.ImageServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +20,7 @@ import java.io.InputStream;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
 @IntegrationTest
-public class ImageServiceTestIT {
+public class ImageServiceTest {
 
    @Autowired
    private ImageServiceImpl imageService;
@@ -26,10 +28,16 @@ public class ImageServiceTestIT {
    @Test
    public void testGetImageMetadata() {
       InputStream imageStream = this.getClass().getResourceAsStream("/testfiles/hydroid-3.jpg");
-      String metadata = imageService.getImageMetadata(imageStream);
+      ImageMetadata metadata = imageService.getImageMetadata(imageStream);
+
+      StringBuilder actualMetadata = new StringBuilder();
+      for (ImageAnnotation imageLabel : metadata.getImageLabels()) {
+         actualMetadata.append(imageLabel.getDescription()).append("\n");
+      }
 
       String expectedMetadata = new StringBuilder("The Hydroid 3 Photo").append("\n")
             .append("Sub: The Hydroid 3 Photo").append("\n")
+            .append("Hydroid").append("\n")
             .append("PhotoMedia").append("\n")
             .append("Difficult to parse").append("\n")
             .append("Hydroid").append("\n")
@@ -39,7 +47,7 @@ public class ImageServiceTestIT {
             .append("Hydroid Hydrozoa Jellyfish Corals").append("\n")
             .toString();
 
-      Assert.assertEquals(expectedMetadata, metadata);
+      Assert.assertEquals(expectedMetadata, actualMetadata.toString());
    }
 
 }

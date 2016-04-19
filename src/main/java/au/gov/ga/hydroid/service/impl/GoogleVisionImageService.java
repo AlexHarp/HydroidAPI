@@ -1,6 +1,8 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.dto.ImageAnnotation;
+import au.gov.ga.hydroid.dto.ImageMetadata;
 import au.gov.ga.hydroid.service.ImageService;
 import au.gov.ga.hydroid.utils.HydroidException;
 import com.google.api.client.googleapis.GoogleUtils;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.security.GeneralSecurityException;
@@ -34,8 +37,14 @@ public class GoogleVisionImageService implements ImageService {
    @Autowired
    private HydroidConfiguration configuration;
 
+   private float round(float value, int newScale) {
+      BigDecimal bd = BigDecimal.valueOf(value);
+      bd = bd.setScale(newScale, BigDecimal.ROUND_HALF_UP);
+      return bd.floatValue();
+   }
+
    @Override
-   public String getImageMetadata(InputStream is) {
+   public ImageMetadata getImageMetadata(InputStream is) {
       if(is == null) {
          logger.debug("GoogleVisionImageService:getImageMetadata - input stream is null.");
          throw new HydroidException("input stream is null");
@@ -62,9 +71,7 @@ public class GoogleVisionImageService implements ImageService {
 
             Image base64EncodedImage = new Image();
 
-            byte[] bytes = new byte[0];
-            bytes = IOUtils.toByteArray(is);
-
+            byte[] bytes = IOUtils.toByteArray(is);
             base64EncodedImage.encodeContent(bytes);
             annotateImageRequest.setImage(base64EncodedImage);
 
@@ -89,17 +96,24 @@ public class GoogleVisionImageService implements ImageService {
 
          response = annotateRequest.execute();
 
-         StringBuilder result = new StringBuilder();
+         ImageMetadata result = new ImageMetadata();
          for (AnnotateImageResponse imgRes : response.getResponses()) {
             for (EntityAnnotation entityAnnotation : imgRes.getLabelAnnotations()) {
-               result.append(entityAnnotation.getDescription()).append(",");
+               result.getImageLabels().add(
+                     new ImageAnnotation(entityAnnotation.getDescription(), round(entityAnnotation.getScore(), 2))
+               );
             }
          }
-         return result.substring(0, result.length() - 1);
+         return result;
       }
-      catch (Throwable e) {
+      catch (Exception e) {
          throw new HydroidException(e);
       }
+   }
+
+   @Override
+   public ImageMetadata describeImage(InputStream is) {
+      return null;
    }
 
    static HttpTransport newProxyTransport(HydroidConfiguration configuration) throws GeneralSecurityException, IOException {

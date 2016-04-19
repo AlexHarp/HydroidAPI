@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid.service;
 
 import au.gov.ga.hydroid.model.Document;
+import au.gov.ga.hydroid.model.EnhancementStatus;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public interface DocumentService {
    List<Document> findAll();
    Document findByUrn(String urn);
    Document findByOrigin(String origin);
+   List<Document> findByStatus(EnhancementStatus status);
    void create(Document document);
    void deleteByUrn(String urn);
    void update(Document document);

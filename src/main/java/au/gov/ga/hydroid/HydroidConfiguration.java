@@ -54,6 +54,9 @@ public class HydroidConfiguration {
    @Value("${s3.output.url}")
    private String s3OutputUrl;
 
+   @Value("${hydroid.pid.path}")
+   private String hydroidPidPath;
+
    public String getProxyHost() {
       return proxyHost;
    }
@@ -108,6 +111,10 @@ public class HydroidConfiguration {
 
    public String getS3OutputUrl() {
       return s3OutputUrl;
+   }
+
+   public String getHydroidPidPath() {
+      return hydroidPidPath;
    }
 
 }

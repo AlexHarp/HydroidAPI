@@ -9,7 +9,7 @@ public class HydroidException extends RuntimeException {
       super(message);
    }
 
-   public HydroidException(Throwable cause) {
+   public HydroidException(Exception cause) {
       super(cause.getMessage(), cause);
    }
 

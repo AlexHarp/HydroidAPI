@@ -11,5 +11,8 @@ buildNumber.properties
 *.iml
 
 src/test/resources/testfiles/google_vision/
+src/test/resources/testfiles/ms_image/
 
 google-vision.json
+
+local-application.properties

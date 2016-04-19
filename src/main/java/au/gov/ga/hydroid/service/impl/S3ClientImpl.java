@@ -1,6 +1,7 @@
 package au.gov.ga.hydroid.service.impl;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.service.DataObjectSummary;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.IOUtils;
 import com.amazonaws.ClientConfiguration;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -25,6 +27,8 @@ import java.util.List;
 public class S3ClientImpl implements S3Client {
 
    private static final Logger logger = LoggerFactory.getLogger(S3ClientImpl.class);
+
+
 
    @Autowired
    private HydroidConfiguration configuration;
@@ -71,6 +75,12 @@ public class S3ClientImpl implements S3Client {
 
    @Override
    public void storeFile(String bucketName, String key, String content, String contentType) {
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
+      storeFile(bucketName,key,inputStream,contentType);
+   }
+
+   @Override
+   public void storeFile(String bucketName, String key, InputStream content, String contentType) {
       AmazonS3 s3 = getAmazonS3();
 
       // If the bucket doesn't exist we create it
@@ -78,13 +88,12 @@ public class S3ClientImpl implements S3Client {
          s3.createBucket(bucketName, "ap-southeast-2");
       }
 
-      InputStream fileContent = new ByteArrayInputStream(content.getBytes());
       ObjectMetadata metadata = new ObjectMetadata();
       if (contentType != null) {
          metadata.setContentType(contentType);
       }
 
-      s3.putObject(bucketName, key, fileContent, metadata);
+      s3.putObject(bucketName, key, content, metadata);
    }
 
    @Override
@@ -96,8 +105,8 @@ public class S3ClientImpl implements S3Client {
    }
 
    @Override
-   public List<S3ObjectSummary> listObjects(String bucketName, String key) {
-      List<S3ObjectSummary> objects = new ArrayList();
+   public List<DataObjectSummary> listObjects(String bucketName, String key) {
+      List<DataObjectSummary> objects = new ArrayList();
 
       AmazonS3 s3 = getAmazonS3();
 
@@ -105,7 +114,7 @@ public class S3ClientImpl implements S3Client {
 
       do {
          for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-            objects.add(objectSummary);
+            objects.add(new DataObjectSummaryImpl(objectSummary));
          }
          if (!objectListing.isTruncated()) {
             break;

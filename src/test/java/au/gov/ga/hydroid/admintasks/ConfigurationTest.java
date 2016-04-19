@@ -1,5 +1,7 @@
-package au.gov.ga.hydroid;
+package au.gov.ga.hydroid.admintasks;
 
+import au.gov.ga.hydroid.HydroidApplication;
+import au.gov.ga.hydroid.HydroidConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,9 +23,9 @@ public class ConfigurationTest {
    @Test
    public void testConfiguration() {
       Assert.assertNotNull(configuration);
-      Assert.assertEquals(3128, configuration.getProxyPort());
-      Assert.assertEquals("default", configuration.getStanbolChain());
-      Assert.assertEquals("http://hydroid-dev-stanbol-lb-2008994174.ap-southeast-2.elb.amazonaws.com/stanbol/enhancer/chain/", configuration.getStanbolUrl());
+      Assert.assertEquals("proxyPort", 3128, configuration.getProxyPort());
+      Assert.assertEquals("stanbolChain", "default", configuration.getStanbolChain());
+      Assert.assertEquals("stanbolUrl", "http://hydroid-dev-stanbol-lb-2008994174.ap-southeast-2.elb.amazonaws.com/stanbol/enhancer/chain/", configuration.getStanbolUrl());
    }
 
 }

@@ -1,4 +1,4 @@
-package au.gov.ga.hydroid.service.impl;
+package au.gov.ga.hydroid.integration;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.service.JenaService;
@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.greaterThan;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(HydroidApplication.class)
 @IntegrationTest
-public class JenaServiceImplTestIT {
+public class JenaServiceTestIT {
 
    @Autowired
    private JenaService jenaService;

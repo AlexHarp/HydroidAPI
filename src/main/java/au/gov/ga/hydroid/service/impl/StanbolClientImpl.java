@@ -5,7 +5,6 @@ import au.gov.ga.hydroid.service.JenaService;
 import au.gov.ga.hydroid.service.RestClient;
 import au.gov.ga.hydroid.service.StanbolClient;
 import au.gov.ga.hydroid.utils.HydroidException;
-import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Statement;
 import org.slf4j.Logger;
@@ -65,11 +64,6 @@ public class StanbolClientImpl implements StanbolClient {
             case SUCCESSFUL: {
                logger.debug("enhance - content has been successfully enhanced");
                result = response.readEntity(String.class);
-
-               // todo remove this when Hydroid Dev is available
-               //FileInputStream fis = new FileInputStream("c:\\Users\\u24529\\Downloads\\sample1.rdf");
-               //rdfParser.parse(fis, "");
-
                break;
             }
             default: {
@@ -86,11 +80,10 @@ public class StanbolClientImpl implements StanbolClient {
    }
 
    @Override
-   public Properties findAllPredicates(String chainName, String content, MediaType outputFormat) {
+   public Properties findAllPredicates(String enhancedText) {
 
       Properties allPredicates = new Properties();
 
-      String enhancedText = enhance(chainName, content, StanbolMediaTypes.RDFXML);
       List<Statement> rdfDocument = jenaService.parseRdf(enhancedText, "");
 
       if (rdfDocument != null) {

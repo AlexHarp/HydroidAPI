@@ -63,6 +63,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.191</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
             <version>3.0.14.Final</version>
@@ -172,6 +179,12 @@
             <version>2.2.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.imgscalr</groupId>
+            <artifactId>imgscalr-lib</artifactId>
+            <version>4.2</version>
+        </dependency>
+
     </dependencies>
 
     <properties>
@@ -231,8 +244,69 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.0.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.6.201602180812</version>
+                <configuration>
+                    <destFile>${sonar.jacoco.reportPath}</destFile>
+                    <append>true</append>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
     </build>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.host.url>https://sonar.gadevs.ga/</sonar.host.url>
+                <sonar.projectKey>ga.hellfish:hydroid</sonar.projectKey>
+                <sonar.projectName>${project.artifactId}</sonar.projectName>
+                <sonar.projectVersion>${project.version}</sonar.projectVersion>
+                <sonar.language>java</sonar.language>
+                <sonar.sources>src/main</sonar.sources>
+                <sonar.test>src/test</sonar.test>
+                <sonar.exclusions>
+                    **/dto/*.java,
+                    **/job/*.java,
+                    **/GoogleVisionImageService.java,
+                    **/JenaServiceImpl.java,
+                    **/MSVisionImageService.java,
+                    **/RestClientImpl.java,
+                    **/S3ClientImpl.java,
+                    **/SolrClientImpl.java,
+                    **/StanbolClientImpl.java,
+                    **/HydroidException.java,
+                    **/StanbolMediaTypes.java,
+                    **/AutoWiringSpringBeanJobFactory.java,
+                    **/Scheduler*.java,
+                    **/HydroidApplication.java
+                </sonar.exclusions>
+                <sonar.language>java</sonar.language>
+                <sonar.login>${SONAR_LOGIN}</sonar.login>
+                <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+                <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+                <sonar.jacoco.reportPath>${basedir}/target/coverage-reports/jacoco-unit.exec</sonar.jacoco.reportPath>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
