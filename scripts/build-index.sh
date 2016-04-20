@@ -10,5 +10,6 @@ cp indexing/dist/GA.solrindex.zip staging/
 cp indexing/dist/org.apache.stanbol.data.site.GA-1.0.0.jar staging/
 cp scripts/reset_stanbol.sh staging/
 cp appspec.yml staging/
+cp config/. staging/
 cd staging
 zip -r hydroid.zip *
