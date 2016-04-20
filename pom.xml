@@ -7,9 +7,6 @@
     <groupId>au.gov.ga</groupId>
     <artifactId>hydroid</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <modules>
-        <module>vocab</module>
-    </modules>
     <packaging>pom</packaging>
 
     <parent>
