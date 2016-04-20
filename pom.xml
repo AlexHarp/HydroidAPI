@@ -281,6 +281,7 @@
                 <sonar.language>java</sonar.language>
                 <sonar.sources>src/main</sonar.sources>
                 <sonar.test>src/test</sonar.test>
+                <sonar.scm.provider>git</sonar.scm.provider>
                 <sonar.exclusions>
                     **/dto/*.java,
                     **/job/*.java,
