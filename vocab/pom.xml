@@ -7,7 +7,7 @@
     <groupId>au.gov.ga</groupId>
     <artifactId>hydroid-vocab</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-
+    <packaging>bundle</packaging>
     <build>
         <!-- make it an OSGi bundle -->
         <plugins>
@@ -22,6 +22,8 @@
                         <Data-Files-Priority>
                             -100
                         </Data-Files-Priority>
+                        <Export-Package>${project.groupId}.${project.artifactId};version="${project.version}</Export-Package>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                     </instructions>
                 </configuration>
             </plugin>
@@ -29,16 +31,13 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <!-- AL20 licensed files. See src/main/resources/README -->
-                        <exclude>src/main/resources/config/*.config</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+    </dependencies>
 </project>
