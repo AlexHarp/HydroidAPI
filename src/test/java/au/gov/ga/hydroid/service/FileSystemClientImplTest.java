@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -38,6 +39,17 @@ public class FileSystemClientImplTest {
       InputStream is = fsClient.getFile("test", "test.txt");
       String result = IOUtils.parseStream(is);
       Assert.assertEquals("Hello", result.trim());
+      is.close();
+   }
+
+   @Test
+   public void testStoreFileFromStream() throws Exception {
+      InputStream fileContent = new ByteArrayInputStream("Hello".getBytes());
+      fsClient.storeFile("test", "test.txt", fileContent, "text/plain");
+      InputStream is = fsClient.getFile("test", "test.txt");
+      String result = IOUtils.parseStream(is);
+      Assert.assertEquals("Hello", result.trim());
+      fileContent.close();
       is.close();
    }
 
