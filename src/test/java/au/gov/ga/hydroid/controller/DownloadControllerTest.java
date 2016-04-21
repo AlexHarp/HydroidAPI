@@ -2,7 +2,6 @@ package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
-import au.gov.ga.hydroid.mock.CustomMockDocumentService;
 import au.gov.ga.hydroid.mock.CustomMockS3Client;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.HydroidException;
@@ -42,7 +41,6 @@ public class DownloadControllerTest {
       MockitoAnnotations.initMocks(this);
       downloadController = new DownloadController();
       ReflectionTestUtils.setField(downloadController, "s3Client", this.s3Client);
-      ReflectionTestUtils.setField(downloadController, "documentService", new CustomMockDocumentService());
       ReflectionTestUtils.setField(downloadController, "configuration", this.configuration);
       mockMvc = MockMvcBuilders.standaloneSetup(downloadController).build();
    }
