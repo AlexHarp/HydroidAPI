@@ -1,8 +1,6 @@
 package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
-import au.gov.ga.hydroid.model.Document;
-import au.gov.ga.hydroid.service.DocumentService;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
@@ -11,10 +9,7 @@ import org.jboss.resteasy.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -34,9 +29,6 @@ public class DownloadController {
 
    @Autowired
    private HydroidConfiguration configuration;
-
-   @Autowired
-   private DocumentService documentService;
 
    @Autowired
    @Value("#{systemProperties['s3.use.file.system'] != null ? s3FileSystem : s3ClientImpl}")
@@ -140,12 +132,6 @@ public class DownloadController {
 
       try {
 
-         Document document = documentService.findByUrn(urn);
-         if (document == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return null;
-         }
-
          InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
          if (fileContent == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -156,7 +142,7 @@ public class DownloadController {
          fileContent.mark(0);
          Long length = IOUtils.copyLarge(fileContent, out);
 
-         response.setHeader("Content-Disposition", "inline; filename=\"" + document.getTitle() + "\"");
+         response.setHeader("Content-Disposition", "inline; filename=\"" + urn + "\"");
          response.setContentLength(length.intValue());
          response.setContentType(ContentType.APPLICATION_OCTET_STREAM.toString());
 
