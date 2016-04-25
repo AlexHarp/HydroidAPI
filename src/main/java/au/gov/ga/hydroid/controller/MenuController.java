@@ -27,13 +27,12 @@ public class MenuController {
        List<MenuDTO> menu = new ArrayList<>();
 
        try {
-
            Model model = ModelFactory.createDefaultModel();
            model.read("hydroid.rdf");
-           ResIterator resources = model.listResourcesWithProperty(RDF.type);
+           ResIterator parentResources = model.listResourcesWithProperty(RDF.type);
 
-           while (resources.hasNext()) {
-               Resource parentRes = resources.nextResource();
+           while (parentResources.hasNext()) {
+               Resource parentRes = parentResources.nextResource();
 
                if (parentRes.hasProperty(RDFS.label)) {
                    Statement resStmt = parentRes.getProperty(RDFS.label);
@@ -48,14 +47,14 @@ public class MenuController {
                    while (childResources.hasNext()) {
                        Resource childRes = childResources.next();
 
-                       String childURI = childRes.getProperty(SKOS.topConceptOf).getObject().toString();
+                       String parentRefURI = childRes.getProperty(SKOS.topConceptOf).getObject().toString();
                        String parentURI = resStmt.getSubject().getURI();
 
-                       if (childURI.equals(parentURI)) {
-                           Statement childResStmt = childRes.getProperty(SKOS.prefLabel);
+                       if (parentRefURI.equals(parentURI)) {
+                           Statement childStmt = childRes.getProperty(SKOS.prefLabel);
                            childMenuItem = new MenuDTO();
-                           childMenuItem.setNodeLabel(childResStmt.getString());
-                           childMenuItem.setNodeURI(childResStmt.getSubject().getURI());
+                           childMenuItem.setNodeLabel(childStmt.getString());
+                           childMenuItem.setNodeURI(childStmt.getSubject().getURI());
                            childMenu.add(childMenuItem);
                        }
                    }
@@ -66,8 +65,6 @@ public class MenuController {
        } catch (Exception e) {
            throw new HydroidException(e);
        }
-
-       System.out.println("Done!");
        return new ResponseEntity<>(menu, HttpStatus.OK);
    }
 }
