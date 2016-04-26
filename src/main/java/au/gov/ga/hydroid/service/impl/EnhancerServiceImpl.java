@@ -83,31 +83,53 @@ public class EnhancerServiceImpl implements EnhancerService {
       }
    }
 
+   private Properties initProperties(DocumentDTO document) {
+      Properties properties = new Properties();
+      properties.put("content", document.getContent());
+      properties.put("title", document.getTitle());
+      properties.put("docType", document.getDocType());
+      if (document.getAuthor() != null) {
+         properties.put("creator", document.getAuthor());
+      }
+      if (document.getDateCreated() != null) {
+         properties.put("created", document.getDateCreated());
+      }
+      return properties;
+   }
+
    private void addStatementToRDF(List<Statement> rdfDocument, Resource subject, String propertyName, String value) {
       Property property = ResourceFactory.createProperty(propertyName);
       RDFNode object = ResourceFactory.createPlainLiteral(value);
       rdfDocument.add(ResourceFactory.createStatement(subject, property, object));
    }
 
-   private boolean isValidStatement(String subject, String predicate, String objectValue, Map<String,String> gaVocabSubjects) {
-      // Discard any statement where the subject is not related to the GAPublicVocabs
-      if (configuration.isStoreGAVocabsOnly() && (gaVocabSubjects.get(subject) == null) && !objectValue.contains(GA_PUBLIC_VOCABS)) {
-         return false;
+   private String addStatementsToRDF(List<Statement> rdfDocument, String about, DocumentDTO document) {
+      String documentUrl = configuration.getS3OutputUrl()
+            + (document.getDocType().equals(DocumentType.IMAGE.name()) ? "/images/" : "/rdfs/")
+            + about;
+
+      Resource subject = ResourceFactory.createResource(about);
+
+      // Add property:type to rdf (DOCUMENT, DATASET, MODEL or IMAGE)
+      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_type", document.getDocType());
+
+      // Add property:label to the rdf (the document title)
+      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_label", document.getTitle());
+
+      // Added property:image to the RDF document
+      if (document.getDocType().equals(DocumentType.IMAGE.name())) {
+         addStatementToRDF(rdfDocument, subject, "http://purl.org/dc/dcmitype/Image", documentUrl);
       }
-      // Discard if the predicate is not included in the list we are after
-      if (!VALID_PREDICATES.contains(predicate)) {
-         return false;
-      }
-      return true;
+
+      return documentUrl;
    }
 
    private Properties generateSolrDocument(List<Statement> rdfDocument, DocumentDTO document) {
       List<String> concepts = new ArrayList<>();
       List<String> labels = new ArrayList<>();
       List<String> selectionContexts = new ArrayList<>();
-      Properties properties = new Properties();
-      StringBuilder documentUrl = new StringBuilder();
       Map<String,String> gaVocabSubjects = new HashMap<>();
+      Properties properties = initProperties(document);
 
       for (Statement statement : rdfDocument) {
          String subject = statement.getSubject().getLocalName().toLowerCase();
@@ -115,7 +137,8 @@ public class EnhancerServiceImpl implements EnhancerService {
          String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
                : statement.getObject().asResource().getURI();
 
-         if (!isValidStatement(subject, predicate, objectValue, gaVocabSubjects)) {
+         // Discard if the predicate is not included in the list we are after
+         if (!VALID_PREDICATES.contains(predicate)) {
             continue;
          }
 
@@ -137,43 +160,22 @@ public class EnhancerServiceImpl implements EnhancerService {
          }
       }
 
-      documentUrl.setLength(0);
-      documentUrl = new StringBuilder(configuration.getS3OutputUrl())
-            .append(document.getDocType().equals(DocumentType.IMAGE.name()) ? "/images/" : "/rdfs/")
-            .append(properties.getProperty("about"));
+      // GAPublicVocabs is required but none was found
+      boolean isGAVocabsNotValid = configuration.isStoreGAVocabsOnly() && gaVocabSubjects.isEmpty();
 
-      Resource subject = ResourceFactory.createResource(properties.getProperty("about"));
-
-      // Add property:type to rdf (DOCUMENT, DATASET, MODEL or IMAGE)
-      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_type", document.getDocType());
-
-      // Add property:label to the rdf (the document title)
-      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_label", document.getTitle());
-
-      // Added property:image to the RDF document
-      if (document.getDocType().equals(DocumentType.IMAGE.name())) {
-         addStatementToRDF(rdfDocument, subject, "http://purl.org/dc/dcmitype/Image", documentUrl.toString());
+      // No labels or concepts were found so we discard the process by clearing all the properties
+      if (isGAVocabsNotValid || (labels.isEmpty() && concepts.isEmpty())) {
+         properties.clear();
+         return properties;
       }
 
-      properties.put("content", document.getContent());
-      properties.put("title", document.getTitle());
+      // Add additional statements to RDF and generate documentURL
+      String documentUrl = addStatementsToRDF(rdfDocument, properties.getProperty("about"), document);
+
       properties.put("label", labels);
       properties.put("concept", concepts);
-      properties.put("docType", document.getDocType());
-      properties.put("docUrl", documentUrl.toString());
-      if (document.getAuthor() != null) {
-         properties.put("creator", document.getAuthor());
-      }
-      if (document.getDateCreated() != null) {
-         properties.put("created", document.getDateCreated());
-      }
+      properties.put("docUrl", documentUrl);
       properties.put("selectionContext", selectionContexts);
-
-      // No labels or concepts were found so we discard
-      // the process by clearing all the properties
-      if (labels.isEmpty() && concepts.isEmpty()) {
-         properties.clear();
-      }
 
       return properties;
    }
