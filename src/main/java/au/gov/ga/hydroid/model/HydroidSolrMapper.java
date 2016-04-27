@@ -69,8 +69,11 @@ public class HydroidSolrMapper {
    }
 
    // Add a new subject to the GA Vocab Subjects list
-   private void addGAVocabSubject(Map<String,String> gaVocabSubjects, String subject,
-                                  String predicate, String objectValue) {
+   private void addGAVocabSubject(Map<String,String> gaVocabSubjects, Statement statement) {
+      String subject = statement.getSubject().getLocalName().toLowerCase();
+      String predicate = statement.getPredicate().getLocalName().toLowerCase();
+      String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
+            : statement.getObject().asResource().getURI();
       if ("entity-reference".equalsIgnoreCase(predicate) && objectValue.contains(GA_PUBLIC_VOCABS)
             && gaVocabSubjects.get(subject) == null) {
          gaVocabSubjects.put(subject, objectValue);
@@ -85,6 +88,29 @@ public class HydroidSolrMapper {
       }
    }
 
+   private boolean processStatement(Statement statement, Properties properties, Map<String,List<String>> multiValuedFields) {
+      String predicate = statement.getPredicate().getLocalName().toLowerCase();
+      String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
+            : statement.getObject().asResource().getURI();
+
+      // Discard if the predicate is not included in the list we are after
+      if (!VALID_PREDICATES.contains(predicate)) {
+         return false;
+      }
+
+      if (EXTRACTED_FROM.equalsIgnoreCase(predicate) && !properties.containsKey(SOLR_DOCUMENT_KEY)) {
+         properties.put(SOLR_DOCUMENT_KEY, objectValue);
+
+      } else if (multiValuedFields.get(predicate) != null) {
+         addMultiValuedField(multiValuedFields, predicate, objectValue);
+
+      } else {
+         properties.put(predicate, objectValue);
+      }
+
+      return true;
+   }
+
    public Properties generateDocument(List<Statement> rdfDocument, DocumentDTO document) {
       Map<String,String> gaVocabSubjects = new HashMap<>();
       Map<String,List<String>> multiValuedFields = new HashMap<>();
@@ -95,27 +121,9 @@ public class HydroidSolrMapper {
       Properties properties = initProperties(document);
 
       for (Statement statement : rdfDocument) {
-         String subject = statement.getSubject().getLocalName().toLowerCase();
-         String predicate = statement.getPredicate().getLocalName().toLowerCase();
-         String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
-               : statement.getObject().asResource().getURI();
-
-         // Discard if the predicate is not included in the list we are after
-         if (!VALID_PREDICATES.contains(predicate)) {
-            continue;
+         if (processStatement(statement, properties, multiValuedFields)) {
+            addGAVocabSubject(gaVocabSubjects, statement);
          }
-
-         if (EXTRACTED_FROM.equalsIgnoreCase(predicate) && !properties.containsKey(SOLR_DOCUMENT_KEY)) {
-            properties.put(SOLR_DOCUMENT_KEY, objectValue);
-
-         } else if (multiValuedFields.get(predicate) != null) {
-            addMultiValuedField(multiValuedFields, predicate, objectValue);
-
-         } else {
-            properties.put(predicate, objectValue);
-         }
-
-         addGAVocabSubject(gaVocabSubjects, subject, predicate, objectValue);
       }
 
       // GAPublicVocabs is required but none was found
