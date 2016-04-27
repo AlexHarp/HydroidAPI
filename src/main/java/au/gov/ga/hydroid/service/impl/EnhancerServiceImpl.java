@@ -94,15 +94,15 @@ public class EnhancerServiceImpl implements EnhancerService {
    }
 
    private void processFailure(DocumentDTO document, String urn, String reason) {
-      logger.info("enhance - saving document in the database");
+      logger.info("processFailure - saving document in the database");
       saveOrUpdateDocument(document, urn, EnhancementStatus.FAILURE, reason);
-      logger.info("enhance - document saved in the database");
+      logger.info("processFailure - document saved in the database");
 
       // Also store original image metadata
       if (document.getDocType().equals(DocumentType.IMAGE.name())) {
-         logger.info("enhance - saving image metadata in the database");
+         logger.info("processFailure - saving image metadata in the database");
          saveOrUpdateImageMetadata(document.getOrigin(), document.getContent());
-         logger.info("enhance - image metadata saved");
+         logger.info("processFailure - image metadata saved");
       }
    }
 
@@ -172,7 +172,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
-         
+
          processFailure(document, urn, e.getLocalizedMessage());
 
          // if there was any error in the process we remove the documents stored under the URN if created
