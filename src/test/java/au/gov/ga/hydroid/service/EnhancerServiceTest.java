@@ -6,6 +6,7 @@ import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.mock.CustomMockJenaService;
 import au.gov.ga.hydroid.mock.CustomMockStanbolClient;
 import au.gov.ga.hydroid.model.DocumentType;
+import au.gov.ga.hydroid.model.HydroidSolrMapper;
 import au.gov.ga.hydroid.service.impl.EnhancerServiceImpl;
 import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
@@ -24,8 +25,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
-import java.sql.ResultSet;
-
 /**
  * Created by u24529 on 7/04/2016.
  */
@@ -38,6 +37,9 @@ public class EnhancerServiceTest {
 
    @Autowired
    private ApplicationContext applicationContext;
+
+   @Autowired
+   private HydroidSolrMapper hydroidSolrMapper;
 
    @Mock
    private SolrClient solrClient;
@@ -76,6 +78,7 @@ public class EnhancerServiceTest {
       ReflectionTestUtils.setField(enhancerService, "documentService", documentService);
       ReflectionTestUtils.setField(enhancerService, "imageService", imageService);
       ReflectionTestUtils.setField(enhancerService, "applicationContext", applicationContext);
+      ReflectionTestUtils.setField(enhancerService, "hydroidSolrMapper", hydroidSolrMapper);
    }
 
    @Test

@@ -7,6 +7,7 @@ import au.gov.ga.hydroid.dto.ImageMetadata;
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.model.EnhancementStatus;
+import au.gov.ga.hydroid.model.HydroidSolrMapper;
 import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
@@ -14,7 +15,7 @@ import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.ContentType;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AbstractParser;
 import org.imgscalr.Scalr;
@@ -30,7 +31,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -39,9 +42,6 @@ import java.util.*;
 public class EnhancerServiceImpl implements EnhancerService {
 
    private static final Logger logger = LoggerFactory.getLogger(EnhancerServiceImpl.class);
-
-   private static final List<String> VALID_PREDICATES = Arrays.asList("extracted-from", "entity-reference", "entity-label", "selection-context");
-   private static final String GA_PUBLIC_VOCABS = "GAPublicVocabsSandbox";
 
    @Autowired
    private HydroidConfiguration configuration;
@@ -69,122 +69,14 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private ApplicationContext applicationContext;
 
-   // Add a new subject to the GA Vocab Subjects list
-   private void addGAVocabSubject(Map<String,String> gaVocabSubjects, String subject, String objectValue) {
-      if (objectValue.contains(GA_PUBLIC_VOCABS) && gaVocabSubjects.get(subject) == null) {
-         gaVocabSubjects.put(subject, objectValue);
-      }
-   }
-
-   // add new value if not there yet
-   private void addMultiValuedField(List<String> multiValuedField, String objectValue) {
-      if (!multiValuedField.contains(objectValue)) {
-         multiValuedField.add(objectValue);
-      }
-   }
-
-   private Properties initProperties(DocumentDTO document) {
-      Properties properties = new Properties();
-      properties.put("content", document.getContent());
-      properties.put("title", document.getTitle());
-      properties.put("docType", document.getDocType());
-      if (document.getAuthor() != null) {
-         properties.put("creator", document.getAuthor());
-      }
-      if (document.getDateCreated() != null) {
-         properties.put("created", document.getDateCreated());
-      }
-      return properties;
-   }
-
-   private void addStatementToRDF(List<Statement> rdfDocument, Resource subject, String propertyName, String value) {
-      Property property = ResourceFactory.createProperty(propertyName);
-      RDFNode object = ResourceFactory.createPlainLiteral(value);
-      rdfDocument.add(ResourceFactory.createStatement(subject, property, object));
-   }
-
-   private String addStatementsToRDF(List<Statement> rdfDocument, String about, DocumentDTO document) {
-      String documentUrl = configuration.getS3OutputUrl()
-            + (document.getDocType().equals(DocumentType.IMAGE.name()) ? "/images/" : "/rdfs/")
-            + about;
-
-      Resource subject = ResourceFactory.createResource(about);
-
-      // Add property:type to rdf (DOCUMENT, DATASET, MODEL or IMAGE)
-      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_type", document.getDocType());
-
-      // Add property:label to the rdf (the document title)
-      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_label", document.getTitle());
-
-      // Added property:image to the RDF document
-      if (document.getDocType().equals(DocumentType.IMAGE.name())) {
-         addStatementToRDF(rdfDocument, subject, "http://purl.org/dc/dcmitype/Image", documentUrl);
-      }
-
-      return documentUrl;
-   }
-
-   private Properties generateSolrDocument(List<Statement> rdfDocument, DocumentDTO document) {
-      List<String> concepts = new ArrayList<>();
-      List<String> labels = new ArrayList<>();
-      List<String> selectionContexts = new ArrayList<>();
-      Map<String,String> gaVocabSubjects = new HashMap<>();
-      Properties properties = initProperties(document);
-
-      for (Statement statement : rdfDocument) {
-         String subject = statement.getSubject().getLocalName().toLowerCase();
-         String predicate = statement.getPredicate().getLocalName().toLowerCase();
-         String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
-               : statement.getObject().asResource().getURI();
-
-         // Discard if the predicate is not included in the list we are after
-         if (!VALID_PREDICATES.contains(predicate)) {
-            continue;
-         }
-
-         if ("extracted-from".equalsIgnoreCase(predicate) && !properties.containsKey("about")) {
-            properties.put("about", objectValue);
-
-         } else if ("entity-reference".equalsIgnoreCase(predicate)) {
-            addGAVocabSubject(gaVocabSubjects, subject, objectValue);
-            addMultiValuedField(concepts, objectValue);
-
-         } else if ("entity-label".equalsIgnoreCase(predicate)) {
-            addMultiValuedField(labels, objectValue);
-
-         } else if ("selection-context".equalsIgnoreCase(predicate)) {
-            addMultiValuedField(selectionContexts, objectValue);
-
-         } else {
-            properties.put(predicate, objectValue);
-         }
-      }
-
-      // GAPublicVocabs is required but none was found
-      boolean isGAVocabsNotValid = configuration.isStoreGAVocabsOnly() && gaVocabSubjects.isEmpty();
-
-      // No labels or concepts were found so we discard the process by clearing all the properties
-      if (isGAVocabsNotValid || (labels.isEmpty() && concepts.isEmpty())) {
-         properties.clear();
-         return properties;
-      }
-
-      // Add additional statements to RDF and generate documentURL
-      String documentUrl = addStatementsToRDF(rdfDocument, properties.getProperty("about"), document);
-
-      properties.put("label", labels);
-      properties.put("concept", concepts);
-      properties.put("docUrl", documentUrl);
-      properties.put("selectionContext", selectionContexts);
-
-      return properties;
-   }
+   @Autowired
+   private HydroidSolrMapper hydroidSolrMapper;
 
    private String getFileNameFromS3ObjectSummary(DataObjectSummary objectSummary) {
       return objectSummary.getKey().substring(objectSummary.getKey().lastIndexOf("/") + 1);
    }
 
-   private String getImageThumb(BufferedImage image, String title, String urn) {
+   private String getImageThumb(BufferedImage image, String urn) {
       try {
          BufferedImage resized = Scalr.resize(image, 200);
          ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -197,8 +89,7 @@ public class EnhancerServiceImpl implements EnhancerService {
                "image/png");
          return configuration.getS3OutputUrl() + "/images/" + urn + "_thumb";
       } catch (Exception e) {
-         logger.error("Failed to resize image '" + title + "'.", e);
-         return null;
+         throw new HydroidException(e);
       }
    }
 
@@ -223,7 +114,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          }
 
          // Generate dictionary with properties we are interested in
-         Properties properties = generateSolrDocument(rdfDocument, document);
+         Properties properties = hydroidSolrMapper.generateDocument(rdfDocument, document);
          urn = properties.getProperty("about");
 
          // Content has NOT been tagged with our vocabularies
@@ -256,7 +147,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             logger.info("enhance - original image content and metadata saved");
             InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.getTitle());
             BufferedImage image = ImageIO.read(origImage);
-            properties.put("imgThumb", getImageThumb(image, document.getTitle(), urn));
+            properties.put("imgThumb", getImageThumb(image, urn));
          }
 
          // Add enhanced document to Solr
@@ -335,7 +226,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          origin = object.getBucketName() + ":" + object.getKey();
          document = documentService.findByOrigin(origin);
          // Document was not enhanced or previous enhancement failed
-         if (document == null || (document.getStatus() == EnhancementStatus.FAILURE)) {
+         if (document == null || document.getStatus() == EnhancementStatus.FAILURE) {
             output.add(object);
          }
       }
