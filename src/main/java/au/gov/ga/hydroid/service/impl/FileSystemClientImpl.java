@@ -37,7 +37,12 @@ public class FileSystemClientImpl implements S3Client {
       return null;
    }
 
+   private String sanitizedKey(String key) {
+      return key.replaceAll(":", "-");
+   }
+
    private File doGetFile(String bucketName, String key) {
+      key = sanitizedKey(key);
       return basePath.getFileSystem().getPath(basePath.toString(), bucketName, key).toFile();
    }
 
