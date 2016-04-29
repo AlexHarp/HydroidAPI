@@ -272,9 +272,9 @@ public class EnhancerServiceImpl implements EnhancerService {
       StringBuilder result = new StringBuilder();
       ImageMetadata imageMetadata = imageService.getImageMetadata(s3FileContent);
       for (ImageAnnotation imageLabel : imageMetadata.getImageLabels()) {
-         result.append(imageLabel.getDescription()).append(" (").append(imageLabel.getScore()).append("),");
+         result.append(imageLabel.getDescription()).append(" (").append(imageLabel.getScore()).append("), ");
       }
-      result.setLength(result.length() - 1);
+      result.setLength(result.length() - 2);
       return result.toString();
    }
 
