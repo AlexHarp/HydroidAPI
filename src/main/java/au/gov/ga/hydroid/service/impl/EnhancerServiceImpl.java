@@ -352,7 +352,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             // The image metadata will be extracted and used for enhancement
             if (document.getContent() == null) {
                s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
-               document.setContent(document.getTitle() + "\n" + getImageMetadataAsString(s3FileContent));
+               document.setContent("The labels found for " + document.getTitle() + " are " + getImageMetadataAsString(s3FileContent));
             }
 
             enhance(document);
