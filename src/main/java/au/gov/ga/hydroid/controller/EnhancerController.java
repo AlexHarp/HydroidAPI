@@ -76,7 +76,7 @@ public class EnhancerController {
       if (!enhancerService.enhance(document)) {
          return new ResponseEntity<>(
                new ServiceResponse("There has been an error enhancing your document, please try again later."),
-               HttpStatus.INTERNAL_SERVER_ERROR);
+               HttpStatus.OK);
       }
 
       return new ResponseEntity<>(new ServiceResponse("Your document has been enhanced successfully."),
@@ -105,7 +105,7 @@ public class EnhancerController {
             if (!enhancerService.enhance(document)) {
                return new ResponseEntity<>(
                      new ServiceResponse("There has been an error enhancing your document, please try again later."),
-                     HttpStatus.INTERNAL_SERVER_ERROR);
+                     HttpStatus.OK);
             }
 
          } catch (Exception e) {
