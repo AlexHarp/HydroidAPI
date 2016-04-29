@@ -3,7 +3,7 @@ CREATE TABLE documents (
     id bigint auto_increment PRIMARY KEY,
     origin varchar(500) NOT NULL,
     urn varchar(100) NULL,
-    title varchar(200) NULL,
+    title varchar(500) NULL,
     type varchar(20) NOT NULL,
     status varchar(20) NOT NULL,
     status_reason varchar(500) NULL,
