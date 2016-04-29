@@ -63,23 +63,20 @@ public class EnhancerController {
 
    @RequestMapping(value = "", method = {RequestMethod.POST})
    public @ResponseBody ResponseEntity<ServiceResponse> enhance(@RequestBody DocumentDTO document) {
-      try {
 
-         String errorMessage = validateDocument(document);
-         if (errorMessage != null) {
-            return new ResponseEntity<>(new ServiceResponse(errorMessage),
-                  HttpStatus.BAD_REQUEST);
+      String errorMessage = validateDocument(document);
+      if (errorMessage != null) {
+         return new ResponseEntity<>(new ServiceResponse(errorMessage),
+               HttpStatus.BAD_REQUEST);
 
-         }
+      }
 
-         document.setOrigin("Manual Enhancement/UI");
-         document.setDateCreated(new Date());
-         enhancerService.enhance(document);
-
-      } catch (Exception e) {
-         logger.error("enhance - Exception: ", e);
-         return new ResponseEntity<>(new ServiceResponse("There has been an error enhancing your document, please try again later.",
-               e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+      document.setOrigin("Manual Enhancement/UI");
+      document.setDateCreated(new Date());
+      if (!enhancerService.enhance(document)) {
+         return new ResponseEntity<>(
+               new ServiceResponse("There has been an error enhancing your document, please try again later."),
+               HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
       return new ResponseEntity<>(new ServiceResponse("Your document has been enhanced successfully."),
@@ -105,7 +102,12 @@ public class EnhancerController {
             document.setDateCreated(metadata.get("Creation-Date") == null ? null :
                   DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
 
-            enhancerService.enhance(document);
+            if (!enhancerService.enhance(document)) {
+               return new ResponseEntity<>(
+                     new ServiceResponse("There has been an error enhancing your document, please try again later."),
+                     HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
          } catch (Exception e) {
             logger.warn("enhanceFile - Exception: ", e);
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed extracting/indexing text from file");

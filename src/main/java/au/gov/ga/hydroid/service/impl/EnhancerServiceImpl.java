@@ -178,7 +178,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          // if there was any error in the process we remove the documents stored under the URN if created
          rollbackEnhancement(urn);
 
-         throw new HydroidException(e);
+         return false;
       }
    }
 
@@ -252,16 +252,15 @@ public class EnhancerServiceImpl implements EnhancerService {
       objects = getDocumentsForEnhancement(objects);
       logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
       for (DataObjectSummary object : objects) {
-
-         s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
-
-         metadata = new Metadata();
-         document = new DocumentDTO();
-         document.setContent(IOUtils.parseStream(s3FileContent, metadata));
-         document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
-         copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
-
          try {
+            s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+
+            metadata = new Metadata();
+            document = new DocumentDTO();
+            document.setContent(IOUtils.parseStream(s3FileContent, metadata));
+            document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
+            copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
+
             enhance(document);
          } catch (Exception e) {
             logger.error("enhanceCollection - error processing file key: " + object.getKey(), e);
@@ -287,23 +286,23 @@ public class EnhancerServiceImpl implements EnhancerService {
       logger.info("enhancePendingDocuments - there are " + documents.size() + " pending documents to be enhanced");
       for (Document dbDocument : documents) {
 
-         metadata = new Metadata();
-         document = new DocumentDTO();
-         InputStream inputStream = IOUtils.getUrlContent(dbDocument.getOrigin());
-
-         // User custom parser
-         if (dbDocument.getParserName() != null) {
-            AbstractParser parser = (AbstractParser) applicationContext.getBean(dbDocument.getParserName());
-            document.setContent(IOUtils.parseStream(inputStream, metadata, parser));
-         // Use default parser
-         } else {
-            document.setContent(IOUtils.parseStream(inputStream, metadata));
-         }
-
-         document.setOrigin(dbDocument.getOrigin());
-         copyMetadataToDocument(metadata, document, dbDocument.getOrigin());
-
          try {
+            metadata = new Metadata();
+            document = new DocumentDTO();
+            InputStream inputStream = IOUtils.getUrlContent(dbDocument.getOrigin());
+
+            // User custom parser
+            if (dbDocument.getParserName() != null) {
+               AbstractParser parser = (AbstractParser) applicationContext.getBean(dbDocument.getParserName());
+               document.setContent(IOUtils.parseStream(inputStream, metadata, parser));
+            // Use default parser
+            } else {
+               document.setContent(IOUtils.parseStream(inputStream, metadata));
+            }
+
+            document.setOrigin(dbDocument.getOrigin());
+            copyMetadataToDocument(metadata, document, dbDocument.getOrigin());
+
             enhance(document);
          } catch (Exception e) {
             logger.error("enhancePendingDocuments - error processing URL: " + dbDocument.getOrigin(), e);
@@ -341,21 +340,21 @@ public class EnhancerServiceImpl implements EnhancerService {
             continue;
          }
 
-         document = new DocumentDTO();
-         document.setDocType(DocumentType.IMAGE.name());
-         document.setTitle(getFileNameFromS3ObjectSummary(s3ObjectSummary));
-         document.setOrigin(configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey());
-
-         // The cached imaged metadata will be used for enhancement (if exists)
-         document.setContent(documentService.readImageMetadata(document.getOrigin()));
-
-         // The image metadata will be extracted and used for enhancement
-         if (document.getContent() == null) {
-            s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
-            document.setContent(document.getTitle() + "\n" + getImageMetadataAsString(s3FileContent));
-         }
-
          try {
+            document = new DocumentDTO();
+            document.setDocType(DocumentType.IMAGE.name());
+            document.setTitle(getFileNameFromS3ObjectSummary(s3ObjectSummary));
+            document.setOrigin(configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey());
+
+            // The cached imaged metadata will be used for enhancement (if exists)
+            document.setContent(documentService.readImageMetadata(document.getOrigin()));
+
+            // The image metadata will be extracted and used for enhancement
+            if (document.getContent() == null) {
+               s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
+               document.setContent(document.getTitle() + "\n" + getImageMetadataAsString(s3FileContent));
+            }
+
             enhance(document);
          } catch (Exception e) {
             logger.error("enhanceImages - error processing file key: " + s3ObjectSummary.getKey(), e);
