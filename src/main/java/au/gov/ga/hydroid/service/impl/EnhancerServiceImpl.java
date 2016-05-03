@@ -144,11 +144,12 @@ public class EnhancerServiceImpl implements EnhancerService {
          // Also store original image in S3
          if (document.getDocType().equals(DocumentType.IMAGE.name())) {
             logger.info("enhance - saving image in S3 and its metadata in the database");
-            s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.getTitle(),
+            int bucketEndPosition = document.getOrigin().indexOf(":") + 1;
+            s3Client.copyObject(configuration.getS3Bucket(), document.getOrigin().substring(bucketEndPosition),
                     configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
             saveOrUpdateImageMetadata(document.getOrigin(), document.getContent());
             logger.info("enhance - original image content and metadata saved");
-            InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.getTitle());
+            InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), document.getOrigin().substring(bucketEndPosition));
             BufferedImage image = ImageIO.read(origImage);
             properties.put("imgThumb", getImageThumb(image, urn));
          }

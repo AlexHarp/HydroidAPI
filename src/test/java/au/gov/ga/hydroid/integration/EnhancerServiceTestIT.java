@@ -78,4 +78,16 @@ public class EnhancerServiceTestIT {
       Assert.assertFalse(enhancerService.enhance(document));
    }
 
+   @Test
+   public void testEnhanceImage() {
+      ReflectionTestUtils.setField(configuration, "stanbolChain", "hydroid");
+      ReflectionTestUtils.setField(configuration, "storeGAVocabsOnly", true);
+      DocumentDTO document = new DocumentDTO();
+      document.setTitle("2.3_shark Whitetip Reef Shark_0.jpg");
+      document.setDocType(DocumentType.IMAGE.name());
+      document.setOrigin("hydroid:enhancer/input/images/20160429/2.3_shark Whitetip Reef Shark_0.jpg");
+      document.setContent("The labels found for 2.3_shark Whitetip Reef Shark_0.jpg are fish (0.94), marine biology (0.92), coral reef (0.89), underwater (0.87), biology (0.87), coral reef fish (0.84), reef (0.83), sea (0.73), coral (0.62), invertebrate (0.59)");
+      Assert.assertFalse(enhancerService.enhance(document));
+   }
+
 }
