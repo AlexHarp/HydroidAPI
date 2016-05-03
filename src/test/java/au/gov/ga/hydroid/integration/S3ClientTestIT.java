@@ -3,12 +3,12 @@ package au.gov.ga.hydroid.integration;
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.service.DataObjectSummary;
 import au.gov.ga.hydroid.service.S3Client;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.http.entity.ContentType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -24,6 +24,7 @@ import java.util.List;
 public class S3ClientTestIT {
 
    @Autowired
+   @Qualifier("s3ClientImpl")
    private S3Client s3Client;
 
    @Test
@@ -56,6 +57,19 @@ public class S3ClientTestIT {
       List<DataObjectSummary> objects = s3Client.listObjects("hydroid", "wrong/key");
       Assert.assertNotNull(objects);
       Assert.assertTrue(objects.isEmpty());
+   }
+
+   @Test
+   public void testObjectNameAndKey() {
+      List<DataObjectSummary> objects = s3Client.listObjects("hydroid", "enhancer/input/images/20160429");
+      Assert.assertNotNull(objects);
+      for (DataObjectSummary objectSummary : objects) {
+         if (objectSummary.getKey().contains("2.3_shark Whitetip Reef Shark_0.jpg")) {
+            Assert.assertEquals("File Name", "2.3_shark Whitetip Reef Shark_0.jpg", objectSummary.getKey().substring(objectSummary.getKey().lastIndexOf("/") + 1));
+            Assert.assertEquals("Key", "enhancer/input/images/20160429/2.3_shark Whitetip Reef Shark_0.jpg", objectSummary.getKey());
+            break;
+         }
+      }
    }
 
 }
