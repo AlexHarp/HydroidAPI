@@ -7,6 +7,7 @@ import au.gov.ga.hydroid.dto.ImageMetadata;
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.model.EnhancementStatus;
+import au.gov.ga.hydroid.model.HydroidSolrMapper;
 import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
@@ -14,7 +15,7 @@ import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.ContentType;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AbstractParser;
 import org.imgscalr.Scalr;
@@ -30,7 +31,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -39,9 +42,6 @@ import java.util.*;
 public class EnhancerServiceImpl implements EnhancerService {
 
    private static final Logger logger = LoggerFactory.getLogger(EnhancerServiceImpl.class);
-
-   private static final List<String> VALID_PREDICATES = Arrays.asList("extracted-from", "entity-reference", "entity-label", "selection-context");
-   private static final String GA_PUBLIC_VOCABS = "GAPublicVocabsSandbox";
 
    @Autowired
    private HydroidConfiguration configuration;
@@ -69,120 +69,14 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private ApplicationContext applicationContext;
 
-   // Add a new subject to the GA Vocab Subjects list
-   private void addGAVocabSubject(Map<String,String> gaVocabSubjects, String subject, String objectValue) {
-      if (objectValue.contains(GA_PUBLIC_VOCABS) && gaVocabSubjects.get(subject) == null) {
-         gaVocabSubjects.put(subject, objectValue);
-      }
-   }
-
-   // add new value if not there yet
-   private void addMultiValuedField(List<String> multiValuedField, String objectValue) {
-      if (!multiValuedField.contains(objectValue)) {
-         multiValuedField.add(objectValue);
-      }
-   }
-
-   private void addStatementToRDF(List<Statement> rdfDocument, Resource subject, String propertyName, String value) {
-      Property property = ResourceFactory.createProperty(propertyName);
-      RDFNode object = ResourceFactory.createPlainLiteral(value);
-      rdfDocument.add(ResourceFactory.createStatement(subject, property, object));
-   }
-
-   private boolean isValidStatement(String subject, String predicate, String objectValue, Map<String,String> gaVocabSubjects) {
-      // Discard any statement where the subject is not related to the GAPublicVocabs
-      if (configuration.isStoreGAVocabsOnly() && (gaVocabSubjects.get(subject) == null) && !objectValue.contains(GA_PUBLIC_VOCABS)) {
-         return false;
-      }
-      // Discard if the predicate is not included in the list we are after
-      if (!VALID_PREDICATES.contains(predicate)) {
-         return false;
-      }
-      return true;
-   }
-
-   private Properties generateSolrDocument(List<Statement> rdfDocument, DocumentDTO document) {
-      List<String> concepts = new ArrayList<>();
-      List<String> labels = new ArrayList<>();
-      List<String> selectionContexts = new ArrayList<>();
-      Properties properties = new Properties();
-      StringBuilder documentUrl = new StringBuilder();
-      Map<String,String> gaVocabSubjects = new HashMap<>();
-
-      for (Statement statement : rdfDocument) {
-         String subject = statement.getSubject().getLocalName().toLowerCase();
-         String predicate = statement.getPredicate().getLocalName().toLowerCase();
-         String objectValue = statement.getObject().isLiteral() ? statement.getObject().asLiteral().getString()
-               : statement.getObject().asResource().getURI();
-
-         if (!isValidStatement(subject, predicate, objectValue, gaVocabSubjects)) {
-            continue;
-         }
-
-         if ("extracted-from".equalsIgnoreCase(predicate) && !properties.containsKey("about")) {
-            properties.put("about", objectValue);
-
-         } else if ("entity-reference".equalsIgnoreCase(predicate)) {
-            addGAVocabSubject(gaVocabSubjects, subject, objectValue);
-            addMultiValuedField(concepts, objectValue);
-
-         } else if ("entity-label".equalsIgnoreCase(predicate)) {
-            addMultiValuedField(labels, objectValue);
-
-         } else if ("selection-context".equalsIgnoreCase(predicate)) {
-            addMultiValuedField(selectionContexts, objectValue);
-
-         } else {
-            properties.put(predicate, objectValue);
-         }
-      }
-
-      documentUrl.setLength(0);
-      documentUrl = new StringBuilder(configuration.getS3OutputUrl())
-            .append(document.getDocType().equals(DocumentType.IMAGE.name()) ? "/images/" : "/rdfs/")
-            .append(properties.getProperty("about"));
-
-      Resource subject = ResourceFactory.createResource(properties.getProperty("about"));
-
-      // Add property:type to rdf (DOCUMENT, DATASET, MODEL or IMAGE)
-      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_type", document.getDocType());
-
-      // Add property:label to the rdf (the document title)
-      addStatementToRDF(rdfDocument, subject, "https://www.w3.org/TR/rdf-schema/#ch_label", document.getTitle());
-
-      // Added property:image to the RDF document
-      if (document.getDocType().equals(DocumentType.IMAGE.name())) {
-         addStatementToRDF(rdfDocument, subject, "http://purl.org/dc/dcmitype/Image", documentUrl.toString());
-      }
-
-      properties.put("content", document.getContent());
-      properties.put("title", document.getTitle());
-      properties.put("label", labels);
-      properties.put("concept", concepts);
-      properties.put("docType", document.getDocType());
-      properties.put("docUrl", documentUrl.toString());
-      if (document.getAuthor() != null) {
-         properties.put("creator", document.getAuthor());
-      }
-      if (document.getDateCreated() != null) {
-         properties.put("created", document.getDateCreated());
-      }
-      properties.put("selectionContext", selectionContexts);
-
-      // No labels or concepts were found so we discard
-      // the process by clearing all the properties
-      if (labels.isEmpty() && concepts.isEmpty()) {
-         properties.clear();
-      }
-
-      return properties;
-   }
+   @Autowired
+   private HydroidSolrMapper hydroidSolrMapper;
 
    private String getFileNameFromS3ObjectSummary(DataObjectSummary objectSummary) {
       return objectSummary.getKey().substring(objectSummary.getKey().lastIndexOf("/") + 1);
    }
 
-   private String getImageThumb(BufferedImage image, String title, String urn) {
+   private String getImageThumb(BufferedImage image, String urn) {
       try {
          BufferedImage resized = Scalr.resize(image, 200);
          ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -195,8 +89,20 @@ public class EnhancerServiceImpl implements EnhancerService {
                "image/png");
          return configuration.getS3OutputUrl() + "/images/" + urn + "_thumb";
       } catch (Exception e) {
-         logger.error("Failed to resize image '" + title + "'.", e);
-         return null;
+         throw new HydroidException(e);
+      }
+   }
+
+   private void processFailure(DocumentDTO document, String urn, String reason) {
+      logger.info("processFailure - saving document in the database");
+      saveOrUpdateDocument(document, urn, EnhancementStatus.FAILURE, reason);
+      logger.info("processFailure - document saved in the database");
+
+      // Also store original image metadata
+      if (document.getDocType().equals(DocumentType.IMAGE.name())) {
+         logger.info("processFailure - saving image metadata in the database");
+         saveOrUpdateImageMetadata(document.getOrigin(), document.getContent());
+         logger.info("processFailure - image metadata saved");
       }
    }
 
@@ -221,23 +127,13 @@ public class EnhancerServiceImpl implements EnhancerService {
          }
 
          // Generate dictionary with properties we are interested in
-         Properties properties = generateSolrDocument(rdfDocument, document);
+         Properties properties = hydroidSolrMapper.generateDocument(rdfDocument, document);
          urn = properties.getProperty("about");
 
          // Content has NOT been tagged with our vocabularies
          if (properties.isEmpty()) {
-            logger.info("enhance - saving document in the database");
-            saveOrUpdateDocument(document, urn, EnhancementStatus.FAILURE,
-                  "No matches were found in the vocabularies used by the chain: " + configuration.getStanbolChain());
-            logger.info("enhance - document saved in the database");
-
-            // Also store original image metadata
-            if (document.getDocType().equals(DocumentType.IMAGE.name())) {
-               logger.info("enhance - saving image metadata in the database");
-               saveOrUpdateImageMetadata(document.getOrigin(), document.getContent());
-               logger.info("enhance - image metadata saved");
-            }
-
+            processFailure(document, urn, "No matches were found in the vocabularies used by the chain: "
+                  + configuration.getStanbolChain());
             return false;
          }
 
@@ -248,13 +144,14 @@ public class EnhancerServiceImpl implements EnhancerService {
          // Also store original image in S3
          if (document.getDocType().equals(DocumentType.IMAGE.name())) {
             logger.info("enhance - saving image in S3 and its metadata in the database");
-            s3Client.copyObject(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.getTitle(),
+            int bucketEndPosition = document.getOrigin().indexOf(":") + 1;
+            s3Client.copyObject(configuration.getS3Bucket(), document.getOrigin().substring(bucketEndPosition),
                     configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
             saveOrUpdateImageMetadata(document.getOrigin(), document.getContent());
             logger.info("enhance - original image content and metadata saved");
-            InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), configuration.getS3EnhancerInput() + "images/" + document.getTitle());
+            InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), document.getOrigin().substring(bucketEndPosition));
             BufferedImage image = ImageIO.read(origImage);
-            properties.put("imgThumb", getImageThumb(image, document.getTitle(), urn));
+            properties.put("imgThumb", getImageThumb(image, urn));
          }
 
          // Add enhanced document to Solr
@@ -276,19 +173,13 @@ public class EnhancerServiceImpl implements EnhancerService {
 
       } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
-         saveOrUpdateDocument(document, urn, EnhancementStatus.FAILURE, e.getLocalizedMessage());
 
-         // Also store original image metadata
-         if (document.getDocType().equals(DocumentType.IMAGE.name())) {
-            logger.info("enhance - saving image metadata in the database");
-            saveOrUpdateImageMetadata(document.getOrigin(), document.getContent());
-            logger.info("enhance - image metadata saved");
-         }
+         processFailure(document, urn, e.getLocalizedMessage());
 
          // if there was any error in the process we remove the documents stored under the URN if created
          rollbackEnhancement(urn);
 
-         throw new HydroidException(e);
+         return false;
       }
    }
 
@@ -333,7 +224,7 @@ public class EnhancerServiceImpl implements EnhancerService {
          origin = object.getBucketName() + ":" + object.getKey();
          document = documentService.findByOrigin(origin);
          // Document was not enhanced or previous enhancement failed
-         if (document == null || (document.getStatus() == EnhancementStatus.FAILURE)) {
+         if (document == null || document.getStatus() == EnhancementStatus.FAILURE) {
             output.add(object);
          }
       }
@@ -362,16 +253,15 @@ public class EnhancerServiceImpl implements EnhancerService {
       objects = getDocumentsForEnhancement(objects);
       logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
       for (DataObjectSummary object : objects) {
-
-         s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
-
-         metadata = new Metadata();
-         document = new DocumentDTO();
-         document.setContent(IOUtils.parseStream(s3FileContent, metadata));
-         document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
-         copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
-
          try {
+            s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+
+            metadata = new Metadata();
+            document = new DocumentDTO();
+            document.setContent(IOUtils.parseStream(s3FileContent, metadata));
+            document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
+            copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
+
             enhance(document);
          } catch (Exception e) {
             logger.error("enhanceCollection - error processing file key: " + object.getKey(), e);
@@ -383,9 +273,9 @@ public class EnhancerServiceImpl implements EnhancerService {
       StringBuilder result = new StringBuilder();
       ImageMetadata imageMetadata = imageService.getImageMetadata(s3FileContent);
       for (ImageAnnotation imageLabel : imageMetadata.getImageLabels()) {
-         result.append(imageLabel.getDescription()).append(" (").append(imageLabel.getScore()).append("),");
+         result.append(imageLabel.getDescription()).append(" (").append(imageLabel.getScore()).append("), ");
       }
-      result.setLength(result.length() - 1);
+      result.setLength(result.length() - 2);
       return result.toString();
    }
 
@@ -397,23 +287,23 @@ public class EnhancerServiceImpl implements EnhancerService {
       logger.info("enhancePendingDocuments - there are " + documents.size() + " pending documents to be enhanced");
       for (Document dbDocument : documents) {
 
-         metadata = new Metadata();
-         document = new DocumentDTO();
-         InputStream inputStream = IOUtils.getUrlContent(dbDocument.getOrigin());
-
-         // User custom parser
-         if (dbDocument.getParserName() != null) {
-            AbstractParser parser = (AbstractParser) applicationContext.getBean(dbDocument.getParserName());
-            document.setContent(IOUtils.parseStream(inputStream, metadata, parser));
-         // Use default parser
-         } else {
-            document.setContent(IOUtils.parseStream(inputStream, metadata));
-         }
-
-         document.setOrigin(dbDocument.getOrigin());
-         copyMetadataToDocument(metadata, document, dbDocument.getOrigin());
-
          try {
+            metadata = new Metadata();
+            document = new DocumentDTO();
+            InputStream inputStream = IOUtils.getUrlContent(dbDocument.getOrigin());
+
+            // User custom parser
+            if (dbDocument.getParserName() != null) {
+               AbstractParser parser = (AbstractParser) applicationContext.getBean(dbDocument.getParserName());
+               document.setContent(IOUtils.parseStream(inputStream, metadata, parser));
+            // Use default parser
+            } else {
+               document.setContent(IOUtils.parseStream(inputStream, metadata));
+            }
+
+            document.setOrigin(dbDocument.getOrigin());
+            copyMetadataToDocument(metadata, document, dbDocument.getOrigin());
+
             enhance(document);
          } catch (Exception e) {
             logger.error("enhancePendingDocuments - error processing URL: " + dbDocument.getOrigin(), e);
@@ -451,21 +341,21 @@ public class EnhancerServiceImpl implements EnhancerService {
             continue;
          }
 
-         document = new DocumentDTO();
-         document.setDocType(DocumentType.IMAGE.name());
-         document.setTitle(getFileNameFromS3ObjectSummary(s3ObjectSummary));
-         document.setOrigin(configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey());
-
-         // The cached imaged metadata will be used for enhancement (if exists)
-         document.setContent(documentService.readImageMetadata(document.getOrigin()));
-
-         // The image metadata will be extracted and used for enhancement
-         if (document.getContent() == null) {
-            s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
-            document.setContent(document.getTitle() + "\n" + getImageMetadataAsString(s3FileContent));
-         }
-
          try {
+            document = new DocumentDTO();
+            document.setDocType(DocumentType.IMAGE.name());
+            document.setTitle(getFileNameFromS3ObjectSummary(s3ObjectSummary));
+            document.setOrigin(configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey());
+
+            // The cached imaged metadata will be used for enhancement (if exists)
+            document.setContent(documentService.readImageMetadata(document.getOrigin()));
+
+            // The image metadata will be extracted and used for enhancement
+            if (document.getContent() == null) {
+               s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
+               document.setContent("The labels found for " + document.getTitle() + " are " + getImageMetadataAsString(s3FileContent));
+            }
+
             enhance(document);
          } catch (Exception e) {
             logger.error("enhanceImages - error processing file key: " + s3ObjectSummary.getKey(), e);

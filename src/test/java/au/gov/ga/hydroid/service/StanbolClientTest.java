@@ -30,7 +30,7 @@ public class StanbolClientTest {
       String enhancedText = stanbolClient.enhance("default", "This is the text for enhancement.", StanbolMediaTypes.RDFXML);
       Properties allPredicates = stanbolClient.findAllPredicates(enhancedText);
       Assert.assertNotNull(allPredicates);
-      Assert.assertEquals(6, allPredicates.size());
+      Assert.assertEquals(7, allPredicates.size());
       Assert.assertEquals("en", allPredicates.getProperty("language"));
    }
 

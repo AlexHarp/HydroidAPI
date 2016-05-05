@@ -6,7 +6,10 @@ import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.mock.CustomMockJenaService;
 import au.gov.ga.hydroid.mock.CustomMockStanbolClient;
 import au.gov.ga.hydroid.model.DocumentType;
+import au.gov.ga.hydroid.model.HydroidSolrMapper;
 import au.gov.ga.hydroid.service.impl.EnhancerServiceImpl;
+import au.gov.ga.hydroid.service.impl.FileSystemClientImpl;
+import au.gov.ga.hydroid.service.impl.ImageServiceImpl;
 import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.http.client.utils.DateUtils;
@@ -24,8 +27,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
-import java.sql.ResultSet;
-
 /**
  * Created by u24529 on 7/04/2016.
  */
@@ -39,17 +40,14 @@ public class EnhancerServiceTest {
    @Autowired
    private ApplicationContext applicationContext;
 
+   @Autowired
+   private HydroidSolrMapper hydroidSolrMapper;
+
    @Mock
    private SolrClient solrClient;
 
    @Mock
-   private S3Client s3Client;
-
-   @Mock
    private DocumentService documentService;
-
-   @Mock
-   private ImageService imageService;
 
    private EnhancerService enhancerService;
 
@@ -67,15 +65,18 @@ public class EnhancerServiceTest {
       } catch (Exception e) {
          throw new HydroidException(e);
       }
+      System.setProperty("s3.use.file.system.path", "src/test/resources/testfiles/");
       ReflectionUtils.shallowCopyFieldState(wiredConfiguration, configuration);
       ReflectionTestUtils.setField(enhancerService, "configuration", configuration);
       ReflectionTestUtils.setField(enhancerService, "stanbolClient", new CustomMockStanbolClient());
       ReflectionTestUtils.setField(enhancerService, "solrClient", solrClient);
-      ReflectionTestUtils.setField(enhancerService, "s3Client", s3Client);
+      ReflectionTestUtils.setField(enhancerService, "s3Client", new FileSystemClientImpl());
       ReflectionTestUtils.setField(enhancerService, "jenaService", new CustomMockJenaService());
       ReflectionTestUtils.setField(enhancerService, "documentService", documentService);
-      ReflectionTestUtils.setField(enhancerService, "imageService", imageService);
+      ReflectionTestUtils.setField(enhancerService, "imageService", new ImageServiceImpl());
       ReflectionTestUtils.setField(enhancerService, "applicationContext", applicationContext);
+      ReflectionTestUtils.setField(hydroidSolrMapper, "configuration", configuration);
+      ReflectionTestUtils.setField(enhancerService, "hydroidSolrMapper", hydroidSolrMapper);
    }
 
    @Test
@@ -88,7 +89,7 @@ public class EnhancerServiceTest {
       document.setTitle(metadata.get("title"));
       document.setAuthor(metadata.get("author") == null ? metadata.get("Author") : metadata.get("author"));
       document.setDateCreated(DateUtils.parseDate(metadata.get("Creation-Date"), new String[]{"yyyy-MM-dd'T'HH:mm:ss'Z'"}));
-      enhancerService.enhance(document);
+      Assert.assertTrue(enhancerService.enhance(document));
    }
 
    @Test

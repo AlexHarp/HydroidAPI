@@ -12,6 +12,8 @@ buildNumber.properties
 
 src/test/resources/testfiles/google_vision/
 src/test/resources/testfiles/ms_image/
+src/test/resources/testfiles/test*
+src/test/resources/testfiles/hydroid-output
 
 google-vision.json
 
