@@ -30,17 +30,16 @@ public class MenuController {
       SortedSet<MenuDTO> menu = new TreeSet<>();
       MenuDTO menuItem, childMenuItem;
 
-
       try {
 
-         Model model = ModelFactory.createDefaultModel();
-         model.read(rdfName);
-         ResIterator resources = model.listResourcesWithProperty(RDF.type);
+         final Model model = ModelFactory.createDefaultModel().read(rdfName);
+         final ResIterator resources = model.listResourcesWithProperty(RDF.type);
 
          while (resources.hasNext()) {
-            Resource parentRes = resources.nextResource();
+            final Resource parentRes = resources.nextResource();
 
             if (parentRes.hasProperty(RDFS.label)) {
+
                Statement resStmt = parentRes.getProperty(RDFS.label);
 
                menuItem = new MenuDTO();
@@ -56,10 +55,25 @@ public class MenuController {
                   String parentURI = resStmt.getSubject().getURI();
 
                   if (childURI.equals(parentURI)) {
+
                      Statement childResStmt = childRes.getProperty(SKOS.prefLabel);
+
                      childMenuItem = new MenuDTO();
                      childMenuItem.setNodeLabel(childResStmt.getString());
                      childMenuItem.setNodeURI(childResStmt.getSubject().getURI());
+
+                     if (childRes.hasProperty(SKOS.narrower)) {
+
+                         StmtIterator iterNarrower = childRes.listProperties(SKOS.narrower);
+
+                         while (iterNarrower.hasNext()) {
+                             Statement stmtNarrower = iterNarrower.nextStatement();
+
+                             for(MenuDTO item : GetChildMenus(model, stmtNarrower.getObject().toString())) {
+                                 childMenuItem.getChildren().add(item);
+                             }
+                         }
+                     }
                      menuItem.getChildren().add(childMenuItem);
                   }
                }
@@ -70,9 +84,43 @@ public class MenuController {
          throw new HydroidException(e);
       }
 
-      System.out.println("Done!");
-
       return menu;
+   }
+
+   private SortedSet<MenuDTO> GetChildMenus (Model model, String topConceptURI) {
+
+       MenuDTO broaderItem;
+       SortedSet<MenuDTO> items = new TreeSet<>();
+       final ResIterator broaderResources = model.listResourcesWithProperty(SKOS.broader);
+
+       while(broaderResources.hasNext()) {
+
+           Resource broaderRes = broaderResources.nextResource();
+           String broaderURI = broaderRes.getURI();
+
+           if (topConceptURI.equals(broaderURI)) {
+
+               Statement broaderStmt = broaderRes.getProperty(SKOS.prefLabel);
+               broaderItem = new MenuDTO();
+               broaderItem.setNodeURI(broaderURI);
+               broaderItem.setNodeLabel(broaderStmt.getString());
+
+               if (broaderRes.hasProperty(SKOS.narrower)) {
+
+                   StmtIterator iterNarrower = broaderRes.listProperties(SKOS.narrower);
+
+                   while (iterNarrower.hasNext()) {
+                       Statement stmtNarrower = iterNarrower.nextStatement();
+
+                       for(MenuDTO item : GetChildMenus(model, stmtNarrower.getObject().toString())) {
+                           broaderItem.getChildren().add(item);
+                       }
+                   }
+               }
+               items.add(broaderItem);
+           }
+       }
+       return items;
    }
 
    @RequestMapping(value = "/hydroid", method = {RequestMethod.GET})
@@ -82,5 +130,4 @@ public class MenuController {
       }
       return new ResponseEntity<>(hydroidMenu, HttpStatus.OK);
    }
-
 }

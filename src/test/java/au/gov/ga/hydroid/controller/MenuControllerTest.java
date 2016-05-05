@@ -47,9 +47,9 @@ public class MenuControllerTest {
                      .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk())
                .andExpect(content().string(menuJson));
+
       } catch (Exception e) {
          throw new HydroidException(e);
       }
    }
-
 }
