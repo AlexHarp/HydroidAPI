@@ -174,7 +174,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
 
-         processFailure(document, urn, e.getLocalizedMessage());
+         processFailure(document, urn, e.getMessage());
 
          // if there was any error in the process we remove the documents stored under the URN if created
          rollbackEnhancement(urn);
@@ -265,7 +265,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             enhance(document);
          } catch (Exception e) {
             logger.error("enhanceCollection - error processing file key: " + object.getKey(), e);
-            processFailure(document, null, e.getLocalizedMessage());
+            processFailure(document, null, e.getMessage());
          }
       }
    }
@@ -307,7 +307,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             enhance(document);
          } catch (Exception e) {
             logger.error("enhancePendingDocuments - error processing URL: " + dbDocument.getOrigin(), e);
-            processFailure(document, null, e.getLocalizedMessage());
+            processFailure(document, null, e.getMessage());
          }
       }
    }
