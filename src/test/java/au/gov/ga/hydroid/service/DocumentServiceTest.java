@@ -4,6 +4,7 @@ import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.model.EnhancementStatus;
+import au.gov.ga.hydroid.utils.HydroidException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,24 @@ public class DocumentServiceTest {
       document.setType(DocumentType.DOCUMENT);
       document.setStatus(EnhancementStatus.PENDING);
       documentService.create(document);
+   }
+
+   @Test
+   public void testCreateWithError() {
+      try {
+         Document document = new Document();
+         String urn = "urn:test3";
+         document.setOrigin("origin:test1");
+         document.setUrn(urn);
+         document.setTitle("Title for (" + urn + ")");
+         document.setType(DocumentType.DOCUMENT);
+         document.setStatus(EnhancementStatus.PENDING);
+         documentService.create(document);
+      } catch (HydroidException e) {
+         Assert.assertEquals("Unique index or primary key violation: \"DOCUMENTS_ORIGIN_IDX ON PUBLIC.DOCUMENTS(ORIGIN) VALUES ('origin:test1', 1)\"; SQL statement:\n" +
+               "insert into documents (origin, urn, title, type, status, status_reason, process_date, parser_name) values (?, ?, ?, ?, ?, ?, ?, ?) [23505-191]",
+               e.getMessage());
+      }
    }
 
    @Test
@@ -74,6 +93,7 @@ public class DocumentServiceTest {
    }
 
    @Test
+   @Transactional(readOnly = true)
    public void testUpdate() {
       Document document = documentService.findByUrn("urn:test1");
       Assert.assertNotNull(document);

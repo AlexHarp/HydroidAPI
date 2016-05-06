@@ -4,9 +4,11 @@ import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.model.DocumentRowMapper;
 import au.gov.ga.hydroid.model.EnhancementStatus;
 import au.gov.ga.hydroid.service.DocumentService;
+import au.gov.ga.hydroid.utils.HydroidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -68,10 +70,14 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void create(Document document) {
-      String sql = "insert into documents (origin, urn, title, type, status, "
-            + "status_reason, process_date, parser_name) values (?, ?, ?, ?, ?, ?, ?, ?)";
-      jdbcTemplate.update(sql, document.getOrigin(), document.getUrn(), document.getTitle(), document.getType().name(),
-            document.getStatus().name(), document.getStatusReason(), getUTCDateTime(), document.getParserName());
+      try {
+         String sql = "insert into documents (origin, urn, title, type, status, "
+               + "status_reason, process_date, parser_name) values (?, ?, ?, ?, ?, ?, ?, ?)";
+         jdbcTemplate.update(sql, document.getOrigin(), document.getUrn(), document.getTitle(), document.getType().name(),
+               document.getStatus().name(), document.getStatusReason(), getUTCDateTime(), document.getParserName());
+      } catch (DataAccessException e) {
+         throw new HydroidException(e.getMostSpecificCause());
+      }
    }
 
    @Override
@@ -81,9 +87,13 @@ public class DocumentServiceImpl implements DocumentService {
 
    @Override
    public void update(Document document) {
-      String sql = "update documents set title = ?, urn = ?, status = ?, status_reason = ?, process_date = ? where id = ?";
-      jdbcTemplate.update(sql, document.getTitle(), document.getUrn(), document.getStatus().name(),
-            document.getStatusReason(), getUTCDateTime(), document.getId());
+      try {
+         String sql = "update documents set title = ?, urn = ?, status = ?, status_reason = ?, process_date = ? where id = ?";
+         jdbcTemplate.update(sql, document.getTitle(), document.getUrn(), document.getStatus().name(),
+               document.getStatusReason(), getUTCDateTime(), document.getId());
+      } catch (DataAccessException e) {
+         throw new HydroidException(e.getMostSpecificCause());
+      }
    }
 
    @Override
