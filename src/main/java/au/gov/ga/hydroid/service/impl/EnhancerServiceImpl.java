@@ -253,11 +253,11 @@ public class EnhancerServiceImpl implements EnhancerService {
       objects = getDocumentsForEnhancement(objects);
       logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
       for (DataObjectSummary object : objects) {
+         document = new DocumentDTO();
          try {
             s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
 
             metadata = new Metadata();
-            document = new DocumentDTO();
             document.setContent(IOUtils.parseStream(s3FileContent, metadata));
             document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
             copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
@@ -265,6 +265,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             enhance(document);
          } catch (Exception e) {
             logger.error("enhanceCollection - error processing file key: " + object.getKey(), e);
+            processFailure(document, null, e.getLocalizedMessage());
          }
       }
    }
@@ -286,10 +287,9 @@ public class EnhancerServiceImpl implements EnhancerService {
       List<Document> documents = documentService.findByStatus(EnhancementStatus.PENDING);
       logger.info("enhancePendingDocuments - there are " + documents.size() + " pending documents to be enhanced");
       for (Document dbDocument : documents) {
-
+         document = new DocumentDTO();
          try {
             metadata = new Metadata();
-            document = new DocumentDTO();
             InputStream inputStream = IOUtils.getUrlContent(dbDocument.getOrigin());
 
             // User custom parser
@@ -307,6 +307,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             enhance(document);
          } catch (Exception e) {
             logger.error("enhancePendingDocuments - error processing URL: " + dbDocument.getOrigin(), e);
+            processFailure(document, null, e.getLocalizedMessage());
          }
       }
    }
