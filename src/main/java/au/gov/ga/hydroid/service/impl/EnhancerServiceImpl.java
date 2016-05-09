@@ -285,7 +285,9 @@ public class EnhancerServiceImpl implements EnhancerService {
             metadata = new Metadata();
             document.setContent(IOUtils.parseStream(s3FileContent, metadata));
             document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
-            document.setSha1Hash(IOUtils.getSha1Hash(s3FileContent));
+            String sha1 = IOUtils.getSha1Hash(s3FileContent);
+            logger.info("Origin: " + document.getOrigin() + ", sha1: " + sha1);
+            document.setSha1Hash(sha1);
             copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
 
             enhance(document);
