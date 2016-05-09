@@ -233,7 +233,6 @@ public class EnhancerServiceImpl implements EnhancerService {
          document = documentService.findByOrigin(origin);
          // Document was not enhanced or previous enhancement failed
          if (document == null) {
-            String newOrigin = configuration.getS3Bucket() + ":" + object.getKey();
             InputStream s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
             String sha1Hash = IOUtils.getSha1Hash(s3FileContent);
             document = documentService.findBySha1Hash(sha1Hash);
@@ -241,13 +240,13 @@ public class EnhancerServiceImpl implements EnhancerService {
                output.add(object);
 
             // Same document found at a different source location skip and set status as duplicate
-            } else if (!document.getOrigin().equals(newOrigin)) {
+            } else if (!document.getOrigin().equals(origin)) {
                Document duplicate = new Document();
-               duplicate.setOrigin(newOrigin);
+               duplicate.setOrigin(origin);
                duplicate.setTitle(document.getTitle());
                duplicate.setType(document.getType());
                duplicate.setStatus(EnhancementStatus.DUPLICATE);
-               duplicate.setStatusReason("Document already exists at " + origin);
+               duplicate.setStatusReason("Document already exists at " + document.getOrigin());
                documentService.create(duplicate);
             }
          } else if (document.getStatus() == EnhancementStatus.FAILURE) {

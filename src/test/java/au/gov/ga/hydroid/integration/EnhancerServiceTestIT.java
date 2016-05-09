@@ -5,6 +5,7 @@ import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.dto.DocumentDTO;
 import au.gov.ga.hydroid.model.DocumentType;
 import au.gov.ga.hydroid.service.EnhancerService;
+import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.IOUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.tika.metadata.Metadata;
@@ -12,10 +13,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.io.InputStream;
 
 /**
  * Created by u24529 on 3/02/2016.
@@ -30,6 +34,10 @@ public class EnhancerServiceTestIT {
 
    @Autowired
    private EnhancerService enhancerService;
+
+   @Autowired
+   @Qualifier("s3ClientImpl")
+   private S3Client s3Client;
 
    @Test
    public void testEnhance() {
@@ -88,6 +96,17 @@ public class EnhancerServiceTestIT {
       document.setOrigin("hydroid:enhancer/input/images/20160429/2.3_shark Whitetip Reef Shark_0.jpg");
       document.setContent("The labels found for 2.3_shark Whitetip Reef Shark_0.jpg are fish (0.94), marine biology (0.92), coral reef (0.89), underwater (0.87), biology (0.87), coral reef fish (0.84), reef (0.83), sea (0.73), coral (0.62), invertebrate (0.59)");
       Assert.assertFalse(enhancerService.enhance(document));
+   }
+
+   @Test
+   public void testSameContentHash() {
+      InputStream file1 = s3Client.getFile(configuration.getS3Bucket(), "enhancer/input/documents/13658816.2011_IJGIS_HUANGetal.pdf");
+      InputStream file2 = s3Client.getFile(configuration.getS3Bucket(), "enhancer/input/documents/20160408/05_fsr06_wtbf.pdf");
+
+      String hashFile1 = IOUtils.getSha1Hash(file1);
+      String hashFile2 = IOUtils.getSha1Hash(file2);
+
+      Assert.assertEquals(hashFile1, hashFile2);
    }
 
 }
