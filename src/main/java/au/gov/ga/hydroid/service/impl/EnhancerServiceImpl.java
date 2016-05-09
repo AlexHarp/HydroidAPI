@@ -234,8 +234,9 @@ public class EnhancerServiceImpl implements EnhancerService {
          // Document was not enhanced or previous enhancement failed
          if (document == null) {
             String newOrigin = configuration.getS3Bucket() + ":" + object.getKey();
-            byte[] s3FileContent = s3Client.getFileAsByteArray(object.getBucketName(), object.getKey());
-            document = documentService.findBySha1Hash(new String(s3FileContent));
+            InputStream s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+            String sha1Hash = IOUtils.getSha1Hash(s3FileContent);
+            document = documentService.findBySha1Hash(sha1Hash);
             if (document == null) {
                output.add(object);
 
@@ -284,8 +285,8 @@ public class EnhancerServiceImpl implements EnhancerService {
 
             metadata = new Metadata();
             document.setContent(IOUtils.parseStream(s3FileContent, metadata));
-            document.setSha1Hash(IOUtils.getSha1Hash(s3FileContent));
             document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
+            document.setSha1Hash(IOUtils.getSha1Hash(s3FileContent));
             copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
 
             enhance(document);
