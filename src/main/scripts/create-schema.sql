@@ -15,6 +15,7 @@ CREATE TABLE hydroid.documents (
 
 CREATE UNIQUE INDEX documents_urn_idx ON hydroid.documents (urn);
 CREATE UNIQUE INDEX documents_origin_idx ON hydroid.documents (origin);
+CREATE UNIQUE INDEX documents_sha1hash_idx ON hydroid.documents (sha1_hash);
 CREATE INDEX documents_status_idx ON hydroid.documents (status);
 
 CREATE TABLE hydroid.image_metadata (

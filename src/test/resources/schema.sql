@@ -14,6 +14,8 @@ CREATE TABLE documents (
 
 CREATE UNIQUE INDEX documents_urn_idx ON documents (urn);
 CREATE UNIQUE INDEX documents_origin_idx ON documents (origin);
+CREATE UNIQUE INDEX documents_sha1hash_idx ON documents (sha1_hash);
+CREATE INDEX documents_status_idx ON documents (status);
 
 DROP TABLE IF EXISTS image_metadata;
 CREATE TABLE image_metadata (
