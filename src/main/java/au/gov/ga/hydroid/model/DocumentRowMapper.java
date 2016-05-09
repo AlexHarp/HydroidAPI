@@ -31,6 +31,7 @@ public class DocumentRowMapper implements RowMapper {
          document.setStatusReason(resultSet.getString("status_reason"));
          document.setProcessDate(resultSet.getTimestamp("process_date"));
          document.setParserName(resultSet.getString("parser_name"));
+         document.setSha1Hash(resultSet.getString("sha1_hash"));
       } catch (SQLException e) {
          throw new HydroidException(e);
       }
