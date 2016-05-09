@@ -13,6 +13,7 @@ public interface DocumentService {
    List<Document> findAll();
    Document findByUrn(String urn);
    Document findByOrigin(String origin);
+   Document findBySha1Hash(String sha1Hash);
    List<Document> findByStatus(EnhancementStatus status);
    void create(Document document);
    void deleteByUrn(String urn);

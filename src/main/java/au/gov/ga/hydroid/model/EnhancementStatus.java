@@ -5,6 +5,6 @@ package au.gov.ga.hydroid.model;
  */
 public enum EnhancementStatus {
 
-   SUCCESS, FAILURE, PENDING, SKIP;
+   SUCCESS, FAILURE, PENDING, SKIP, DUPLICATE;
 
 }

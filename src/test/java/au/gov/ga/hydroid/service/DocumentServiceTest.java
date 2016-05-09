@@ -53,7 +53,7 @@ public class DocumentServiceTest {
          documentService.create(document);
       } catch (HydroidException e) {
          Assert.assertEquals("Unique index or primary key violation: \"DOCUMENTS_ORIGIN_IDX ON PUBLIC.DOCUMENTS(ORIGIN) VALUES ('origin:test1', 1)\"; SQL statement:\n" +
-               "insert into documents (origin, urn, title, type, status, status_reason, process_date, parser_name) values (?, ?, ?, ?, ?, ?, ?, ?) [23505-191]",
+               "insert into documents (origin, urn, title, type, status, status_reason, process_date, parser_name, sha1_hash) values (?, ?, ?, ?, ?, ?, ?, ?, ?) [23505-191]",
                e.getMessage());
       }
    }
@@ -75,6 +75,13 @@ public class DocumentServiceTest {
    @Test
    public void testFindByOrigin() {
       Document document = documentService.findByOrigin("origin:test1");
+      Assert.assertNotNull(document);
+      Assert.assertEquals("origin:test1", document.getOrigin());
+   }
+
+   @Test
+   public void testFindBySha1Hash() {
+      Document document = documentService.findBySha1Hash("d751cdfbf49e8ea17afd9cdca03f06f87ce37277");
       Assert.assertNotNull(document);
       Assert.assertEquals("origin:test1", document.getOrigin());
    }

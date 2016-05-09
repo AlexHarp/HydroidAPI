@@ -9,7 +9,8 @@ CREATE TABLE hydroid.documents (
     status varchar(20) NOT NULL,
     status_reason varchar(1000) NULL,
     process_date timestamp NOT NULL,
-    parser_name varchar(50) NULL
+    parser_name varchar(50) NULL,
+    sha1_hash varchar(100) NULL
 );
 
 CREATE UNIQUE INDEX documents_urn_idx ON hydroid.documents (urn);

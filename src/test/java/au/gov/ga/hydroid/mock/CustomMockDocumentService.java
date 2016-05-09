@@ -40,6 +40,11 @@ public class CustomMockDocumentService implements DocumentService {
    }
 
    @Override
+   public Document findBySha1Hash(String sha1Hash) {
+      return null;
+   }
+
+   @Override
    public List<Document> findByStatus(EnhancementStatus status) {
       return null;
    }

@@ -17,6 +17,7 @@ public class Document {
    private String statusReason;
    private Date processDate;
    private String parserName;
+   private String sha1Hash;
 
    public long getId() {
       return id;
@@ -88,6 +89,14 @@ public class Document {
 
    public void setParserName(String parserName) {
       this.parserName = parserName;
+   }
+
+   public String getSha1Hash() {
+      return sha1Hash;
+   }
+
+   public void setSha1Hash(String sha1Hash) {
+      this.sha1Hash = sha1Hash;
    }
 
 }
