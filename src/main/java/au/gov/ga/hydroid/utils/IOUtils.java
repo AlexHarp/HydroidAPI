@@ -1,6 +1,5 @@
 package au.gov.ga.hydroid.utils;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -83,9 +82,7 @@ public class IOUtils {
 
    public static String getSha1Hash(InputStream inputStream) {
       try {
-         byte[] input = fromInputStreamToByteArray(inputStream);
-         byte[] output = DigestUtils.getSha1Digest().digest(input);
-         return Hex.encodeHexString(output);
+         return DigestUtils.sha1Hex(inputStream);
       } catch (Exception e) {
          throw new HydroidException(e);
       }
