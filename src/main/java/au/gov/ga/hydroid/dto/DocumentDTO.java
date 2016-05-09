@@ -15,6 +15,7 @@ public class DocumentDTO {
    private String origin;
    private String author;
    private Date dateCreated;
+   private String sha1Hash;
 
    public String getTitle() {
       return title;
@@ -62,6 +63,14 @@ public class DocumentDTO {
 
    public void setDateCreated(Date dateCreated) {
       this.dateCreated = dateCreated;
+   }
+
+   public String getSha1Hash() {
+      return sha1Hash;
+   }
+
+   public void setSha1Hash(String sha1Hash) {
+      this.sha1Hash = sha1Hash;
    }
 
 }

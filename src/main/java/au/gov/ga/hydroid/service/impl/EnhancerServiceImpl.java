@@ -30,6 +30,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +107,19 @@ public class EnhancerServiceImpl implements EnhancerService {
       }
    }
 
+   private void saveImageDetails(String urn, DocumentDTO document, Properties properties) throws IOException {
+      logger.info("saveImageDetails - saving image in S3 and its metadata in the database");
+      int bucketEndPosition = document.getOrigin().indexOf(":") + 1;
+      s3Client.copyObject(configuration.getS3Bucket(), document.getOrigin().substring(bucketEndPosition),
+            configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
+      saveOrUpdateImageMetadata(document.getOrigin(), document.getContent());
+      logger.info("saveImageDetails - original image content and metadata saved");
+      InputStream origImage = s3Client.getFile(configuration.getS3Bucket(),
+            document.getOrigin().substring(bucketEndPosition));
+      BufferedImage image = ImageIO.read(origImage);
+      properties.put("imgThumb", getImageThumb(image, urn));
+   }
+
    @Override
    public boolean enhance(DocumentDTO document) {
 
@@ -115,7 +129,8 @@ public class EnhancerServiceImpl implements EnhancerService {
 
          // Send content to Stanbol for enhancement
          logger.info("enhance - about to post to stanbol server");
-         String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), document.getContent(), StanbolMediaTypes.RDFXML);
+         String enhancedText = stanbolClient.enhance(configuration.getStanbolChain(), document.getContent(),
+               StanbolMediaTypes.RDFXML);
          logger.info("enhance - received results from stanbol server");
          enhancedText = StringUtils.replace(enhancedText, ":content-item-sha1-", ":content-item-sha1:");
          logger.info("enhance - changed urn pattern, still contain old: " + enhancedText.contains(":content-item-sha1-"));
@@ -143,15 +158,7 @@ public class EnhancerServiceImpl implements EnhancerService {
 
          // Also store original image in S3
          if (document.getDocType().equals(DocumentType.IMAGE.name())) {
-            logger.info("enhance - saving image in S3 and its metadata in the database");
-            int bucketEndPosition = document.getOrigin().indexOf(":") + 1;
-            s3Client.copyObject(configuration.getS3Bucket(), document.getOrigin().substring(bucketEndPosition),
-                    configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
-            saveOrUpdateImageMetadata(document.getOrigin(), document.getContent());
-            logger.info("enhance - original image content and metadata saved");
-            InputStream origImage = s3Client.getFile(configuration.getS3Bucket(), document.getOrigin().substring(bucketEndPosition));
-            BufferedImage image = ImageIO.read(origImage);
-            properties.put("imgThumb", getImageThumb(image, urn));
+            saveImageDetails(urn, document, properties);
          }
 
          // Add enhanced document to Solr
@@ -174,7 +181,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       } catch (Exception e) {
          logger.error("enhance - Exception: ", e);
 
-         processFailure(document, urn, e.getLocalizedMessage());
+         processFailure(document, urn, e.getMessage());
 
          // if there was any error in the process we remove the documents stored under the URN if created
          rollbackEnhancement(urn);
@@ -194,6 +201,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       document.setType(DocumentType.valueOf(documentDTO.getDocType()));
       document.setStatus(status);
       document.setStatusReason(statusReason);
+      document.setSha1Hash(documentDTO.getSha1Hash());
       if (document.getId() == 0) {
          documentService.create(document);
       } else {
@@ -224,7 +232,24 @@ public class EnhancerServiceImpl implements EnhancerService {
          origin = object.getBucketName() + ":" + object.getKey();
          document = documentService.findByOrigin(origin);
          // Document was not enhanced or previous enhancement failed
-         if (document == null || document.getStatus() == EnhancementStatus.FAILURE) {
+         if (document == null) {
+            InputStream s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+            String sha1Hash = IOUtils.getSha1Hash(s3FileContent);
+            document = documentService.findBySha1Hash(sha1Hash);
+            if (document == null) {
+               output.add(object);
+
+            // Same document found at a different source location skip and set status as duplicate
+            } else if (!document.getOrigin().equals(origin)) {
+               Document duplicate = new Document();
+               duplicate.setOrigin(origin);
+               duplicate.setTitle(document.getTitle());
+               duplicate.setType(document.getType());
+               duplicate.setStatus(EnhancementStatus.DUPLICATE);
+               duplicate.setStatusReason("Document already exists at " + document.getOrigin());
+               documentService.create(duplicate);
+            }
+         } else if (document.getStatus() == EnhancementStatus.FAILURE) {
             output.add(object);
          }
       }
@@ -253,18 +278,22 @@ public class EnhancerServiceImpl implements EnhancerService {
       objects = getDocumentsForEnhancement(objects);
       logger.info("enhanceCollection - there are " + objects.size() + " " + documentType.name().toLowerCase() + "s to be enhanced");
       for (DataObjectSummary object : objects) {
+         document = new DocumentDTO();
          try {
             s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
 
             metadata = new Metadata();
-            document = new DocumentDTO();
             document.setContent(IOUtils.parseStream(s3FileContent, metadata));
             document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
+            String sha1 = IOUtils.getSha1Hash(s3FileContent);
+            logger.info("Origin: " + document.getOrigin() + ", sha1: " + sha1);
+            document.setSha1Hash(sha1);
             copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
 
             enhance(document);
          } catch (Exception e) {
             logger.error("enhanceCollection - error processing file key: " + object.getKey(), e);
+            processFailure(document, null, e.getMessage());
          }
       }
    }
@@ -286,10 +315,9 @@ public class EnhancerServiceImpl implements EnhancerService {
       List<Document> documents = documentService.findByStatus(EnhancementStatus.PENDING);
       logger.info("enhancePendingDocuments - there are " + documents.size() + " pending documents to be enhanced");
       for (Document dbDocument : documents) {
-
+         document = new DocumentDTO();
          try {
             metadata = new Metadata();
-            document = new DocumentDTO();
             InputStream inputStream = IOUtils.getUrlContent(dbDocument.getOrigin());
 
             // User custom parser
@@ -302,11 +330,13 @@ public class EnhancerServiceImpl implements EnhancerService {
             }
 
             document.setOrigin(dbDocument.getOrigin());
+            document.setSha1Hash(IOUtils.getSha1Hash(inputStream));
             copyMetadataToDocument(metadata, document, dbDocument.getOrigin());
 
             enhance(document);
          } catch (Exception e) {
             logger.error("enhancePendingDocuments - error processing URL: " + dbDocument.getOrigin(), e);
+            processFailure(document, null, e.getMessage());
          }
       }
    }
@@ -354,6 +384,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             if (document.getContent() == null) {
                s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
                document.setContent("The labels found for " + document.getTitle() + " are " + getImageMetadataAsString(s3FileContent));
+               document.setSha1Hash(IOUtils.getSha1Hash(s3FileContent));
             }
 
             enhance(document);

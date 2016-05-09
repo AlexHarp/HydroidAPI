@@ -36,3 +36,5 @@ install:
   - mvn clean package
 after_deploy:
   - mvn sonar:sonar
+  on:
+    branch: sonar-qube
