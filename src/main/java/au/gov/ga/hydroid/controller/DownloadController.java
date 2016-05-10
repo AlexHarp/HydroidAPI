@@ -12,11 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
@@ -28,7 +26,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * Created by u24529 on 4/02/2016.
  */
-@Controller
+@RestController
 @RequestMapping("/download")
 public class DownloadController {
 
@@ -44,44 +42,44 @@ public class DownloadController {
    @Autowired
    private DocumentService documentService;
 
-   private void donwloadSingle(String bucket, String key, MediaType mediaType, HttpServletResponse response) {
+   private ResponseEntity<byte[]> donwloadSingle(String bucket, String key, MediaType mediaType) {
+
       try {
 
-         InputStream fileContent = s3Client.getFile(bucket, key);
+         byte[] fileContent = s3Client.getFileAsByteArray(bucket, key);
          if (fileContent == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
+            return new ResponseEntity<>(org.springframework.http.HttpStatus.NOT_FOUND);
          }
 
-         Long length = IOUtils.copyLarge(fileContent, response.getOutputStream());
-
          String fileName = key.substring(key.lastIndexOf("/") + 1);
-         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-         response.setContentLengthLong(length);
-         response.setContentType(mediaType.toString());
-         response.flushBuffer();
+
+         HttpHeaders headers = new HttpHeaders();
+         headers.setContentType(org.springframework.http.MediaType.valueOf(mediaType.toString()));
+         headers.setContentLength(fileContent.length);
+         headers.setContentDispositionFormData("attachment", fileName);
+
+         return new ResponseEntity<>(fileContent, headers, org.springframework.http.HttpStatus.OK);
 
       } catch (Exception e) {
          logger.error("downloadSingle - Exception: ", e);
-         au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+         return new ResponseEntity<>(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
       }
    }
 
    @RequestMapping(value = "/rdfs/{urn}", method = {RequestMethod.GET})
-   public void downloadRDF(@PathVariable String urn, HttpServletResponse response) {
-      donwloadSingle(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
-            StanbolMediaTypes.RDFXML, response);
+   public @ResponseBody ResponseEntity<byte[]> downloadRDF(@PathVariable String urn) {
+      return donwloadSingle(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
+            StanbolMediaTypes.RDFXML);
    }
 
    @RequestMapping(value = "/documents/{urn}", method = {RequestMethod.GET})
-   public void downloadDocument(@PathVariable String urn, HttpServletResponse response) {
+   public @ResponseBody ResponseEntity<byte[]> downloadDocument(@PathVariable String urn) {
       Document document = documentService.findByUrn(urn);
       if (document == null) {
-         au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_NOT_FOUND);
-         return;
+         return new ResponseEntity<>(org.springframework.http.HttpStatus.NOT_FOUND);
       }
       String[] bucketAndKey = document.getOrigin().split(":");
-      donwloadSingle(bucketAndKey[0], bucketAndKey[1], MediaType.APPLICATION_OCTET_STREAM_TYPE, response);
+      return donwloadSingle(bucketAndKey[0], bucketAndKey[1], MediaType.APPLICATION_OCTET_STREAM_TYPE);
    }
 
    private int addFilesToBundle(String[] urnArray, ZipOutputStream zipOut) {
