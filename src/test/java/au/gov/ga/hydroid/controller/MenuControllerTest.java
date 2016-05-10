@@ -4,7 +4,6 @@ import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.dto.MenuDTO;
 import au.gov.ga.hydroid.utils.HydroidException;
-import com.amazonaws.util.json.JSONArray;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.IOUtils;
@@ -26,7 +25,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -52,7 +50,6 @@ public class MenuControllerTest {
       try {
 
          int x = 0, y = 0;
-
          Gson gson = new Gson();
          String menuJson = IOUtils.toString(getClass().getResourceAsStream("/hydroid-menu.json"));
          Model model = ModelFactory.createDefaultModel().read("hydroid.rdf");
