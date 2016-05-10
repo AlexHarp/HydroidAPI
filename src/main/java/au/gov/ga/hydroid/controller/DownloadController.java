@@ -1,6 +1,8 @@
 package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.model.Document;
+import au.gov.ga.hydroid.service.DocumentService;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
@@ -34,12 +36,13 @@ public class DownloadController {
    @Value("#{systemProperties['s3.use.file.system'] != null ? s3FileSystem : s3ClientImpl}")
    private S3Client s3Client;
 
-   @RequestMapping(value = "/rdfs/{urn}", method = {RequestMethod.GET})
-   public @ResponseBody String downloadSingle(@PathVariable String urn, HttpServletResponse response) {
+   @Autowired
+   private DocumentService documentService;
 
+   private String donwloadSingle(String urn, String bucket, String key, HttpServletResponse response) {
       try {
 
-         InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn);
+         InputStream fileContent = s3Client.getFile(bucket, key + urn);
          if (fileContent == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -62,6 +65,22 @@ public class DownloadController {
       }
 
       return null;
+   }
+
+   @RequestMapping(value = "/rdfs/{urn}", method = {RequestMethod.GET})
+   public @ResponseBody String downloadRDF(@PathVariable String urn, HttpServletResponse response) {
+      return donwloadSingle(urn, configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput(), response);
+   }
+
+   @RequestMapping(value = "/document/{urn}", method = {RequestMethod.GET})
+   public @ResponseBody String downloadDocument(@PathVariable String urn, HttpServletResponse response) {
+      Document document = documentService.findByUrn(urn);
+      if (document == null) {
+         au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_NOT_FOUND);
+         return null;
+      }
+      String[] bucketAndKey = document.getOrigin().split(":");
+      return donwloadSingle(urn, bucketAndKey[0], bucketAndKey[1], response);
    }
 
    private int addFilesToBundle(String[] urnArray, ZipOutputStream zipOut) {
