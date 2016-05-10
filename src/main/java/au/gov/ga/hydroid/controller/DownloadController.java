@@ -1,6 +1,8 @@
 package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.model.Document;
+import au.gov.ga.hydroid.service.DocumentService;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.util.Date;
 import java.util.zip.ZipEntry;
@@ -34,12 +37,13 @@ public class DownloadController {
    @Value("#{systemProperties['s3.use.file.system'] != null ? s3FileSystem : s3ClientImpl}")
    private S3Client s3Client;
 
-   @RequestMapping(value = "/rdfs/{urn}", method = {RequestMethod.GET})
-   public @ResponseBody String downloadSingle(@PathVariable String urn, HttpServletResponse response) {
+   @Autowired
+   private DocumentService documentService;
 
+   private String donwloadSingle(String bucket, String key, MediaType mediaType, HttpServletResponse response) {
       try {
 
-         InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn);
+         InputStream fileContent = s3Client.getFile(bucket, key);
          if (fileContent == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -49,9 +53,10 @@ public class DownloadController {
          fileContent.mark(0);
          Long length = IOUtils.copyLarge(fileContent, out);
 
-         response.setHeader("Content-Disposition", "attachment; filename=\"" + urn + ".rdf\"");
+         String fileName = key.substring(key.lastIndexOf("/") + 1);
+         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
          response.setContentLength(length.intValue());
-         response.setContentType(StanbolMediaTypes.RDFXML.toString());
+         response.setContentType(mediaType.toString());
 
          out.flush();
          out.close();
@@ -62,6 +67,23 @@ public class DownloadController {
       }
 
       return null;
+   }
+
+   @RequestMapping(value = "/rdfs/{urn}", method = {RequestMethod.GET})
+   public @ResponseBody String downloadRDF(@PathVariable String urn, HttpServletResponse response) {
+      return donwloadSingle(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
+            StanbolMediaTypes.RDFXML, response);
+   }
+
+   @RequestMapping(value = "/documents/{urn}", method = {RequestMethod.GET})
+   public @ResponseBody String downloadDocument(@PathVariable String urn, HttpServletResponse response) {
+      Document document = documentService.findByUrn(urn);
+      if (document == null) {
+         au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_NOT_FOUND);
+         return null;
+      }
+      String[] bucketAndKey = document.getOrigin().split(":");
+      return donwloadSingle(bucketAndKey[0], bucketAndKey[1], MediaType.APPLICATION_OCTET_STREAM_TYPE, response);
    }
 
    private int addFilesToBundle(String[] urnArray, ZipOutputStream zipOut) {

@@ -34,7 +34,6 @@ before_install:
   - sed -i 's/__HYDROID_POSTGRES_PWD__/'"$HYDROID_POSTGRES_PWD"'/g' ./src/main/resources/application.properties
 install:
   - mvn clean package
-after_deploy:
-  - mvn sonar:sonar
-  on:
-    branch: sonar-qube
+after_success:
+  - chmod a+x ./scripts/sonar-qube.sh
+  - ./scripts/sonar-qube.sh
