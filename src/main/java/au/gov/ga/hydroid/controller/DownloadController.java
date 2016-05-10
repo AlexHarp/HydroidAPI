@@ -39,10 +39,10 @@ public class DownloadController {
    @Autowired
    private DocumentService documentService;
 
-   private String donwloadSingle(String urn, String bucket, String key, HttpServletResponse response) {
+   private String donwloadSingle(String bucket, String key, HttpServletResponse response) {
       try {
 
-         InputStream fileContent = s3Client.getFile(bucket, key + urn);
+         InputStream fileContent = s3Client.getFile(bucket, key);
          if (fileContent == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -52,7 +52,8 @@ public class DownloadController {
          fileContent.mark(0);
          Long length = IOUtils.copyLarge(fileContent, out);
 
-         response.setHeader("Content-Disposition", "attachment; filename=\"" + urn + ".rdf\"");
+         String fileName = key.substring(key.lastIndexOf("/") + 1);
+         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
          response.setContentLength(length.intValue());
          response.setContentType(StanbolMediaTypes.RDFXML.toString());
 
@@ -69,7 +70,7 @@ public class DownloadController {
 
    @RequestMapping(value = "/rdfs/{urn}", method = {RequestMethod.GET})
    public @ResponseBody String downloadRDF(@PathVariable String urn, HttpServletResponse response) {
-      return donwloadSingle(urn, configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput(), response);
+      return donwloadSingle(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn, response);
    }
 
    @RequestMapping(value = "/documents/{urn}", method = {RequestMethod.GET})
@@ -80,7 +81,7 @@ public class DownloadController {
          return null;
       }
       String[] bucketAndKey = document.getOrigin().split(":");
-      return donwloadSingle(urn, bucketAndKey[0], bucketAndKey[1], response);
+      return donwloadSingle(bucketAndKey[0], bucketAndKey[1], response);
    }
 
    private int addFilesToBundle(String[] urnArray, ZipOutputStream zipOut) {
