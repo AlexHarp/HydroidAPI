@@ -72,7 +72,7 @@ public class DownloadController {
       return donwloadSingle(urn, configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput(), response);
    }
 
-   @RequestMapping(value = "/document/{urn}", method = {RequestMethod.GET})
+   @RequestMapping(value = "/documents/{urn}", method = {RequestMethod.GET})
    public @ResponseBody String downloadDocument(@PathVariable String urn, HttpServletResponse response) {
       Document document = documentService.findByUrn(urn);
       if (document == null) {
