@@ -29,9 +29,7 @@ public class MenuController {
 
       SortedSet<MenuDTO> menu = new TreeSet<>();
       MenuDTO menuItem, childMenuItem;
-
       try {
-
          final Model model = ModelFactory.createDefaultModel().read(rdfName);
          final ResIterator resources = model.listResourcesWithProperty(RDF.type);
 
@@ -39,34 +37,27 @@ public class MenuController {
             final Resource parentRes = resources.nextResource();
 
             if (parentRes.hasProperty(RDFS.label)) {
-
                Statement resStmt = parentRes.getProperty(RDFS.label);
-
                menuItem = new MenuDTO();
                menuItem.setNodeLabel(resStmt.getString());
                menuItem.setNodeURI(resStmt.getSubject().getURI());
-
                ResIterator childResources = model.listResourcesWithProperty(SKOS.topConceptOf);
 
                while (childResources.hasNext()) {
                   Resource childRes = childResources.next();
-
                   String childURI = childRes.getProperty(SKOS.topConceptOf).getObject().toString();
                   String parentURI = resStmt.getSubject().getURI();
 
                   if (childURI.equals(parentURI)) {
-
                      Statement childResStmt = childRes.getProperty(SKOS.prefLabel);
-
                      childMenuItem = new MenuDTO();
                      childMenuItem.setNodeLabel(childResStmt.getString());
                      childMenuItem.setNodeURI(childResStmt.getSubject().getURI());
 
                      if (childRes.hasProperty(SKOS.narrower)) {
-
                          StmtIterator iterNarrower = childRes.listProperties(SKOS.narrower);
 
-                         while (iterNarrower.hasNext()) {
+                        while (iterNarrower.hasNext()) {
                              Statement stmtNarrower = iterNarrower.nextStatement();
 
                              for(MenuDTO item : GetChildMenus(model, stmtNarrower.getObject().toString())) {
@@ -83,7 +74,6 @@ public class MenuController {
       } catch (Exception e) {
          throw new HydroidException(e);
       }
-
       return menu;
    }
 
@@ -94,19 +84,16 @@ public class MenuController {
        final ResIterator broaderResources = model.listResourcesWithProperty(SKOS.broader);
 
        while(broaderResources.hasNext()) {
-
            Resource broaderRes = broaderResources.nextResource();
            String broaderURI = broaderRes.getURI();
 
            if (topConceptURI.equals(broaderURI)) {
-
                Statement broaderStmt = broaderRes.getProperty(SKOS.prefLabel);
                broaderItem = new MenuDTO();
                broaderItem.setNodeURI(broaderURI);
                broaderItem.setNodeLabel(broaderStmt.getString());
 
                if (broaderRes.hasProperty(SKOS.narrower)) {
-
                    StmtIterator iterNarrower = broaderRes.listProperties(SKOS.narrower);
 
                    while (iterNarrower.hasNext()) {
