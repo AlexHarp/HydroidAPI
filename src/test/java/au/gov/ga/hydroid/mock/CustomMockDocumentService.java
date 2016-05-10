@@ -16,6 +16,7 @@ public class CustomMockDocumentService implements DocumentService {
             doc.setUrn("urn" + i);
             doc.setId(i);
             doc.setTitle("Title");
+            doc.setOrigin("hydroid:input/urn" + i);
             all.add(doc);
         }
     }
