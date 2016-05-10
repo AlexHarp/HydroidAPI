@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.util.Date;
 import java.util.zip.ZipEntry;
@@ -39,7 +40,7 @@ public class DownloadController {
    @Autowired
    private DocumentService documentService;
 
-   private String donwloadSingle(String bucket, String key, HttpServletResponse response) {
+   private String donwloadSingle(String bucket, String key, MediaType mediaType, HttpServletResponse response) {
       try {
 
          InputStream fileContent = s3Client.getFile(bucket, key);
@@ -55,7 +56,7 @@ public class DownloadController {
          String fileName = key.substring(key.lastIndexOf("/") + 1);
          response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
          response.setContentLength(length.intValue());
-         response.setContentType(StanbolMediaTypes.RDFXML.toString());
+         response.setContentType(mediaType.toString());
 
          out.flush();
          out.close();
@@ -70,7 +71,8 @@ public class DownloadController {
 
    @RequestMapping(value = "/rdfs/{urn}", method = {RequestMethod.GET})
    public @ResponseBody String downloadRDF(@PathVariable String urn, HttpServletResponse response) {
-      return donwloadSingle(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn, response);
+      return donwloadSingle(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
+            StanbolMediaTypes.RDFXML, response);
    }
 
    @RequestMapping(value = "/documents/{urn}", method = {RequestMethod.GET})
@@ -81,7 +83,7 @@ public class DownloadController {
          return null;
       }
       String[] bucketAndKey = document.getOrigin().split(":");
-      return donwloadSingle(bucketAndKey[0], bucketAndKey[1], response);
+      return donwloadSingle(bucketAndKey[0], bucketAndKey[1], MediaType.APPLICATION_OCTET_STREAM_TYPE, response);
    }
 
    private int addFilesToBundle(String[] urnArray, ZipOutputStream zipOut) {
