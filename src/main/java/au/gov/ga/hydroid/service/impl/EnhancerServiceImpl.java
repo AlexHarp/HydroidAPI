@@ -273,7 +273,7 @@ public class EnhancerServiceImpl implements EnhancerService {
    private void enhanceCollection(DocumentType documentType) {
       Metadata metadata;
       DocumentDTO document;
-      InputStream s3FileContent;
+      byte[] s3FileContent;
       String key = configuration.getS3EnhancerInput() + documentType.name().toLowerCase() + "s";
       List<DataObjectSummary> objects = s3Client.listObjects(configuration.getS3Bucket(), key);
       objects = getDocumentsForEnhancement(objects);
@@ -281,7 +281,7 @@ public class EnhancerServiceImpl implements EnhancerService {
       for (DataObjectSummary object : objects) {
          document = new DocumentDTO();
          try {
-            s3FileContent = s3Client.getFile(object.getBucketName(), object.getKey());
+            s3FileContent = s3Client.getFileAsByteArray(object.getBucketName(), object.getKey());
             String origin = object.getBucketName() + ":" + object.getKey();
             String sha1Hash = IOUtils.getSha1Hash(s3FileContent);
 
@@ -290,9 +290,8 @@ public class EnhancerServiceImpl implements EnhancerService {
             }
 
             metadata = new Metadata();
-            document.setContent(IOUtils.parseStream(s3FileContent, metadata));
-            document.setOrigin(configuration.getS3Bucket() + ":" + object.getKey());
-            logger.info("Origin: " + document.getOrigin() + ", sha1Hash: " + sha1Hash);
+            document.setContent(IOUtils.parseStream(new ByteArrayInputStream(s3FileContent), metadata));
+            document.setOrigin(origin);
             document.setSha1Hash(sha1Hash);
             copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
 
@@ -338,7 +337,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             }
 
             document.setOrigin(dbDocument.getOrigin());
-            document.setSha1Hash(IOUtils.getSha1Hash(inputStream));
+            document.setSha1Hash(IOUtils.getSha1Hash(IOUtils.fromInputStreamToByteArray(inputStream)));
             copyMetadataToDocument(metadata, document, dbDocument.getOrigin());
 
             enhance(document);
@@ -368,14 +367,14 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Override
    public void enhanceImages() {
       DocumentDTO document;
-      InputStream s3FileContent;
+      byte[] s3FileContent;
       String key = configuration.getS3EnhancerInput() + DocumentType.IMAGE.name().toLowerCase() + "s";
       List<DataObjectSummary> objectsForEnhancement = getDocumentsForEnhancement(s3Client.listObjects(configuration.getS3Bucket(), key));
       logger.info("enhanceImages - there are " + objectsForEnhancement.size() + " images to be enhanced");
       for (DataObjectSummary s3ObjectSummary : objectsForEnhancement) {
          document = new DocumentDTO();
          try {
-            s3FileContent = s3Client.getFile(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
+            s3FileContent = s3Client.getFileAsByteArray(s3ObjectSummary.getBucketName(), s3ObjectSummary.getKey());
             String origin = s3ObjectSummary.getBucketName() + ":" + s3ObjectSummary.getKey();
             String sha1Hash = IOUtils.getSha1Hash(s3FileContent);
 
@@ -385,14 +384,15 @@ public class EnhancerServiceImpl implements EnhancerService {
 
             document.setDocType(DocumentType.IMAGE.name());
             document.setTitle(getFileNameFromS3ObjectSummary(s3ObjectSummary));
-            document.setOrigin(configuration.getS3Bucket() + ":" + s3ObjectSummary.getKey());
+            document.setOrigin(origin);
 
             // The cached imaged metadata will be used for enhancement (if exists)
             document.setContent(documentService.readImageMetadata(document.getOrigin()));
 
             // The image metadata will be extracted and used for enhancement
             if (document.getContent() == null) {
-               document.setContent("The labels found for " + document.getTitle() + " are " + getImageMetadataAsString(s3FileContent));
+               document.setContent("The labels found for " + document.getTitle() + " are " +
+                     getImageMetadataAsString(new ByteArrayInputStream(s3FileContent)));
                document.setSha1Hash(sha1Hash);
             }
 
