@@ -4,10 +4,8 @@ import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.mock.CustomMockDocumentService;
 import au.gov.ga.hydroid.mock.CustomMockS3Client;
-import au.gov.ga.hydroid.service.DocumentService;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.HydroidException;
-import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,9 +67,9 @@ public class DownloadControllerTest {
          this.mockMvc.perform(
                MockMvcRequestBuilders.get("/download/rdfs/urn1")
                      .contentType(MediaType.APPLICATION_JSON)
-                     .accept(StanbolMediaTypes.RDFXML_STRING))
+                     .accept(MediaType.APPLICATION_OCTET_STREAM))
                .andExpect(status().isOk())
-               .andExpect(content().contentType(StanbolMediaTypes.RDFXML_STRING));
+               .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM));
       } catch (Exception e) {
          throw new HydroidException(e);
       }
