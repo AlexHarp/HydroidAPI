@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -54,17 +55,7 @@ public class MenuController {
                      childMenuItem.setNodeLabel(childResStmt.getString());
                      childMenuItem.setNodeURI(childResStmt.getSubject().getURI());
 
-                     if (childRes.hasProperty(SKOS.narrower)) {
-                         StmtIterator iterNarrower = childRes.listProperties(SKOS.narrower);
-
-                        while (iterNarrower.hasNext()) {
-                             Statement stmtNarrower = iterNarrower.nextStatement();
-
-                             for(MenuDTO item : GetChildMenus(model, stmtNarrower.getObject().toString())) {
-                                 childMenuItem.getChildren().add(item);
-                             }
-                         }
-                     }
+                     appendNarrowerChildren(model,childRes,childMenuItem);
                      menuItem.getChildren().add(childMenuItem);
                   }
                }
@@ -93,21 +84,25 @@ public class MenuController {
                broaderItem.setNodeURI(broaderURI);
                broaderItem.setNodeLabel(broaderStmt.getString());
 
-               if (broaderRes.hasProperty(SKOS.narrower)) {
-                   StmtIterator iterNarrower = broaderRes.listProperties(SKOS.narrower);
-
-                   while (iterNarrower.hasNext()) {
-                       Statement stmtNarrower = iterNarrower.nextStatement();
-
-                       for(MenuDTO item : GetChildMenus(model, stmtNarrower.getObject().toString())) {
-                           broaderItem.getChildren().add(item);
-                       }
-                   }
-               }
+              appendNarrowerChildren(model,broaderRes,broaderItem);
                items.add(broaderItem);
            }
        }
        return items;
+   }
+
+   private void appendNarrowerChildren(Model model, Resource broaderRes, MenuDTO broaderItem) {
+      if (broaderRes.hasProperty(SKOS.narrower)) {
+         StmtIterator iterNarrower = broaderRes.listProperties(SKOS.narrower);
+
+         while (iterNarrower.hasNext()) {
+            Statement stmtNarrower = iterNarrower.nextStatement();
+
+            for(MenuDTO item : GetChildMenus(model, stmtNarrower.getObject().toString())) {
+               broaderItem.getChildren().add(item);
+            }
+         }
+      }
    }
 
    @RequestMapping(value = "/hydroid", method = {RequestMethod.GET})

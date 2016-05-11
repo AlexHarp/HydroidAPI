@@ -64,14 +64,20 @@ public class MenuControllerTest {
          }
 
          Assert.assertSame(y, x);
+      } catch (Exception e) {
+         throw new HydroidException(e);
+      }
+   }
 
+   public void testHydroidMenuController() {
+      try {
+         String menuJson = IOUtils.toString(getClass().getResourceAsStream("/hydroid-menu.json"));
          this.mockMvc.perform(
                  MockMvcRequestBuilders.get("/menu/hydroid")
                          .contentType(MediaType.APPLICATION_JSON)
                          .accept(MediaType.APPLICATION_JSON))
-               .andExpect(status().isOk())
-               .andExpect(content().string(menuJson));
-
+                 .andExpect(status().isOk())
+                 .andExpect(content().string(menuJson));
       } catch (Exception e) {
          throw new HydroidException(e);
       }
