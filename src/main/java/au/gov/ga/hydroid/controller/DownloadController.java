@@ -4,21 +4,23 @@ import au.gov.ga.hydroid.HydroidConfiguration;
 import au.gov.ga.hydroid.model.Document;
 import au.gov.ga.hydroid.service.DocumentService;
 import au.gov.ga.hydroid.service.S3Client;
-import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.entity.ContentType;
+import org.apache.tika.Tika;
 import org.jboss.resteasy.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -42,44 +44,59 @@ public class DownloadController {
    @Autowired
    private DocumentService documentService;
 
-   private ResponseEntity<byte[]> donwloadSingle(String bucket, String key, MediaType mediaType) {
+   private MediaType getMediaType(byte[] content, MediaType fallBackMediaType) {
+      MediaType mediaType;
+      try {
+         mediaType = MediaType.valueOf(new Tika().detect(content));
+      } catch (Exception e) {
+         logger.debug("getMediaType - Exception: ", e);
+         mediaType = fallBackMediaType;
+      }
+      return mediaType;
+   }
+   
+   private HttpHeaders getHttpHeaders(MediaType mediaType, long length, String fileName) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(mediaType);
+      headers.setContentLength(length);
+      headers.setContentDispositionFormData("attachment", fileName);
+      return headers;
+   }
 
+   private ResponseEntity<byte[]> donwloadSingle(String bucket, String key, String fileName,
+                                                 MediaType fallBackMediaType) {
       try {
 
          byte[] fileContent = s3Client.getFileAsByteArray(bucket, key);
          if (fileContent == null) {
-            return new ResponseEntity<>(org.springframework.http.HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
          }
 
-         String fileName = key.substring(key.lastIndexOf("/") + 1);
-
-         HttpHeaders headers = new HttpHeaders();
-         headers.setContentType(org.springframework.http.MediaType.valueOf(mediaType.toString()));
-         headers.setContentLength(fileContent.length);
-         headers.setContentDispositionFormData("attachment", fileName);
-
-         return new ResponseEntity<>(fileContent, headers, org.springframework.http.HttpStatus.OK);
+         MediaType mediaType = getMediaType(fileContent, fallBackMediaType);
+         HttpHeaders headers = getHttpHeaders(mediaType, fileContent.length, fileName);
+         return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
 
       } catch (Exception e) {
          logger.error("downloadSingle - Exception: ", e);
-         return new ResponseEntity<>(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
+         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
    }
 
    @RequestMapping(value = "/rdfs/{urn}", method = {RequestMethod.GET})
    public @ResponseBody ResponseEntity<byte[]> downloadRDF(@PathVariable String urn) {
-      return donwloadSingle(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn,
-            StanbolMediaTypes.RDFXML);
+      return donwloadSingle(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutput() + urn, urn,
+            MediaType.APPLICATION_XML);
    }
 
    @RequestMapping(value = "/documents/{urn}", method = {RequestMethod.GET})
    public @ResponseBody ResponseEntity<byte[]> downloadDocument(@PathVariable String urn) {
       Document document = documentService.findByUrn(urn);
       if (document == null) {
-         return new ResponseEntity<>(org.springframework.http.HttpStatus.NOT_FOUND);
+         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
       }
       String[] bucketAndKey = document.getOrigin().split(":");
-      return donwloadSingle(bucketAndKey[0], bucketAndKey[1], MediaType.APPLICATION_OCTET_STREAM_TYPE);
+      String fileName = bucketAndKey[1].substring(bucketAndKey[1].lastIndexOf("/") + 1);
+      return donwloadSingle(bucketAndKey[0], bucketAndKey[1], fileName, MediaType.APPLICATION_OCTET_STREAM);
    }
 
    private int addFilesToBundle(String[] urnArray, ZipOutputStream zipOut) {
@@ -106,11 +123,10 @@ public class DownloadController {
    }
 
    @RequestMapping(value = "/bundle/{urnList}", method = {RequestMethod.GET})
-   public @ResponseBody String downloadBundle(@PathVariable String urnList, HttpServletResponse response) {
-
+   public @ResponseBody ResponseEntity<byte[]> downloadBundle(@PathVariable String urnList) {
       try {
          String[] urnArray = urnList.split(",");
-         String outputFileName = "rdfs-bundle-" + DateUtil.formatDate(new Date(), "yyyyMMdd") + ".zip";
+         String outputFileName = "rdfs-bundle-" + DateUtil.formatDate(new Date(), "yyyyMMddHHmm") + ".zip";
 
          // Generate full zip with all <urn>.rdf files
          File zipFile = File.createTempFile(outputFileName, null);
@@ -119,60 +135,35 @@ public class DownloadController {
          zipOut.close();
 
          if (filesAdded == 0) {
-            au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_OK);
-            return "No files were found or bundled for download.";
+            return new ResponseEntity<>("No files were found or bundled for download.".getBytes(),
+                  HttpStatus.OK);
          }
 
-         // Write full zip file to output stream
-         response.setHeader("Content-Disposition", "attachment; filename=\"" + outputFileName + "\"");
-         response.setContentLength((int) zipFile.length());
+         byte[] zipContent = IOUtils.toByteArray(new FileInputStream(zipFile));
+         HttpHeaders headers = getHttpHeaders(MediaType.APPLICATION_OCTET_STREAM, zipContent.length,
+               outputFileName);
 
-         FileInputStream zipIn = new FileInputStream(zipFile);
-         OutputStream out = response.getOutputStream();
-         zipIn.mark(0);
-         IOUtils.copyLarge(zipIn, out);
-         out.flush();
-         out.close();
-
-         zipIn.close();
-         zipFile.delete();
+         return new ResponseEntity<>(zipContent, headers, HttpStatus.OK);
 
       } catch (Exception e) {
          logger.error("downloadBundle - Exception: ", e);
-         au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
       }
-
-      return null;
    }
 
    @RequestMapping(value = "/images/{urn}", method = {RequestMethod.GET})
-   public @ResponseBody String downloadImage(@PathVariable String urn, HttpServletResponse response) {
-
-      try {
-
-         InputStream fileContent = s3Client.getFile(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn);
-         if (fileContent == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return null;
-         }
-
-         OutputStream out = response.getOutputStream();
-         fileContent.mark(0);
-         Long length = IOUtils.copyLarge(fileContent, out);
-
-         response.setHeader("Content-Disposition", "inline; filename=\"" + urn + "\"");
-         response.setContentLength(length.intValue());
-         response.setContentType(ContentType.APPLICATION_OCTET_STREAM.toString());
-
-         out.flush();
-         out.close();
-
-      } catch (Exception e) {
-         logger.error("downloadImage - Exception: ", e);
-         au.gov.ga.hydroid.utils.IOUtils.sendResponseError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+   public@ResponseBody ResponseEntity<byte[]> downloadImage(@PathVariable String urn) {
+      String urnNoThumb = urn;
+      if (urn.contains("_thumb")) {
+         urnNoThumb = urnNoThumb.replace("_thumb", "");
       }
-
-      return null;
+      Document document = documentService.findByUrn(urnNoThumb);
+      if (document == null) {
+         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      }
+      String fileName = document.getOrigin().substring(document.getOrigin().lastIndexOf("/") + 1);
+      return donwloadSingle(configuration.getS3OutputBucket(), configuration.getS3EnhancerOutputImages() + urn,
+            fileName, MediaType.APPLICATION_OCTET_STREAM);
    }
 
 }
