@@ -2,9 +2,12 @@ package au.gov.ga.hydroid.controller;
 
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.HydroidConfiguration;
+import au.gov.ga.hydroid.mock.CustomMockDocumentService;
 import au.gov.ga.hydroid.mock.CustomMockS3Client;
+import au.gov.ga.hydroid.service.DocumentService;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.utils.HydroidException;
+import au.gov.ga.hydroid.utils.StanbolMediaTypes;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +45,7 @@ public class DownloadControllerTest {
       downloadController = new DownloadController();
       ReflectionTestUtils.setField(downloadController, "s3Client", this.s3Client);
       ReflectionTestUtils.setField(downloadController, "configuration", this.configuration);
+      ReflectionTestUtils.setField(downloadController, "documentService", new CustomMockDocumentService());
       mockMvc = MockMvcBuilders.standaloneSetup(downloadController).build();
    }
 
@@ -59,14 +63,30 @@ public class DownloadControllerTest {
    }
 
    @Test
-   public void testDownloadOk() {
+   public void testDownloadRDF() {
       try {
          ReflectionTestUtils.setField(downloadController, "s3Client", new CustomMockS3Client());
          this.mockMvc.perform(
                MockMvcRequestBuilders.get("/download/rdfs/urn1")
                      .contentType(MediaType.APPLICATION_JSON)
-                     .accept(MediaType.APPLICATION_JSON))
-               .andExpect(status().isOk());
+                     .accept(StanbolMediaTypes.RDFXML_STRING))
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(StanbolMediaTypes.RDFXML_STRING));
+      } catch (Exception e) {
+         throw new HydroidException(e);
+      }
+   }
+
+   @Test
+   public void testDownloadDocument() {
+      try {
+         ReflectionTestUtils.setField(downloadController, "s3Client", new CustomMockS3Client());
+         this.mockMvc.perform(
+               MockMvcRequestBuilders.get("/download/documents/urn1")
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .accept(MediaType.APPLICATION_OCTET_STREAM))
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM));
       } catch (Exception e) {
          throw new HydroidException(e);
       }

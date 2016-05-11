@@ -11,6 +11,8 @@ public class StanbolMediaTypes {
    public static final MediaType RDFXML = new MediaType("application", "rdf+xml");
    public static final MediaType TURTLE = new MediaType("text", "turtle");
 
+   public static final String RDFXML_STRING = "application/rdf+xml";
+
    private StanbolMediaTypes() {
    }
 
