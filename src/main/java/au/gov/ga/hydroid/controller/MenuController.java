@@ -36,12 +36,15 @@ public class MenuController {
 
          while (resources.hasNext()) {
             final Resource parentRes = resources.nextResource();
+            if(!parentRes.getProperty(RDF.type).getObject().toString().equals(SKOS.ConceptScheme.toString()))
+               continue;
 
             if (parentRes.hasProperty(RDFS.label)) {
                Statement resStmt = parentRes.getProperty(RDFS.label);
                menuItem = new MenuDTO();
                menuItem.setNodeLabel(resStmt.getString());
                menuItem.setNodeURI(resStmt.getSubject().getURI());
+               menuItem.setNodeType(null);
                ResIterator childResources = model.listResourcesWithProperty(SKOS.topConceptOf);
 
                while (childResources.hasNext()) {
@@ -54,6 +57,7 @@ public class MenuController {
                      childMenuItem = new MenuDTO();
                      childMenuItem.setNodeLabel(childResStmt.getString());
                      childMenuItem.setNodeURI(childResStmt.getSubject().getURI());
+                     childMenuItem.setNodeType(SKOS.Concept.toString());
 
                      appendNarrowerChildren(model,childRes,childMenuItem);
                      menuItem.getChildren().add(childMenuItem);
@@ -83,6 +87,7 @@ public class MenuController {
                broaderItem = new MenuDTO();
                broaderItem.setNodeURI(broaderURI);
                broaderItem.setNodeLabel(broaderStmt.getString());
+               broaderItem.setNodeType(SKOS.Concept.toString());
 
               appendNarrowerChildren(model,broaderRes,broaderItem);
                items.add(broaderItem);

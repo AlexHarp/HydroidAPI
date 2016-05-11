@@ -18,3 +18,4 @@ src/test/resources/testfiles/hydroid-output
 google-vision.json
 
 local-application.properties
+src/main/resources/local.properties
