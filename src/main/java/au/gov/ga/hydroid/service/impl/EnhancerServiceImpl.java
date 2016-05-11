@@ -385,6 +385,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             document.setDocType(DocumentType.IMAGE.name());
             document.setTitle(getFileNameFromS3ObjectSummary(s3ObjectSummary));
             document.setOrigin(origin);
+            document.setSha1Hash(sha1Hash);
 
             // The cached imaged metadata will be used for enhancement (if exists)
             document.setContent(documentService.readImageMetadata(document.getOrigin()));
@@ -393,7 +394,6 @@ public class EnhancerServiceImpl implements EnhancerService {
             if (document.getContent() == null) {
                document.setContent("The labels found for " + document.getTitle() + " are " +
                      getImageMetadataAsString(new ByteArrayInputStream(s3FileContent)));
-               document.setSha1Hash(sha1Hash);
             }
 
             enhance(document);
