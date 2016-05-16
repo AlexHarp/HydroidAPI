@@ -8,9 +8,10 @@ import java.util.TreeSet;
  */
 public class MenuDTO implements Comparable {
 
-    private String nodeURI;
-    private String nodeLabel;
-    private SortedSet<MenuDTO> children;
+   private String nodeURI;
+   private String nodeLabel;
+   private SortedSet<MenuDTO> children;
+   private String nodeType;
 
    public String getNodeURI() {
       return nodeURI;
@@ -32,6 +33,14 @@ public class MenuDTO implements Comparable {
       return children;
    }
 
+   public String getNodeType() {
+      return nodeType;
+   }
+
+   public void setNodeType(String nodeType) {
+      this.nodeType = nodeType;
+   }
+
    public MenuDTO() {
       children = new TreeSet<>();
    }
@@ -42,5 +51,4 @@ public class MenuDTO implements Comparable {
       MenuDTO menuDTO = (MenuDTO) o;
       return getNodeLabel().compareTo(menuDTO.getNodeLabel());
    }
-
 }
