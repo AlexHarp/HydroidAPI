@@ -52,7 +52,7 @@ public class IOUtils {
       ParseContext context = new ParseContext();
       try {
          parser.parse(stream, handler, metadata, context);
-      } catch (Exception e) {
+      } catch (Throwable e) {
          throw new HydroidException(e);
       }
       return handler.toString();
