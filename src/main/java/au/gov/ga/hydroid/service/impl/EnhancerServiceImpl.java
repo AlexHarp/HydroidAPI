@@ -239,13 +239,11 @@ public class EnhancerServiceImpl implements EnhancerService {
       return output;
    }
 
-   private void copyMetadataToDocument(Metadata metadata, DocumentDTO document, String fallBackTitle) {
+   private void copyMetadataToDocument(Metadata metadata, DocumentDTO document) {
       if (metadata.get("title") != null) {
          document.setTitle(metadata.get("title"));
       } else if (metadata.get("dc:title") != null) {
          document.setTitle(metadata.get("dc:title"));
-      } else {
-         document.setTitle(fallBackTitle);
       }
       document.setAuthor(metadata.get("author") == null ? metadata.get("Author") : metadata.get("author"));
       document.setDateCreated(metadata.get("Creation-Date") == null ? null :
@@ -290,10 +288,11 @@ public class EnhancerServiceImpl implements EnhancerService {
             }
 
             metadata = new Metadata();
-            document.setContent(IOUtils.parseStream(new ByteArrayInputStream(s3FileContent), metadata));
+            document.setTitle(getFileNameFromS3ObjectSummary(object));
             document.setOrigin(origin);
             document.setSha1Hash(sha1Hash);
-            copyMetadataToDocument(metadata, document, getFileNameFromS3ObjectSummary(object));
+            document.setContent(IOUtils.parseStream(new ByteArrayInputStream(s3FileContent), metadata));
+            copyMetadataToDocument(metadata, document);
 
             enhance(document);
          } catch (Exception e) {
@@ -336,9 +335,10 @@ public class EnhancerServiceImpl implements EnhancerService {
                document.setContent(IOUtils.parseStream(inputStream, metadata));
             }
 
+            document.setTitle(dbDocument.getTitle());
             document.setOrigin(dbDocument.getOrigin());
             document.setSha1Hash(IOUtils.getSha1Hash(IOUtils.fromInputStreamToByteArray(inputStream)));
-            copyMetadataToDocument(metadata, document, dbDocument.getOrigin());
+            copyMetadataToDocument(metadata, document);
 
             enhance(document);
          } catch (Exception e) {
