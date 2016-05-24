@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,8 +26,6 @@ import java.util.List;
 public class S3ClientImpl implements S3Client {
 
    private static final Logger logger = LoggerFactory.getLogger(S3ClientImpl.class);
-
-
 
    @Autowired
    private HydroidConfiguration configuration;
@@ -75,12 +72,13 @@ public class S3ClientImpl implements S3Client {
 
    @Override
    public void storeFile(String bucketName, String key, String content, String contentType) {
-      ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
-      storeFile(bucketName,key,inputStream,contentType);
+      byte[] contentAsByteArray = content.getBytes();
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(contentAsByteArray);
+      storeFile(bucketName, key, inputStream, contentType, contentAsByteArray.length);
    }
 
    @Override
-   public void storeFile(String bucketName, String key, InputStream content, String contentType) {
+   public void storeFile(String bucketName, String key, InputStream content, String contentType, long contentLength) {
       AmazonS3 s3 = getAmazonS3();
 
       // If the bucket doesn't exist we create it
@@ -92,6 +90,7 @@ public class S3ClientImpl implements S3Client {
       if (contentType != null) {
          metadata.setContentType(contentType);
       }
+      metadata.setContentLength(contentLength);
 
       s3.putObject(bucketName, key, content, metadata);
    }
@@ -129,6 +128,12 @@ public class S3ClientImpl implements S3Client {
    public void copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey) {
       AmazonS3 s3 = getAmazonS3();
       s3.copyObject(sourceBucketName, sourceKey, destinationBucketName, destinationKey);
+   }
+
+   @Override
+   public ObjectMetadata getObjectMetadata(String bucketName, String key) {
+      AmazonS3 s3 = getAmazonS3();
+      return s3.getObjectMetadata(bucketName, key);
    }
 
 }

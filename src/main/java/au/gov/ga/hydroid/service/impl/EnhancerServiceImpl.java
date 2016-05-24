@@ -12,6 +12,7 @@ import au.gov.ga.hydroid.service.*;
 import au.gov.ga.hydroid.utils.HydroidException;
 import au.gov.ga.hydroid.utils.IOUtils;
 import au.gov.ga.hydroid.utils.StanbolMediaTypes;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.ContentType;
@@ -43,6 +44,7 @@ import java.util.Properties;
 public class EnhancerServiceImpl implements EnhancerService {
 
    private static final Logger logger = LoggerFactory.getLogger(EnhancerServiceImpl.class);
+   private static final long ENHANCE_MAX_FILE_SIZE = 52428800;
 
    @Autowired
    private HydroidConfiguration configuration;
@@ -73,8 +75,8 @@ public class EnhancerServiceImpl implements EnhancerService {
    @Autowired
    private HydroidSolrMapper hydroidSolrMapper;
 
-   private String getFileNameFromS3ObjectSummary(DataObjectSummary objectSummary) {
-      return objectSummary.getKey().substring(objectSummary.getKey().lastIndexOf("/") + 1);
+   private String getFileNameFromS3ObjectSummary(String key) {
+      return key.substring(key.lastIndexOf("/") + 1);
    }
 
    private String getImageThumb(BufferedImage image, String urn) {
@@ -82,12 +84,14 @@ public class EnhancerServiceImpl implements EnhancerService {
          BufferedImage resized = Scalr.resize(image, 200);
          ByteArrayOutputStream os = new ByteArrayOutputStream();
          ImageIO.write(resized,"png", os);
-         InputStream byteArrayInputStream = new ByteArrayInputStream(os.toByteArray());
+         byte[] imageAsByteArray = os.toByteArray();
+         InputStream byteArrayInputStream = new ByteArrayInputStream(imageAsByteArray);
          s3Client.storeFile(
                configuration.getS3OutputBucket(),
                configuration.getS3EnhancerOutputImages() + urn + "_thumb",
                byteArrayInputStream,
-               "image/png");
+               "image/png",
+               imageAsByteArray.length);
          return configuration.getS3OutputUrl() + "/images/" + urn + "_thumb";
       } catch (Exception e) {
          throw new HydroidException(e);
@@ -279,8 +283,18 @@ public class EnhancerServiceImpl implements EnhancerService {
       for (DataObjectSummary object : objects) {
          document = new DocumentDTO();
          try {
-            s3FileContent = s3Client.getFileAsByteArray(object.getBucketName(), object.getKey());
+
             String origin = object.getBucketName() + ":" + object.getKey();
+            document.setTitle(getFileNameFromS3ObjectSummary(object.getKey()));
+            document.setOrigin(origin);
+
+            ObjectMetadata objectMetadata = s3Client.getObjectMetadata(object.getBucketName(), object.getKey());
+            if (objectMetadata.getInstanceLength() > ENHANCE_MAX_FILE_SIZE) {
+               throw new HydroidException("Document exceeds the maximum file size (" +
+                     (ENHANCE_MAX_FILE_SIZE/1024/1024) + " MB)");
+            }
+
+            s3FileContent = s3Client.getFileAsByteArray(object.getBucketName(), object.getKey());
             String sha1Hash = IOUtils.getSha1Hash(s3FileContent);
 
             if (isDuplicate(origin, sha1Hash, documentType)) {
@@ -288,8 +302,6 @@ public class EnhancerServiceImpl implements EnhancerService {
             }
 
             metadata = new Metadata();
-            document.setTitle(getFileNameFromS3ObjectSummary(object));
-            document.setOrigin(origin);
             document.setSha1Hash(sha1Hash);
             document.setContent(IOUtils.parseStream(new ByteArrayInputStream(s3FileContent), metadata));
             copyMetadataToDocument(metadata, document);
@@ -383,7 +395,7 @@ public class EnhancerServiceImpl implements EnhancerService {
             }
 
             document.setDocType(DocumentType.IMAGE.name());
-            document.setTitle(getFileNameFromS3ObjectSummary(s3ObjectSummary));
+            document.setTitle(getFileNameFromS3ObjectSummary(s3ObjectSummary.getKey()));
             document.setOrigin(origin);
             document.setSha1Hash(sha1Hash);
 

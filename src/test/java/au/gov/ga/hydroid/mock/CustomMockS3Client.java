@@ -3,6 +3,7 @@ package au.gov.ga.hydroid.mock;
 import au.gov.ga.hydroid.service.DataObjectSummary;
 import au.gov.ga.hydroid.service.S3Client;
 import au.gov.ga.hydroid.service.impl.DataObjectSummaryImpl;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import java.io.ByteArrayInputStream;
@@ -36,7 +37,7 @@ public class CustomMockS3Client implements S3Client {
    }
 
    @Override
-   public void storeFile(String bucketName, String key, InputStream content, String contentType) {
+   public void storeFile(String bucketName, String key, InputStream content, String contentType, long contentLength) {
 
    }
 
@@ -58,6 +59,11 @@ public class CustomMockS3Client implements S3Client {
    @Override
    public void copyObject(String sourceBucketName, String sourceKey, String destinationBucketName, String destinationKey) {
 
+   }
+
+   @Override
+   public ObjectMetadata getObjectMetadata(String bucketName, String key) {
+      return null;
    }
 
 }

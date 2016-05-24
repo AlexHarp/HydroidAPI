@@ -3,6 +3,7 @@ package au.gov.ga.hydroid.service;
 import au.gov.ga.hydroid.service.impl.DataObjectSummaryImpl;
 import au.gov.ga.hydroid.service.impl.FileSystemClientImpl;
 import au.gov.ga.hydroid.utils.IOUtils;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class FileSystemClientImplTest {
    @Test
    public void testStoreFileFromStream() throws Exception {
       InputStream fileContent = new ByteArrayInputStream("Hello".getBytes());
-      fsClient.storeFile("test", "test.txt", fileContent, "text/plain");
+      fsClient.storeFile("test", "test.txt", fileContent, "text/plain", 5);
       InputStream is = fsClient.getFile("test", "test.txt");
       String result = IOUtils.parseStream(is);
       Assert.assertEquals("Hello", result.trim());
@@ -104,6 +105,15 @@ public class FileSystemClientImplTest {
       Assert.assertEquals("test", object.getBucketName());
       Assert.assertEquals("/foo/test.txt", object.getKey());
       Assert.assertNotNull(fsClient.getFile(object.getBucketName(), object.getKey()));
+   }
+
+   @Test
+   public void testGetObjectMetadata() throws Exception {
+      fsClient.storeFile("test", "test.txt", "Hello", "text/plain");
+      ObjectMetadata objectMetadata = fsClient.getObjectMetadata("test", "test.txt");
+      Assert.assertNotNull(objectMetadata);
+      Assert.assertEquals(5, objectMetadata.getContentLength());
+      Assert.assertEquals(5, objectMetadata.getInstanceLength());
    }
 
 }
