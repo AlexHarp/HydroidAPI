@@ -1,7 +1,9 @@
 package au.gov.ga.hydroid.service.impl;
 
+import au.gov.ga.hydroid.dto.FileMetadata;
 import au.gov.ga.hydroid.service.DataObjectSummary;
 import au.gov.ga.hydroid.service.S3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -101,7 +103,7 @@ public class FileSystemClientImpl implements S3Client {
    }
 
    @Override
-   public void storeFile(String bucketName, String key, InputStream content, String contentType) {
+   public void storeFile(String bucketName, String key, InputStream content, String contentType, long contentLength) {
       try {
          ensureDirectoriesExist(bucketName, key);
          Files.write(doGetFile(bucketName, key).toPath(), IOUtils.toByteArray(content));
@@ -145,6 +147,17 @@ public class FileSystemClientImpl implements S3Client {
       } catch (IOException e) {
          logger.debug("copyObject - IOException: ", e);
       }
+   }
+
+   @Override
+   public ObjectMetadata getObjectMetadata(String bucketName, String key) {
+      ObjectMetadata objectMetadata = new FileMetadata();
+      Path file = doGetFile(bucketName, key).toPath();
+      if (Files.exists(file)) {
+         long length = file.toFile().length();
+         objectMetadata.setContentLength(length);
+      }
+      return objectMetadata;
    }
 
 }

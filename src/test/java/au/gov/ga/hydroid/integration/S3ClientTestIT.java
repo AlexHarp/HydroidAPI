@@ -3,6 +3,7 @@ package au.gov.ga.hydroid.integration;
 import au.gov.ga.hydroid.HydroidApplication;
 import au.gov.ga.hydroid.service.DataObjectSummary;
 import au.gov.ga.hydroid.service.S3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.apache.http.entity.ContentType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -70,6 +71,14 @@ public class S3ClientTestIT {
             break;
          }
       }
+   }
+
+   @Test
+   public void testObjectMetadata() {
+      ObjectMetadata objectMetadata = s3Client.getObjectMetadata("hydroid", "enhancer/input/documents/Ecological_Informatics_6_205.pdf");
+      Assert.assertNotNull(objectMetadata);
+      Assert.assertEquals(1324326, objectMetadata.getContentLength());
+      Assert.assertEquals(1324326, objectMetadata.getInstanceLength());
    }
 
 }
