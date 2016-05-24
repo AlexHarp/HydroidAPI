@@ -112,8 +112,8 @@ public class FileSystemClientImplTest {
       fsClient.storeFile("test", "test.txt", "Hello", "text/plain");
       ObjectMetadata objectMetadata = fsClient.getObjectMetadata("test", "test.txt");
       Assert.assertNotNull(objectMetadata);
-      Assert.assertEquals(7, objectMetadata.getContentLength());
-      Assert.assertEquals(7, objectMetadata.getInstanceLength());
+      Assert.assertEquals(5, objectMetadata.getContentLength());
+      Assert.assertEquals(5, objectMetadata.getInstanceLength());
    }
 
 }

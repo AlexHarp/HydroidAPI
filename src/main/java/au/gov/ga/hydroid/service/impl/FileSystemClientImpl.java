@@ -13,12 +13,10 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service("s3FileSystem")
@@ -96,7 +94,7 @@ public class FileSystemClientImpl implements S3Client {
    public void storeFile(String bucketName, String key, String content, String contentType) {
       try {
          ensureDirectoriesExist(bucketName, key);
-         Files.write(doGetFile(bucketName, key).toPath(), Collections.singletonList(content), Charset.forName("UTF-8"));
+         Files.write(doGetFile(bucketName, key).toPath(), content.getBytes());
       } catch (IOException e) {
          logger.debug("storeFile - IOException: ", e);
       }
