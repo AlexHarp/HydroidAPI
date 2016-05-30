@@ -11,6 +11,9 @@ aws s3 cp s3://hydroid/releases/apache-jena-fuseki-2.3.1.zip /home/ec2-user/soft
 unzip apache-jena-fuseki-2.3.1.zip
 cd apache-jena-fuseki-2.3.1
 sudo cp fuseki.war /usr/share/tomcat8/webapps/fuseki.war
+sudo mkdir /etc/fuseki
+sudo chown -R :tomcat /etc/fuseki
+sudo chmod -R g+w /etc/fuseki
 
 # install solr
 cd /home/ec2-user/software
@@ -27,3 +30,8 @@ cd /home/ec2-user/software/solr-5.4.1
 sudo aws s3 cp s3://hydroid/stanbol/stanbol.war /usr/share/tomcat8/webapps/stanbol.war
 sudo service tomcat8 start
 
+sudo aws s3 cp s3://hydroid/releases/httpd.conf /etc/httpd/conf/httpd.conf
+sudo service httpd restart
+
+# Fuseki config
+sudo aws s3 cp s3://hydroid/releases/shiro.ini /etc/fuseki/shiro.ini
