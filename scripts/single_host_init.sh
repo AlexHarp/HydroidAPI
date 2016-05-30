@@ -25,7 +25,6 @@ unzip hydroid.zip
 cd /home/ec2-user/software/solr-5.4.1
 ./bin/solr restart
 
-
 # install stanbol
 sudo aws s3 cp s3://hydroid/stanbol/stanbol.war /usr/share/tomcat8/webapps/stanbol.war
 sudo service tomcat8 start
@@ -35,3 +34,5 @@ sudo service httpd restart
 
 # Fuseki config
 sudo aws s3 cp s3://hydroid/releases/shiro.ini /etc/fuseki/shiro.ini
+
+curl 'http://localhost:8080/fuseki/$/datasets' -H 'Pragma: no-cache' -H 'Accept-Encoding: gzip, deflate' -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'Accept: */*' --data 'dbName=hydroid&dbType=tdb' --compressed
