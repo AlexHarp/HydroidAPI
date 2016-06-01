@@ -1,17 +1,15 @@
 cd /var/tmp
 
 # update hydroid app
-sudo kill -9 $(cat /usr/share/tomcat8/hydroid/hydroid.pid)
+sudo mkdir -p /usr/share/tomcat8/hydroid
 sudo mv /var/tmp/google-vision.json /usr/share/tomcat8/hydroid/google-vision.json
 export GOOGLE_APPLICATION_CREDENTIALS=/usr/share/tomcat8/hydroid/google-vision.json
-sudo cp /var/tmp/hydroid.jar /usr/share/tomcat8/hydroid/.
-java -jar /usr/share/tomcat8/hydroid/hydroid.jar > /dev/null 2> /dev/null < /dev/null &
 
 # update tomcat-stanbol
 sudo service tomcat8 stop
 sudo rm -rf /usr/share/tomcat8/stanbol
-#sudo rm -rf /usr/share/tomcat8/webapps/hydroid
-#sudo cp /var/tmp/hydroid.war /usr/share/tomcat8/webapps/.
+sudo rm -rf /usr/share/tomcat8/webapps/hydroid
+sudo cp /var/tmp/hydroid.war /usr/share/tomcat8/webapps/hydroid.war
 sudo service tomcat8 start
 response=$(curl --output /dev/null --silent --fail -w %{http_code} http://localhost:8080/stanbol/enhancer/chain)
 while [[ "${response}" != "200" ]]
