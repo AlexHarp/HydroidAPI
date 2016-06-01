@@ -2,9 +2,9 @@ cd /var/tmp
 
 # update hydroid app
 sudo kill -9 $(cat /usr/share/tomcat8/hydroid/hydroid.pid)
-mv /var/tmp/google-vision.json /usr/share/tomcat8/hydroid/google-vision.json
+sudo mv /var/tmp/google-vision.json /usr/share/tomcat8/hydroid/google-vision.json
 export GOOGLE_APPLICATION_CREDENTIALS=/usr/share/tomcat8/hydroid/google-vision.json
-cp /var/tmp/hydroid.jar /usr/share/tomcat8/hydroid/.
+sudo cp /var/tmp/hydroid.jar /usr/share/tomcat8/hydroid/.
 java -jar /usr/share/tomcat8/hydroid/hydroid.jar > /dev/null 2> /dev/null < /dev/null &
 
 # update tomcat-stanbol
@@ -41,4 +41,3 @@ cd /usr/share/tomcat8
 sudo cp -R /home/ec2-user/.aws/ .
 sudo chown -R tomcat:tomcat .aws/
 
-cfn-init
