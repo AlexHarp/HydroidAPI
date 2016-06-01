@@ -3,6 +3,14 @@ sudo yum install -y java-1.8.0-openjdk.x86_64
 sudo yum install -y tomcat8
 sudo update-alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
 
+yum -y update
+yum install -y ruby
+yum install -y aws-cli
+cd /home/ec2-user
+aws s3 cp s3://aws-codedeploy-ap-southeast-2/latest/install . --region ap-southeast-2
+chmod +x ./install
+./install auto
+
 # install jena
 cd /home/ec2-user
 mkdir software
