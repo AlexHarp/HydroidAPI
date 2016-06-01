@@ -40,3 +40,5 @@ printf 'Lock Stanbol system console...'
 cd /usr/share/tomcat8
 sudo cp -R /home/ec2-user/.aws/ .
 sudo chown -R tomcat:tomcat .aws/
+
+cfn-init
