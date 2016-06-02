@@ -29,7 +29,7 @@ import java.net.Proxy;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 
-@Service
+@Service("googleVisionImageService")
 public class GoogleVisionImageService implements ImageService {
 
    private Logger logger = LoggerFactory.getLogger(getClass());
