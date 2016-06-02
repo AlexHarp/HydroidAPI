@@ -6,8 +6,6 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.system.ApplicationPidFileWriter;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.core.io.DefaultResourceLoader;
 
 import java.io.InputStream;
@@ -17,15 +15,10 @@ import java.util.Properties;
  * Created by u24529 on 3/02/2016.
  */
 @SpringBootApplication
-public class HydroidApplication extends SpringBootServletInitializer {
+public class HydroidApplication {
 
    private static Logger logger = LoggerFactory.getLogger(HydroidApplication.class);
    private static Properties applicationProperties = new Properties();
-
-   @Override
-   protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-      return application.sources(HydroidApplication.class);
-   }
 
    private static String getConfigFilePath(String[] args) {
       // Default application.properties
