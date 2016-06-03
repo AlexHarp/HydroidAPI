@@ -1,4 +1,6 @@
-CREATE SCHEMA IF NOT EXISTS hydroid AUTHORIZATION hydroid;
+CREATE SCHEMA IF NOT EXISTS hydroid;
+
+GRANT ALL PRIVILEGES ON SCHEMA hydroid TO hydroid;
 
 CREATE TABLE hydroid.documents (
     id bigserial PRIMARY KEY,
