@@ -3,6 +3,11 @@ sudo yum install -y java-1.8.0-openjdk.x86_64
 sudo yum install -y tomcat8
 sudo update-alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
 
+# create folder for hydroid.jar
+sudo mkdir /usr/share/tomcat8/hydroid
+sudo chown tomcat:tomcat /usr/share/tomcat8/hydroid
+sudo chmod 775 /usr/share/tomcat8/hydroid
+
 yum -y update
 yum install -y ruby
 yum install -y aws-cli
