@@ -1,4 +1,4 @@
-cp target/hydroid.war staging/
+cp target/hydroid.jar staging/
 cp google-vision.json staging/
 # init indexing tool
 java -jar -Xmx1g -XX:MaxPermSize=256M tools/org.apache.stanbol.entityhub.indexing.genericrdf-0.12.1-SNAPSHOT.jar init
