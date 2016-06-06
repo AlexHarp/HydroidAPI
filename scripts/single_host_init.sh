@@ -16,9 +16,12 @@ aws s3 cp s3://aws-codedeploy-ap-southeast-2/latest/install . --region ap-southe
 chmod +x ./install
 ./install auto
 
+# See S3 for full script.
+
 # install jena
 cd /home/ec2-user
 mkdir software
+mkdir /usr/share/tomcat8/hydroid
 cd software
 aws s3 cp s3://hydroid/releases/apache-jena-fuseki-2.3.1.zip /home/ec2-user/software/apache-jena-fuseki-2.3.1.zip
 unzip apache-jena-fuseki-2.3.1.zip
@@ -32,9 +35,11 @@ sudo chmod -R g+w /etc/fuseki
 cd /home/ec2-user/software
 aws s3 cp s3://hydroid/releases/solr-5.4.1.zip /home/ec2-user/software/solr-5.4.1.zip
 unzip solr-5.4.1.zip
-aws s3 cp s3://hydroid/solr-cores/hydroid.zip /home/ec2-user/software/solr-5.4.1/server/solr/hydroid.zip
+cd /home/ec2-user/software/solr-5.4.1
+./bin/solr restart
+sudo aws s3 cp s3://hydroid/solr-cores/hydroid.zip /home/ec2-user/software/solr-5.4.1/server/solr/hydroid.zip
 cd /home/ec2-user/software/solr-5.4.1/server/solr
-unzip hydroid.zip
+sudo unzip hydroid.zip
 cd /home/ec2-user/software/solr-5.4.1
 ./bin/solr restart
 
