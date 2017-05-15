@@ -19,3 +19,5 @@ google-vision.json
 
 local-application.properties
 src/main/resources/local.properties
+
+tools/org.apache.stanbol.entityhub.indexing.genericrdf-0.12.1-SNAPSHOT.jar
